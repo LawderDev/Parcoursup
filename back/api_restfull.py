@@ -15,7 +15,7 @@ CORS(app, resources={r"/api/*": {"origins": "*"}})
 def get_hello_world():
     print('enter')
     # Il faut utiliser os.path.join pour que ce soit multiplateforme
-    db = os.path.join(os.getcwd(), 'back', 'parcoursup.sqlite') 
+    db = os.path.join(os.getcwd(), 'back', 'db', 'parcoursup.sqlite') 
     print(db)
     if os.path.exists(db):
         print('enter2')

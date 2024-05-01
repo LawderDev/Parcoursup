@@ -3,6 +3,7 @@
 Look at the [Nuxt 3 documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.
 
 ## Setup
+Make sure that you are in the front folder.
 
 Make sure to install the dependencies:
 
@@ -75,7 +76,13 @@ bun run preview
 Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
 
 # Server REST API
+
+If you want to install all necessary modules
 ```bash
-# python3
+pip install -r back/requirements.txt
+```
+
+Lauch the api
+```bash
 python3 back/api_restfull.py
 ```
