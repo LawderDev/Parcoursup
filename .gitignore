@@ -28,4 +28,5 @@ __pycache__
 __venv__
 .venv
 
-package.lock.json
+package-lock.json
+front/pnpm-lock.yaml
