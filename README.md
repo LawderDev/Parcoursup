@@ -76,13 +76,14 @@ bun run preview
 Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
 
 # Server REST API
+Make sure that you are in the back folder.
 
 If you want to install all necessary modules
 ```bash
-pip install -r back/requirements.txt
+pip install -r requirements.txt
 ```
 
 Lauch the api
 ```bash
-python3 back/api_restfull.py
+python3 api_restfull.py
 ```
