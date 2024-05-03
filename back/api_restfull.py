@@ -15,10 +15,9 @@ CORS(app, resources={r"/api/*": {"origins": "*"}})
 def get_hello_world():
     print('enter')
     # Il faut utiliser os.path.join pour que ce soit multiplateforme
-    db = os.path.join(os.getcwd(), 'back', 'db', 'parcoursup.sqlite') 
+    db = os.path.join(os.getcwd(), 'db', 'parcoursup.sqlite') 
     print(db)
     if os.path.exists(db):
-        print('enter2')
         conn = sqlite3.connect(db)
         cursor = conn.cursor()
 
