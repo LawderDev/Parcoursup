@@ -1,6 +1,6 @@
 <template>
     <div class="card w-fit bg-base-100 shadow-xl">
-        <div class="card-body">
+        <div class="card-body w-fit">
            <slot></slot>
         </div>
     </div>
