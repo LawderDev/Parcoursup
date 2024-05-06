@@ -1,14 +1,12 @@
 <template>
   <div>
-  <h1 class="text-3xl font-bold w-[100vw] h-[100vh] flex items-center justify-center">{{ state.helloWorld }}</h1>
-  <Modal></Modal>
-</div>
+   < <h1 class="text-3xl font-bold w-[100vw] h-[100vh] flex items-center justify-center">{{ state.helloWorld }}</h1>>
+  </div>
 </template>
 
 <script setup>
 import axios from "axios";
 import { reactive } from "vue";
-import navBar from "~/components/nav-bar.vue";
 
 // Petite subtilité , c'est mieux de faire ça que ref,
 // ça évite de créer une variable à chaque fois
