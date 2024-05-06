@@ -7,7 +7,6 @@
 <script setup>
 import axios from "axios";
 import { reactive } from "vue";
-import navBar from "~/components/nav-bar.vue";
 
 // Petite subtilité , c'est mieux de faire ça que ref,
 // ça évite de créer une variable à chaque fois
