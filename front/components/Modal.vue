@@ -1,14 +1,15 @@
 <template>
   <div>
-    <button class="btn" @click="dialog.showModal()">open modal</button>
-    <dialog ref="dialog" class="modal">
-      <div class="modal-box">
-        <slot></slot>
-        <div class="modal-action">
-          <form method="dialog">
-            <button class="btn m-5">Valider</button>
-            <button class="btn">Annuler</button>
-          </form>
+    <div @click="dialog.showModal">
+      <slot name="open-btn"></slot>
+    </div>
+  
+    <dialog ref="dialog" class="modal "> 
+      <div class="modal-box w-[100vw] h-[100vh] max-h-[100vh] rounded-none md:w-[50%] md: h-[90%] md:rounded-xl md:drop-shadow-md">
+        
+        <div class="modal-action justify-center mt-0">
+          <slot name="form"></slot>
+          
         </div>
       </div>
     </dialog>
@@ -19,5 +20,6 @@
 import { ref } from 'vue'
 
 const dialog = ref(null)
+
 
 </script>

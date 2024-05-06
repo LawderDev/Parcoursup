@@ -15,7 +15,6 @@ const today = new Date();
 
 watch(state.date, (newVal) => {
   if (newVal && newVal < today) {
-    // Reset to today's date if selected date is before today
     state.date = today;
   }
 }, { immediate: true }); // Validate on initial render
