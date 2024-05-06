@@ -1,7 +1,7 @@
 <template>
   <div>
     <div
-      class="flex justify-between navbar-center bg-base-100 shadow-lg rounded-badge m-4 p-5 px-8"
+      class="flex justify-between items-center navbar-center bg-base-100 shadow-lg rounded-badge m-4 p-5 px-8"
     >
       <div>
         <div class="avatar">
@@ -16,15 +16,36 @@
       <div>
         <h1 class="text-xl md:block">Nom du site</h1>
       </div>
-      <div class="place-self-end">
-        <div class="w-9">
-          <profil :nom=props.nom />
+      <div class="dropdown dropdown-end">
+        <div tabindex="0" role="button" class="btn btn-ghost btn-circle">
+          <div class="avatar placeholder">
+            <div class="bg-primary text-neutral-content rounded-full w-12">
+              <span v-if="lettre" class="text-xl uppercase">{{ lettre }}</span>
+            </div>
+          </div>
         </div>
+        <ul
+          tabindex="0"
+          class="shadow menu menu-sm dropdown-content bg-base-100 rounded-box w-40"
+        >
+          <li class="flex  pl-1">
+            <div>
+              <img src="../public/settings.svg" class="w-5 " />
+              <a >Profil</a>
+            </div>
+          </li>
+          <li class="flex  pl-1">
+            <div>
+              <img src="../public/logout.svg" class="w-5 place-self-start"/>
+              <a>Deconnexion</a>
+            </div>
+           </li>
+        </ul>
       </div>
     </div>
   </div>
 </template>
 <script setup>
-import profil from "./Profil.vue"
-const props = defineProps(['nom'])
+const props = defineProps(["nom"]);
+const lettre = computed(() => props.nom.charAt(0));
 </script>
