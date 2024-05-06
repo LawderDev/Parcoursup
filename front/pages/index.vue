@@ -1,16 +1,25 @@
 <template>
   <div>
+    <NavBar></NavBar>
+    <div class="flex justify-end mr-10">
       <ButtonPrimary>Ajouter un projet</ButtonPrimary>
-      <ButtonSecondary>Ajouter un projet</ButtonSecondary>
-      <ImageButton :img="imageSrc">Ajouter un projet</ImageButton>
+    </div>
+    <div class="mt-6">
+      <SessionItem title = "Projet TIC 2024" endDate = "Fin de 12/05/2024"></SessionItem>
+      <SessionItem title = "Projet TIC 2023" endDate = "Fin de 12/05/2024"></SessionItem>
+      <SessionItem title = "Projet TIC 2022" endDate = "Fin de 12/05/2024"></SessionItem>
+      <SessionItem title = "Projet TIC 2021" endDate = "Fin de 12/05/2024"></SessionItem>
+      <SessionItem title = "Projet TIC 2020" endDate = "Fin de 12/05/2024"></SessionItem>
+    </div>
+    <div class="flex justify-center">
+      <ButtonPlus class="md:hidden neumorphism"></ButtonPlus>
+    </div>
   </div>
-</template>
+</template> 
 
 <script setup>
 import axios from "axios";
 import { reactive } from "vue";
-import imageSrc from '@/assets/images/rankingIcon.svg';
-
 // Petite subtilité , c'est mieux de faire ça que ref,
 // ça évite de créer une variable à chaque fois
 // quand les gens débutent ils utilisent toujours ref
