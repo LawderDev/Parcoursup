@@ -1,5 +1,5 @@
 <template>
-  <button class="btn btn-xs sm:btn-sm md:btn-md lg:btn-lg btn-primary rounded-full">{{title}}</button>
+  <button class="btn btn-sm md:btn-md btn-primary rounded-full">{{title}}</button>
 </template>
 
 <script setup>
