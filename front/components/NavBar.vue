@@ -26,20 +26,20 @@
         </div>
         <ul
           tabindex="0"
-          class="shadow menu menu-sm dropdown-content bg-base-100 rounded-box w-40"
+          class="shadow menu menu-sm dropdown-content bg-base-100 rounded-box w-40 md:w-60"
         >
-          <li class="flex  pl-1">
-            <div>
-              <img src="../public/settings.svg" class="w-5 " />
-              <a >Profil</a>
+          <li class="pl-1">
+            <div class="flex items-center">
+              <img src="../public/settings.svg" class="w-5" />
+              <a  class="md:text-lg">Profil</a>
             </div>
           </li>
-          <li class="flex  pl-1">
-            <div>
-              <img src="../public/logout.svg" class="w-5 place-self-start"/>
-              <a>Deconnexion</a>
+          <li class="pl-1">
+            <div class="flex items-center">
+              <img src="../public/logout.svg" class="w-5" />
+              <a class="md:text-lg">Deconnexion</a>
             </div>
-           </li>
+          </li>
         </ul>
       </div>
     </div>
