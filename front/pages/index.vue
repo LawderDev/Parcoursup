@@ -8,16 +8,17 @@
 <script setup>
 import axios from "axios";
 import { reactive } from "vue";
+import navBar from "~/components/nav-bar.vue";
 
 // Petite subtilité , c'est mieux de faire ça que ref,
 // ça évite de créer une variable à chaque fois
-// quand les gens débutent ils utilisent toujours ref 
+// quand les gens débutent ils utilisent toujours ref
 // mais en réalité ref est plus utilisé pour autre chose :D
 
 // Tout ce qui sera dans l'objet state du coup sera reactif !
 const state = reactive({
   helloWorld: "",
-})
+});
 
 const fetchHelloWorld = async () => {
   try {
