@@ -1,6 +1,6 @@
 <template>
   <div>
-    <navBar />
+    <navBar :nom="'hello'"/>
   <h1 class="text-3xl font-bold w-[100vw] h-[100vh] flex items-center justify-center">{{ state.helloWorld }}</h1>
 
   <Modal></Modal>
