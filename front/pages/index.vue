@@ -1,12 +1,15 @@
 <template>
   <div>
-      <ButtonPrimary title="Ajouter un projet"></ButtonPrimary>
+      <ButtonPrimary>Ajouter un projet</ButtonPrimary>
+      <ButtonSecondary>Ajouter un projet</ButtonSecondary>
+      <ImageButton :img="imageSrc">Ajouter un projet</ImageButton>
   </div>
 </template>
 
 <script setup>
 import axios from "axios";
 import { reactive } from "vue";
+import imageSrc from '@/assets/images/rankingIcon.svg';
 
 // Petite subtilité , c'est mieux de faire ça que ref,
 // ça évite de créer une variable à chaque fois
