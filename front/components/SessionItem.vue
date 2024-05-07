@@ -1,6 +1,6 @@
 <template>
   <div class="ml-6 mr-6">
-    <button
+    <div
       class="btn btn-block h-20 flex justify-start rounded-3xl bg-base-100 border-0 shadow-transparent"
     >
       <ImagePlaceHolder>{{ title[0] }}</ImagePlaceHolder>
@@ -18,11 +18,9 @@
         </div>
       </div>
       <div class="ml-auto">
-        <div class="btn btn-square">
-            <img alt="delete-svg" src="../public/delete.svg" class="h-6 w-6" />
-        </div>
+        <ModalDeleteSession></ModalDeleteSession>
       </div>
-    </button>
+    </div>
   </div>
 </template>
 

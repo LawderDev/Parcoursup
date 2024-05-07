@@ -1,8 +1,8 @@
 <template>
-    <button class="btn btn-md btn-secondary rounded-full text-primary neumorphism">
+    <div class="btn btn-md btn-secondary rounded-full text-primary neumorphism">
       <img alt="image-button" :src="src" class="h-6 w-6" />
       <slot></slot>
-    </button>
+    </div>
 </template>
 
 <script setup>
