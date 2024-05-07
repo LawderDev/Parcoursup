@@ -23,15 +23,10 @@ def get_hello_world():
         cursor = conn.cursor()
 
         try:
-            # Retrieve data from SQLite database
-          
             cursor.execute("SELECT * FROM Hello")
- 
             hello = cursor.fetchone()
-
             conn.close()
 
-            # Convert data to JSON format
             return jsonify(hello[0])
 
         except sqlite3.Error as e:
@@ -126,12 +121,54 @@ def create_group():
             conn.close()
 
             # Convert data to JSON format
-            return jsonify({'result': "done"}), 200
+            return jsonify({'result': res}), 200
 
         except sqlite3.Error as e:
             return jsonify({'error': str(e)}), 500   
     else:
         return jsonify({'error': "nul"}), 50
+
+@app.route('/api/create_group', methods=['POST'])
+def create_students(csv_json):
+    """
+    Args:
+        csv_json (dict): json file of all the students.
+
+    Add all the students data from the csv file.
+    Called right after the csv file of student is read.
+    :return:
+    """
+    print('Enter create students function')
+
+    # Retrieve parameters from the request body
+    sessionID = request.json.get('sessionID')  # assuming the parameters are sent in JSON format
+
+    db = os.path.join(os.getcwd(), 'db', 'parcoursup.sqlite')
+    if os.path.exists(db):
+        conn = sqlite3.connect(db)
+        cursor = conn.cursor()
+
+        try:
+            # Update ETUDIANT table with the group ID for this SESSION
+            queryParameters = [(data['id'], data['Nom'], data['Prenom'], data['Email'], sessionID) for data in csv_json]
+
+            # Create the group in the table GROUPE and return the ID
+            sqlRequest = cursor.executemany("INSERT INTO ETUDIANT VALUES (?, ?, ?, ?, ?, NULL) RETURNING ID", queryParameters)
+
+            res = sqlRequest.fetchone()
+
+            # Commit the insertions
+            conn.commit()
+            conn.close()
+
+            # Convert data to JSON format
+            return jsonify({'result': res}), 200
+
+        except sqlite3.Error as e:
+            return jsonify({'error': str(e)}), 500
+    else:
+        return jsonify({'error': "nul"}), 50
+
 
 if __name__ == '__main__':
     app.run(debug=True)
