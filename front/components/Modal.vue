@@ -1,13 +1,24 @@
 <template>
   <div>
-    <button class="btn" @click="dialog.showModal()">open modal</button>
+    <div @click="dialog.showModal">
+      <slot name="open-btn"></slot>
+    </div>
+
     <dialog ref="dialog" class="modal">
-      <div class="modal-box">
-        <slot></slot>
-        <div class="modal-action">
+      <div
+        class="modal-box w-[100vw] h-[100vh] max-h-[100vh] rounded-none md:w-[50%] md:h-auto md:rounded-xl md:drop-shadow-md"
+      >
+        <slot name="form"></slot>
+        <div class="modal-action justify-center mt-0">
           <form method="dialog">
-            <button class="btn m-5">Valider</button>
-            <button class="btn">Annuler</button>
+            <button
+              class="btn btn-sm btn-circle btn-ghost absolute left-2 top-2"
+            >
+              ✕
+            </button>
+            <div class="flex justify-center mt-5">
+              <ButtonPrimary @click="$emit('handleSubmit')" title="Valider"></ButtonPrimary>
+            </div>
           </form>
         </div>
       </div>
@@ -16,8 +27,9 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref } from "vue";
 
-const dialog = ref(null)
+const dialog = ref(null);
 
+defineEmits(["handleSubmit"])
 </script>
