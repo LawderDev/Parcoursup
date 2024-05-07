@@ -5,11 +5,11 @@
       <ButtonPrimary>Ajouter un projet</ButtonPrimary>
     </div>
     <div class="mt-6">
-      <SessionItem title = "Projet TIC 2024" endDate = "Fin de 12/05/2024"></SessionItem>
-      <SessionItem title = "Projet TIC 2023" endDate = "Fin de 12/05/2024"></SessionItem>
-      <SessionItem title = "Projet TIC 2022" endDate = "Fin de 12/05/2024"></SessionItem>
-      <SessionItem title = "Projet TIC 2021" endDate = "Fin de 12/05/2024"></SessionItem>
-      <SessionItem title = "Projet TIC 2020" endDate = "Fin de 12/05/2024"></SessionItem>
+      <SessionItem title="Projet TIC 2024" endDate="Fin de 12/05/2024"></SessionItem>
+      <SessionItem title="Projet TIC 2023" endDate="Fin de 12/05/2024"></SessionItem>
+      <SessionItem title="Projet TIC 2022" endDate="Fin de 12/05/2024"></SessionItem>
+      <SessionItem title="Projet TIC 2021" endDate="Fin de 12/05/2024"></SessionItem>
+      <SessionItem title="Projet TIC 2020" endDate="Fin de 12/05/2024"></SessionItem>
     </div>
     <div class="flex justify-center">
       <ButtonPlus class="md:hidden neumorphism"></ButtonPlus>
@@ -26,7 +26,7 @@ import { reactive } from "vue";
 // mais en réalité ref est plus utilisé pour autre chose :D
 
 // Tout ce qui sera dans l'objet state du coup sera reactif !
-const state = reactive({
+/*const state = reactive({
   helloWorld: "",
 });
 
@@ -39,5 +39,5 @@ const fetchHelloWorld = async () => {
   }
 };
 
-fetchHelloWorld();
+fetchHelloWorld();*/
 </script>
