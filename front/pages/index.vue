@@ -5,7 +5,7 @@
     >
       {{ state.helloWorld }}
     </h1>
-    <Modal>
+    <Modal @handle-submit="handleSubmit">
       <template v-slot:open-btn>
         <ButtonPrimary title="Créer une session"></ButtonPrimary>
       </template>
@@ -64,17 +64,6 @@
                   />
                 </div>
               </div>
-              <div class="flex justify-center mt-5">
-                <ButtonPrimary
-                  @click="handleSubmit"
-                  title="Valider"
-                ></ButtonPrimary>
-              </div>
-              <button
-                class="btn btn-sm btn-circle btn-ghost absolute left-2 top-2"
-              >
-                ✕
-              </button>
             </form>
           </div>
         </div>
@@ -101,6 +90,7 @@ const state = reactive({
   endDateSession: "",
   maxValue: "",
   minValue: "",
+  fileContent: "",
 });
 
 const fetchHelloWorld = async () => {
@@ -115,14 +105,14 @@ const fetchHelloWorld = async () => {
 fetchHelloWorld();
 
 const handleFileInput = (event) => {
-  const files = event.target.files;
-  console.log(files);
-  // Now you can do something with the selected files
-  // For example, you can access the first file's name like this:
-  if (files.length > 0) {
-    state.fileName = files[0].name;
-  } else {
-    state.fileName = ""; // No file selected
+  const file = event.target.files[0];
+  if (file) {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      state.fileContent = e.target.result
+    };
+
+    reader.readAsText(file);
   }
 };
 
@@ -144,6 +134,21 @@ const handleMinMaxChange = (inputType, event) => {
 };
 
 const handleSubmit = () => {
-  
+  const formData = {
+    sessionName: state.sessionName,
+    endDateGroup: state.endDateGroup,
+    endDateSession: state.endDateSession,
+    fileContent: state.fileContent,
+    minValue: state.minValue,
+    maxValue: state.maxValue,
+  };
+
+  console.log(formData);
+
+  // Convert form data to JSON
+  const jsonData = JSON.stringify(formData);
+
+  // FAIRE LA REQUETE POST A ENVOYER VERS LE BACK
+  // REFRESH LA PAGE POUR QU'ELLE S'AFFICHE DE NOUVEAU DANS LA LISTE
 };
 </script>
