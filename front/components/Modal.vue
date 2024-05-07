@@ -5,7 +5,7 @@
     </div>
   
     <dialog ref="dialog" class="modal "> 
-      <div class="modal-box w-[100vw] h-[100vh] max-h-[100vh] rounded-none md:w-[50%] md: h-[90%] md:rounded-xl md:drop-shadow-md">
+      <div class="modal-box w-[100vw] h-[100vh] max-h-[100vh] rounded-none md:w-[50%] md:h-[90%] md:rounded-xl md:drop-shadow-md">
         
         <div class="modal-action justify-center mt-0">
           <slot name="form"></slot>
