@@ -38,6 +38,40 @@ def get_hello_world():
         
     else:
         return jsonify({'error': "nul"}), 50
+    
+@app.route('/api/create_group', methods=['GET'])
+def create_group():
+    print('Enter create group function')
+    # Il faut utiliser os.path.join pour que ce soit multiplateforme
+    db = os.path.join(os.getcwd(), 'db', 'parcoursup.sqlite') 
+    if os.path.exists(db):
+        conn = sqlite3.connect(db)
+        cursor = conn.cursor()
+
+        try:
+            # Create the group in the table GROUPE and return the ID
+            request = cursor.execute("INSERT INTO GROUPE VALUES (NULL, NULL, NULL, NULL) RETURNING ID")
+            res = request.fetchone()
+            
+            # Update ETUDIANT table with the group ID for this SESSION
+            rows = [
+                ("TEMP",),
+                ("TEST",),
+            ]
+            request = cursor.executemany("UPDATE ETUDIANT SET FK_Groupe = 25 WHERE Email = ? and FK_Session = 1", rows)
+            res = request.fetchall()
+            
+            # Commit the insertions
+            conn.commit()
+            conn.close()
+
+            # Convert data to JSON format
+            return jsonify(res)
+
+        except sqlite3.Error as e:
+            return jsonify({'error': str(e)}), 500   
+    else:
+        return jsonify({'error': "nul"}), 50
 
 
 if __name__ == '__main__':
