@@ -147,7 +147,7 @@ Method that create a session, take in parameter a name,
 the group and project deadline, and the fk user creator
 Example of data and post request to call in the front : 
     const data = {
-       "session":["TestProjetTIC","14/05/2024", "25/05/2024", 1]
+       "session":["TestProjetTIC","14/05/2024", "25/05/2024", 5, 6 1]
      };
      const jsonData = JSON.stringify(data);
 
@@ -168,10 +168,12 @@ Returns:
             sessionName = session[0]
             sessionDeadlineGroup = session[1]
             sessionDeadlineProjet = session[2]
-            sessionFKUtilisateur = session[3]
-            sessionData = [sessionName, sessionDeadlineGroup, sessionDeadlineProjet, sessionFKUtilisateur]
+            sessionNbEtudiantMin = session[3]
+            sessionNbEtudiantMax = session[4]
+            sessionFKUtilisateur = session[5]
+            sessionData = [sessionName, sessionDeadlineGroup, sessionDeadlineProjet, sessionNbEtudiantMin, sessionNbEtudiantMax, sessionFKUtilisateur]
              
-            sqlRequest = cursor.execute("INSERT INTO SESSION VALUES (NULL, ?, ?, ?, ?) RETURNING ID", sessionData)
+            sqlRequest = cursor.execute("INSERT INTO SESSION VALUES (NULL, ?, ?, ?, ?, ?, ?) RETURNING ID", sessionData)
             sessionID = sqlRequest.fetchone()
 
             # Commit the insertions
