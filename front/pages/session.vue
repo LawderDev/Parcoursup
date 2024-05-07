@@ -3,11 +3,7 @@
     <NavBar :nom="'fdsf'" />
     <form class="m-8 mx-10">
       <h1 class="text-3xl my-8 font-bold">Projet TIC 2024</h1>
-      <input
-        type="file"
-        class="file-input file-input-primary file-input-bordered file-input-sm md:file-input-md w-full max-w-xs rounded-badge"
-      />
-
+      <FileInput/>
       <h2 class="text-xl my-8 font-semibold">Nombre de personnes par groupe</h2>
       <div class="">
         <label
@@ -48,6 +44,7 @@
 <script setup>
 import Date from "~/components/Date.vue";
 import NavBar from "~/components/NavBar.vue";
+import FileInput from "~/components/FileInput.vue";
 
 const state = reactive({
   minGroup: 1,
