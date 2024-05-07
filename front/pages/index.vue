@@ -11,7 +11,9 @@
       </template>
       <template v-slot:form>
         <div class="flex flex-col">
-          <h1 class="font-semibold text-primary text-center mb-5 text-xl">Créer une session</h1>
+          <h1 class="font-semibold text-primary text-center mb-5 text-xl">
+            Créer une session
+          </h1>
           <div class="text-secondary">
             <form method="dialog">
               <h2 class="mb-2">Nom de la session</h2>
@@ -21,11 +23,11 @@
                 placeholder="Tapez ici"
                 class="input input-bordered w-full max-w-xs mb-4"
               />
-              {{ state.sessionName }}
-              <h2 class="mb-2">Date de fin de la session</h2>
-              <Date class="mb-4" v-model="state.endDate"></Date>
-              {{  state.endDate }}
+              <h2 class="mb-2">Date de fin des inscriptions des groupes</h2>
+              <Date class="mb-4" v-model="state.endDateGroup"></Date>
 
+              <h2 class="mb-2">Date de fin de la session</h2>
+              <Date class="mb-4" v-model="state.endDateSession"></Date>
 
               <h2 class="mb-2">Sélectionner le fichier des étudiants</h2>
               <input
@@ -33,23 +35,44 @@
                 class="file-input file-input-bordered w-full max-w-xs mb-4"
                 @change="handleFileInput"
               />
-              {{ state.fileName }}
 
               <h2 class="mb-2">Nombre de personnes par groupe :</h2>
-              <div class="flex"> 
+              <div class="flex">
                 <div class="flex flex-col w-[45%] mr-[10%]">
                   <h3 class="mb-1">Min</h3>
-                  <input type="number" value="0" min="1" max="100" class="input input-bordered"/>
+                  <input
+                    id="min"
+                    type="number"
+                    value="0"
+                    min="0"
+                    :max="state.groupeMax"
+                    class="input input-bordered"
+                    @change="handleMinMaxChange('min', $event)"
+                  />
                 </div>
                 <div class="flex flex-col w-[45%]">
                   <h3 class="mb-1">Max</h3>
-                  <input type="number" value="0" min="1" max="100" class="input input-bordered"/>
+                  <input
+                    id="max"
+                    type="number"
+                    value="1"
+                    min="0"
+                    :min="state.minValue"
+                    max="100"
+                    class="input input-bordered"
+                    @change="handleMinMaxChange('max', $event)"
+                  />
                 </div>
               </div>
               <div class="flex justify-center mt-5">
-                <ButtonPrimary title="Valider"></ButtonPrimary>
+                <ButtonPrimary
+                  @click="handleSubmit"
+                  title="Valider"
+                ></ButtonPrimary>
               </div>
-              <button class="btn btn-sm btn-circle btn-ghost absolute left-2 top-2">
+              <button
+                class="btn btn-sm btn-circle btn-ghost absolute left-2 top-2"
+              >
                 ✕
               </button>
             </form>
@@ -74,7 +97,10 @@ const state = reactive({
   helloWorld: "",
   sessionName: "",
   fileName: "",
-  endDate: "",
+  endDateGroup: "",
+  endDateSession: "",
+  maxValue: "",
+  minValue: "",
 });
 
 const fetchHelloWorld = async () => {
@@ -90,14 +116,34 @@ fetchHelloWorld();
 
 const handleFileInput = (event) => {
   const files = event.target.files;
-  console.log(files)
-    // Now you can do something with the selected files
-    // For example, you can access the first file's name like this:
-    if (files.length > 0) {
-      state.fileName = files[0].name;
-      
+  console.log(files);
+  // Now you can do something with the selected files
+  // For example, you can access the first file's name like this:
+  if (files.length > 0) {
+    state.fileName = files[0].name;
+  } else {
+    state.fileName = ""; // No file selected
+  }
+};
+
+const handleMinMaxChange = (inputType, event) => {
+  const inputValue = parseInt(event.target.value);
+  if (inputType === "min") {
+    if (inputValue > state.maxValue) {
+      event.target.value = state.maxValue;
     } else {
-      state.fileName = ''; // No file selected
+      state.minValue = inputValue;
     }
-}
+  } else if (inputType === "max") {
+    if (inputValue < state.minValue) {
+      event.target.value = state.minValue;
+    } else {
+      state.maxValue = inputValue;
+    }
+  }
+};
+
+const handleSubmit = () => {
+  
+};
 </script>
