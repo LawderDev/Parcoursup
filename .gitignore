@@ -30,3 +30,6 @@ __venv__
 
 package-lock.json
 front/pnpm-lock.yaml
+
+#database
+parcoursup.sqlite

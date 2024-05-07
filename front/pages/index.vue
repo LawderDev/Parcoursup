@@ -20,7 +20,6 @@ const state = reactive({
 
 const fetchHelloWorld = async () => {
   try {
-    const response = await axios.get("http://127.0.0.1:5000/api/hello_world");
     state.helloWorld = response.data;
   } catch (error) {
     console.error("Error fetching hello world:", error);

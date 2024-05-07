@@ -1,4 +1,4 @@
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 from flask_cors import CORS
 import sqlite3
 import os
@@ -39,9 +39,26 @@ def get_hello_world():
     else:
         return jsonify({'error': "nul"}), 50
     
-@app.route('/api/create_group', methods=['GET'])
+@app.route('/api/create_group', methods=['POST'])
+# Example of data and post request to call in the front : 
+# const data = {
+#       "sessionID":1,
+#       "emails":["Benjamin.Bancal@etu.u-bordeaux.fr","Sandra.Ly@etu.u-bordeaux.fr"]
+#     };
+#     const jsonData = JSON.stringify(data);
+
+#     const response = await axios.post("http://127.0.0.1:5000/api/create_group", jsonData, {
+#       headers: {
+#         'Content-Type': 'application/json'
+#       }}
+#     );
 def create_group():
     print('Enter create group function')
+    
+    # Retrieve parameters from the request body
+    sessionID = request.json.get('sessionID')  # assuming the parameters are sent in JSON format
+    studentEmails = request.json.get('emails')
+    
     # Il faut utiliser os.path.join pour que ce soit multiplateforme
     db = os.path.join(os.getcwd(), 'db', 'parcoursup.sqlite') 
     if os.path.exists(db):
@@ -50,23 +67,21 @@ def create_group():
 
         try:
             # Create the group in the table GROUPE and return the ID
-            request = cursor.execute("INSERT INTO GROUPE VALUES (NULL, NULL, NULL, NULL) RETURNING ID")
-            res = request.fetchone()
+            sqlRequest = cursor.execute("INSERT INTO GROUPE VALUES (NULL, NULL, NULL, NULL) RETURNING ID")
+            groupID = sqlRequest.fetchone()
             
             # Update ETUDIANT table with the group ID for this SESSION
-            rows = [
-                ("TEMP",),
-                ("TEST",),
-            ]
-            request = cursor.executemany("UPDATE ETUDIANT SET FK_Groupe = 25 WHERE Email = ? and FK_Session = 1", rows)
-            res = request.fetchall()
+            queryParameters = [(groupID[0], email, sessionID) for email in studentEmails]
+            
+            sqlRequest = cursor.executemany("UPDATE ETUDIANT SET FK_Groupe = ? WHERE Email = ? and FK_Session = ?", queryParameters)
+            res = sqlRequest.fetchone()
             
             # Commit the insertions
             conn.commit()
             conn.close()
 
             # Convert data to JSON format
-            return jsonify(res)
+            return jsonify({'result': "done"}), 200
 
         except sqlite3.Error as e:
             return jsonify({'error': str(e)}), 500   
