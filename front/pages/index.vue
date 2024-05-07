@@ -16,18 +16,24 @@
             <form method="dialog">
               <h2 class="mb-2">Nom de la session</h2>
               <input
+                v-model="state.sessionName"
                 type="text"
                 placeholder="Tapez ici"
                 class="input input-bordered w-full max-w-xs mb-4"
               />
+              {{ state.sessionName }}
               <h2 class="mb-2">Date de fin de la session</h2>
-              <Date class="mb-4" ref="datePicker"></Date>
+              <Date class="mb-4" v-model="state.endDate"></Date>
+              {{  state.endDate }}
+
 
               <h2 class="mb-2">Sélectionner le fichier des étudiants</h2>
               <input
                 type="file"
                 class="file-input file-input-bordered w-full max-w-xs mb-4"
+                @change="handleFileInput"
               />
+              {{ state.fileName }}
 
               <h2 class="mb-2">Nombre de personnes par groupe :</h2>
               <div class="flex"> 
@@ -66,6 +72,9 @@ import { reactive } from "vue";
 // Tout ce qui sera dans l'objet state du coup sera reactif !
 const state = reactive({
   helloWorld: "",
+  sessionName: "",
+  fileName: "",
+  endDate: "",
 });
 
 const fetchHelloWorld = async () => {
@@ -78,4 +87,17 @@ const fetchHelloWorld = async () => {
 };
 
 fetchHelloWorld();
+
+const handleFileInput = (event) => {
+  const files = event.target.files;
+  console.log(files)
+    // Now you can do something with the selected files
+    // For example, you can access the first file's name like this:
+    if (files.length > 0) {
+      state.fileName = files[0].name;
+      
+    } else {
+      state.fileName = ''; // No file selected
+    }
+}
 </script>
