@@ -1,6 +1,6 @@
 <template>
   <div>
-    <NavBar></NavBar>
+    <NavBar name="M"></NavBar>
     <div class="flex justify-end mr-10">
       <ButtonPrimary>Ajouter un projet</ButtonPrimary>
     </div>

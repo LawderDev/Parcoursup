@@ -20,7 +20,7 @@
         <div tabindex="0" role="button" class="btn btn-ghost btn-circle">
           <div class="avatar placeholder">
             <div class="bg-primary text-neutral-content rounded-full w-12">
-              <span v-if="lettre" class="text-xl uppercase">{{ lettre }}</span>
+              <span v-if="letter" class="text-xl uppercase">{{ letter }}</span>
             </div>
           </div>
         </div>
@@ -46,6 +46,6 @@
   </div>
 </template>
 <script setup>
-const props = defineProps(["nom"]);
-const lettre = computed(() => props.nom.charAt(0));
+const props = defineProps(["name"]);
+const letter = computed(() => props.name.charAt(0));
 </script>
