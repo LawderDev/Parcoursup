@@ -21,7 +21,7 @@
                 class="input input-bordered w-full max-w-xs mb-4"
               />
               <h2 class="mb-2">Date de fin de la session</h2>
-              <Date class="mb-4"></Date>
+              <Date class="mb-4" ref="datePicker"></Date>
 
               <h2 class="mb-2">Sélectionner le fichier des étudiants</h2>
               <input
@@ -30,11 +30,17 @@
               />
 
               <h2 class="mb-2">Nombre de personnes par groupe :</h2>
-              <h3 class="mb-1">Min</h3>
-              <input type="number" value="0" min="1" max="100" class="input input-bordered max-w-xs" />
-              <h3 class="mb-1">Max</h3>
-              <input type="number" value="0" min="1" max="100" class="input input-bordered max-w-xs mb-4"/>
-              <div class="flex justify-center">
+              <div class="flex"> 
+                <div class="flex flex-col w-[45%] mr-[10%]">
+                  <h3 class="mb-1">Min</h3>
+                  <input type="number" value="0" min="1" max="100" class="input input-bordered"/>
+                </div>
+                <div class="flex flex-col w-[45%]">
+                  <h3 class="mb-1">Max</h3>
+                  <input type="number" value="0" min="1" max="100" class="input input-bordered"/>
+                </div>
+              </div>
+              <div class="flex justify-center mt-5">
                 <ButtonPrimary title="Valider"></ButtonPrimary>
               </div>
               <button class="btn btn-sm btn-circle btn-ghost absolute left-2 top-2">
