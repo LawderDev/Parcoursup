@@ -1,15 +1,18 @@
 <template>
-  <div class="card w-70 md:w-80 bg-base-100 neumorphism">
-    <div class="card-body">
-      <h2 class="card-title">{{ props.title }}</h2>
-      <p>{{props.summary}}</p>
-      <div class="card-actions justify-end">
-        <button class="btn btn-primary">Buy Now</button>
+  <div>
+    <Card class="m-5">
+      <h1 class="text-xl">{{props.title}}</h1>
+      <p class="my-5 max-h-32 text-ellipsis overflow-auto">{{props.summary}}</p>
+      <div>
+        <ButtonSecondary class="mr-2 ">Modifier</ButtonSecondary>
+        <ButtonPrimary>Vos préférences</ButtonPrimary>
       </div>
-    </div>
+    </Card>
   </div>
 </template>
-<script setup> 
+<script setup>
 import ButtonPrimary from "~/components/ButtonPrimary.vue";
-const props = defineProps(["title","summary"]);
+import ButtonSecondary from "~/components/ButtonSecondary.vue";
+import Card from "~/components/Card.vue";
+const props = defineProps(['title','summary'])
 </script>
