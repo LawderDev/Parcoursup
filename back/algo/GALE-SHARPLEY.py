@@ -1,3 +1,5 @@
+import timeit
+
 def gale_shapley(men_preferences, women_preferences):
     # Nombre total d'hommes
     num_men = len(men_preferences)
@@ -24,12 +26,13 @@ def gale_shapley(men_preferences, women_preferences):
                 men_status[man] = "engaged"
                 break
             else:
-                current_partner = next(man for man, woman in matching.items() if woman == woman)
-                current_partner_preference = women_preferences[woman].index(current_partner)
-                new_partner_preference = women_preferences[woman].index(man)
+                woman_to_check = woman
+                current_partner = next(man for man, woman in matching.items() if woman == woman_to_check)
+                current_partner_preference = women_preferences[woman_to_check].index(current_partner)
+                new_partner_preference = women_preferences[woman_to_check].index(man)
                 # Si la femme préfère le nouvel homme à l'actuel, effectuez un échange
                 if new_partner_preference < current_partner_preference:
-                    matching[man] = woman
+                    matching[man] = woman_to_check
                     matching[current_partner] = None
                     men_status[man] = "engaged"
                     men_status[current_partner] = None
@@ -38,17 +41,38 @@ def gale_shapley(men_preferences, women_preferences):
     return matching
 
 # Exemple d'utilisation
-men_preferences = {
-    'John': ['Mary', 'Alice', 'Emma'],
-    'Peter': ['Mary', 'Emma', 'Alice'],
-    'Mark': ['Alice', 'Mary', 'Emma']
-}
+men_preferences = {'m1': ['w3', 'w4', 'w5', 'w1', 'w2'], 
+                   'm2': ['w3', 'w4', 'w2', 'w5', 'w1'], 
+                   'm3': ['w3', 'w4', 'w1', 'w2', 'w5'], 
+                   'm4': ['w5', 'w4', 'w2', 'w3', 'w1'], 
+                   'm5': ['w3', 'w1', 'w4', 'w5', 'w2']}
+women_preferences = {'w1': ['m3', 'm2', 'm5', 'm1', 'm4'], 
+                     'w2': ['m3', 'm1', 'm5', 'm4', 'm2'], 
+                     'w3': ['m3', 'm5', 'm2', 'm4', 'm1'], 
+                     'w4': ['m1', 'm2', 'm5', 'm4', 'm3'], 
+                     'w5': ['m3', 'm2', 'm5', 'm1', 'm4']}
 
-women_preferences = {
-    'Mary': ['Mark', 'John', 'Peter'],
-    'Alice': ['Peter', 'Mark', 'John'],
-    'Emma': ['John', 'Peter', 'Mark']
-}
 
 matches = gale_shapley(men_preferences, women_preferences)
 print(matches)
+
+def gale_shapley_wrapper():
+    # Vos données d'entrée
+    men_preferences = {'m1': ['w3', 'w4', 'w5', 'w1', 'w2'], 
+                       'm2': ['w3', 'w4', 'w2', 'w5', 'w1'], 
+                       'm3': ['w3', 'w4', 'w1', 'w2', 'w5'], 
+                       'm4': ['w5', 'w4', 'w2', 'w3', 'w1'], 
+                       'm5': ['w3', 'w1', 'w4', 'w5', 'w2']}
+    women_preferences = {'w1': ['m3', 'm2', 'm5', 'm1', 'm4'], 
+                         'w2': ['m3', 'm1', 'm5', 'm4', 'm2'], 
+                         'w3': ['m3', 'm5', 'm2', 'm4', 'm1'], 
+                         'w4': ['m1', 'm2', 'm5', 'm4', 'm3'], 
+                         'w5': ['m3', 'm2', 'm5', 'm1', 'm4']}
+    
+    # Appel de la fonction gale_shapley avec les données d'entrée
+    gale_shapley(men_preferences, women_preferences)
+
+# Mesurez le temps pris par la fonction gale_shapley
+execution_time = timeit.timeit(gale_shapley_wrapper, number=1)
+
+print("Execution time:", execution_time, "seconds")
