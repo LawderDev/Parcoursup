@@ -85,24 +85,30 @@ def gale_shapley(women_preferences, men_preferences):
 
 
 @app.route('/api/create_group', methods=['POST'])
-# Example of data and post request to call in the front : 
-# const data = {
-#       "sessionID":1,
-#       "emails":["Benjamin.Bancal@etu.u-bordeaux.fr","Sandra.Ly@etu.u-bordeaux.fr"]
-#     };
-#     const jsonData = JSON.stringify(data);
-
-#     const response = await axios.post("http://127.0.0.1:5000/api/create_group", jsonData, {
-#       headers: {
-#         'Content-Type': 'application/json'
-#       }}
-#     );
 def create_group():
+    """
+    Methods that creates a new group and update the student group (for the session)
+    Example of data and post request to call in the front : 
+    const data = {
+          "sessionID":1,
+          "emails":["Benjamin.Bancal@etu.u-bordeaux.fr","Sandra.Ly@etu.u-bordeaux.fr"]
+        };
+        const jsonData = JSON.stringify(data);
+
+        const response = await axios.post("http://127.0.0.1:5000/api/create_group", jsonData, {
+          headers: {
+            'Content-Type': 'application/json'
+          }}
+        );
+
+    Returns:
+    _type_: _description_
+"""   
     print('Enter create group function')
 
     # Retrieve parameters from the request body
     sessionID = request.json.get('sessionID')  # assuming the parameters are sent in JSON format
-    studentEmails = request.json.get('emails')
+    studentEmails = request.json.get('emails') # list of emails
 
     # Il faut utiliser os.path.join pour que ce soit multiplateforme
     db = os.path.join(os.getcwd(), 'db', 'parcoursup.sqlite') 
@@ -127,6 +133,53 @@ def create_group():
 
             # Convert data to JSON format
             return jsonify({'result': "done"}), 200
+
+        except sqlite3.Error as e:
+            return jsonify({'error': str(e)}), 500   
+    else:
+        return jsonify({'error': "nul"}), 50
+    
+@app.route('/api/create_session', methods=['POST'])
+def create_session():
+    """
+_summary_
+Method that create a session, take in parameter a name, 
+the group and project deadline, and the fk user creator
+Example of data and post request to call in the front : 
+    const data = {
+       "session":["TestProjetTIC","14/05/2024", "25/05/2024", 1]
+     };
+     const jsonData = JSON.stringify(data);
+
+Returns:
+    _type_: _description_
+"""   
+    print('Enter create session function')
+    # Retrieve parameters from the request body
+    session = request.json.get('session') # json item
+
+    # Il faut utiliser os.path.join pour que ce soit multiplateforme
+    db = os.path.join(os.getcwd(), 'db', 'parcoursup.sqlite') 
+    if os.path.exists(db):
+        conn = sqlite3.connect(db)
+        cursor = conn.cursor()
+        try:
+            # Create the group in the table GROUPE and return the ID
+            sessionName = session[0]
+            sessionDeadlineGroup = session[1]
+            sessionDeadlineProjet = session[2]
+            sessionFKUtilisateur = session[3]
+            sessionData = [sessionName, sessionDeadlineGroup, sessionDeadlineProjet, sessionFKUtilisateur]
+             
+            sqlRequest = cursor.execute("INSERT INTO SESSION VALUES (NULL, ?, ?, ?, ?) RETURNING ID", sessionData)
+            sessionID = sqlRequest.fetchone()
+
+            # Commit the insertions
+            conn.commit()
+            conn.close()
+
+            # Convert data to JSON format
+            return jsonify({'result': sessionID}), 200
 
         except sqlite3.Error as e:
             return jsonify({'error': str(e)}), 500   
