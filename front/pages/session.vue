@@ -2,18 +2,10 @@
   <div>
     <NavBar :name="'fdsf'" />
     <div class="grid m-8 mx-10">
-      <div
-        class="fixed md:static inset-x-0 bottom-8 p-4 flex items-center justify-center mb-2 z-50 md:justify-end md:hidden"
-      >
-        <ButtonPlus class="mr-5 neumorphism" />
-        <ButtonPrimary class="md:place-self-end place-start neumorphism"
-          >Enregistrer les modifications</ButtonPrimary
-        >
-      </div>
       <h1 class="text-3xl my-8 font-bold">Projet TIC 2024</h1>
-      <FileInput />
+      <FileInput v-model="state.file"/>
       <h2 class="text-xl my-8 font-semibold">Nombre de personnes par groupe</h2>
-      <div class="">
+      <div class="md:w-13">
         <label
           class="input input-bordered flex items-center gap-4 m-4 rounded-badge"
         >
@@ -42,10 +34,49 @@
         </label>
       </div>
       <h2 class="text-xl my-8 font-semibold">Date de fin</h2>
-      <Date class="px-5" />
-      <h2 class="text-xl mt-8 mb-4 font-semibold">Projets</h2>
+      <Date v-model="state.endDate" class="px-5" />
+      <div
+        role="alert"
+        class="flex alert alert-error my-4 max-w-50 justify-center items-center"
+        id="alert"
+        v-if="state.error"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="stroke-current shrink-0 h-6 w-6"
+          fill="none"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
+          />
+        </svg>
+        <span class="text-white">Error! Task failed successfully.</span>
+      </div>
+      <div class="flex place-content-between mt-8">
+        <h2 class="text-xl mt-8 mb-4 font-semibold">Projets</h2>
+        <div class="hidden md:flex items-center p-4">
+          <ButtonPlus class="mr-5 neumorphism" />
+          <ButtonPrimary class="md:place-self-end place-start neumorphism"
+            >Enregistrer les modifications</ButtonPrimary
+          >
+        </div>
+      </div>
       <h3 class="ml-5 text-gray-500">Quels seront les projets disponibles ?</h3>
-      <div class="grid grid-cols-1 md:grid-cols-4">
+      <div
+        class="sticky inset-x-0 bottom-1 p-4 flex items-center justify-center z-50 md:hidden"
+      >
+        <ButtonPlus class="mr-5 neumorphism" />
+        <ButtonPrimary
+          @onclick="handleClick()"
+          class="md:place-self-end place-start neumorphism"
+          >Enregistrer les modifications</ButtonPrimary
+        >
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-4 mb-20 md:mb-0">
         <div v-for="item in liste" :key="item.id">
           <ProjectCard :title="item.title" :summary="item.summary" />
         </div>
@@ -65,10 +96,31 @@ import ProjectCard from "~/components/ProjectCard.vue";
 import ButtonPlus from "~/components/ButtonPlus.vue";
 
 const state = reactive({
+  file:null,
   minGroup: 1,
   maxGroup: null,
+  endDate: null,
+  project: [""],
+  error: false,
 });
-
+const formCorrect = computed(() => {
+  return state.file && dateCorrect && groupCorrect && state.project.length > 0;
+});
+const dateCorrect = computed(() => {
+  return state.endDate && new Date(state.endDate) >= new Date();
+});
+const groupCorrect = computed(() => {
+  return state.minGroup && state.maxGroup && state.minGroup > 0 && state.maxGroup > state.minGroup;
+});
+function handleClick() {
+  console.log('file',file)
+  console.log("dateCorrect",dateCorrect)
+  console.log("groupCorrect",groupCorrect)
+  console.log("project.length > 0",state.project.length > 0)
+  if (formCorrect) {
+    alert("hello");
+  }
+}
 const liste = [
   {
     id: 1,
