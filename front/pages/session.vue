@@ -3,7 +3,10 @@
     <NavBar :name="'fdsf'" />
     <div class="grid m-8 mx-10">
       <h1 class="text-3xl my-8 font-bold">Projet TIC 2024</h1>
-      <FileInput v-model="state.file"/>
+      <h2 class="text-xl my-4 font-semibold">Liste des étudiants</h2>
+      <h3 class="ml-5 text-gray-500">Entrez la liste des participants sous forme de fichier .csv</h3>
+      <FileInput class="my-5" acceptedTypes=".csv" @fileSelected="handleFileSelected" />
+      <p v-if="state.selectedFile">Fichier sélectionné: {{ state.selectedFile.name }}</p>
       <h2 class="text-xl my-8 font-semibold">Nombre de personnes par groupe</h2>
       <div class="md:w-13">
         <label
@@ -34,7 +37,7 @@
         </label>
       </div>
       <h2 class="text-xl my-8 font-semibold">Date de fin</h2>
-      <Date v-model="state.endDate" class="px-5" />
+      <Date class="px-5" />
       <div
         role="alert"
         class="flex alert alert-error my-4 max-w-50 justify-center items-center"
@@ -96,6 +99,7 @@ import ProjectCard from "~/components/ProjectCard.vue";
 import ButtonPlus from "~/components/ButtonPlus.vue";
 
 const state = reactive({
+  selectedFile:null,
   file:null,
   minGroup: 1,
   maxGroup: null,
@@ -103,6 +107,11 @@ const state = reactive({
   project: [""],
   error: false,
 });
+const handleFileSelected = (file) => {
+  console.log('Fichier sélectionné:', file);
+  state.selectedFile = file;
+};
+
 const formCorrect = computed(() => {
   return state.file && dateCorrect && groupCorrect && state.project.length > 0;
 });
