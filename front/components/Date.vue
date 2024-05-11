@@ -1,23 +1,30 @@
 <template>
-  <VueDatePicker v-model="state.date"></VueDatePicker>
+  <VueDatePicker v-model="selectedDate" :format="format"  />
 </template>
 
 <script setup>
-import { ref, reactive } from "vue";
+import { ref, watch } from "vue";
 import VueDatePicker from "@vuepic/vue-datepicker";
 import "@vuepic/vue-datepicker/dist/main.css";
-  
-const state = reactive({
-  date: "",
-});
-  
-const today = new Date();
 
-watch(state.date, (newVal) => {
-  if (newVal && newVal < today) {
-    // Reset to today's date if selected date is before today
-    state.date = today;
-  }
-}, { immediate: true }); // Validate on initial render
+const props = defineProps(["selectedDate"]);
+
+const emit  = defineEmits(['newDateSelected']);
+
+const selectedDate = ref(props.selectedDate);
+
+watch(selectedDate, (newDate) => {
+  emit("newDateSelected",newDate)
+})
+
+const format = (date) => {
+  const day = date.getDate().toString().padStart(2, '0');
+  const month = (date.getMonth() + 1).toString().padStart(2, '0');
+  const year = date.getFullYear();
+
+  return `${day}/${month}/${year}`;
+}
+
+
 
 </script>

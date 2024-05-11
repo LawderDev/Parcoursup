@@ -4,9 +4,17 @@
     <div class="grid m-8 mx-10">
       <h1 class="text-3xl my-8 font-bold">Projet TIC 2024</h1>
       <h2 class="text-xl my-4 font-semibold">Liste des étudiants</h2>
-      <h3 class="ml-5 text-gray-500">Entrez la liste des participants sous forme de fichier .csv</h3>
-      <FileInput class="my-5" acceptedTypes=".csv" @fileSelected="handleFileSelected" />
-      <p v-if="state.selectedFile">Fichier sélectionné: {{ state.selectedFile.name }}</p>
+      <h3 class="ml-5 text-gray-500">
+        Entrez la liste des participants au format .csv
+      </h3>
+      <FileInput
+        class="my-5"
+        acceptedTypes=".csv"
+        @fileSelected="handleFileSelected"
+      />
+      <p v-if="state.selectedFile">
+        Fichier sélectionné: {{ state.selectedFile.name }}
+      </p>
       <h2 class="text-xl my-8 font-semibold">Nombre de personnes par groupe</h2>
       <div class="md:w-13">
         <label
@@ -37,7 +45,11 @@
         </label>
       </div>
       <h2 class="text-xl my-8 font-semibold">Date de fin</h2>
-      <Date class="px-5" />
+      <Date
+        :selectedDate="state.endDate"
+        @newDateSelected="handleDateSelected"
+        class="px-5"
+      />
       <div
         role="alert"
         class="flex alert alert-error my-4 max-w-50 justify-center items-center"
@@ -99,16 +111,19 @@ import ProjectCard from "~/components/ProjectCard.vue";
 import ButtonPlus from "~/components/ButtonPlus.vue";
 
 const state = reactive({
-  selectedFile:null,
-  file:null,
+  selectedFile: null,
+  file: null,
   minGroup: 1,
   maxGroup: null,
   endDate: null,
   project: [""],
   error: false,
 });
+const handleDateSelected = (selectedDate) => {
+  state.endDate = selectedDate;
+};
 const handleFileSelected = (file) => {
-  console.log('Fichier sélectionné:', file);
+  console.log("Fichier sélectionné:", file);
   state.selectedFile = file;
 };
 
@@ -119,13 +134,18 @@ const dateCorrect = computed(() => {
   return state.endDate && new Date(state.endDate) >= new Date();
 });
 const groupCorrect = computed(() => {
-  return state.minGroup && state.maxGroup && state.minGroup > 0 && state.maxGroup > state.minGroup;
+  return (
+    state.minGroup &&
+    state.maxGroup &&
+    state.minGroup > 0 &&
+    state.maxGroup > state.minGroup
+  );
 });
 function handleClick() {
-  console.log('file',file)
-  console.log("dateCorrect",dateCorrect)
-  console.log("groupCorrect",groupCorrect)
-  console.log("project.length > 0",state.project.length > 0)
+  console.log("file", file);
+  console.log("dateCorrect", dateCorrect);
+  console.log("groupCorrect", groupCorrect);
+  console.log("project.length > 0", state.project.length > 0);
   if (formCorrect) {
     alert("hello");
   }
