@@ -45,7 +45,7 @@
         </label>
       </div>
       <h2 class="text-xl my-8 font-semibold">Date de fin</h2>
-      <Date
+      <DateComponent
         :selectedDate="state.endDate"
         @newDateSelected="handleDateSelected"
         class="px-5"
@@ -75,7 +75,9 @@
         <h2 class="text-xl mt-8 mb-4 font-semibold">Projets</h2>
         <div class="hidden md:flex items-center p-4">
           <ButtonPlus class="mr-5 neumorphism" />
-          <ButtonPrimary  @click="handleClick" class="md:place-self-end place-start neumorphism"
+          <ButtonPrimary
+            @click="handleClick"
+            class="md:place-self-end place-start neumorphism"
             >Enregistrer les modifications</ButtonPrimary
           >
         </div>
@@ -103,7 +105,7 @@
 
 <script setup>
 import { reactive } from "vue";
-import Date from "~/components/Date.vue";
+import DateComponent from "~/components/Date.vue";
 import NavBar from "~/components/NavBar.vue";
 import FileInput from "~/components/FileInput.vue";
 import ButtonPrimary from "~/components/ButtonPrimary.vue";
@@ -123,38 +125,35 @@ const handleDateSelected = (selectedDate) => {
   state.endDate = selectedDate;
 };
 const handleFileSelected = (file) => {
-  console.log("Fichier sélectionné:", file);
   state.selectedFile = file;
 };
 
-const formCorrect = computed(() => {
-  return state.file && dateCorrect && groupCorrect && state.project.length > 0;
+let formCorrect = computed(() => {
+  return fileCorrect.value && dateCorrect.value && groupCorrect.value && projectCorrect.value;
+});
+const projectCorrect = computed(() => {
+  return state.project != null && state.project.length > 0;
+});
+const fileCorrect = computed(() => {
+  return state.selectedFile != null;
 });
 const dateCorrect = computed(() => {
-  return state.endDate && new Date(state.endDate) >= new Date();
+  return state.endDate != null && (new Date(state.endDate) >= new Date());
 });
 const groupCorrect = computed(() => {
   return (
-    state.minGroup &&
-    state.maxGroup &&
+    state.minGroup != null &&
+    state.maxGroup != null &&
     state.minGroup > 0 &&
     state.maxGroup > state.minGroup
   );
 });
-function greet() {
-  console.log("hello")
-
-}
 const handleClick = () => {
-  console.log("hello")
-  console.log("file", file);
-  console.log("dateCorrect", dateCorrect);
-  console.log("groupCorrect", groupCorrect);
-  console.log("project.length > 0", state.project.length > 0);
+  console.log(fileCorrect)
   if (formCorrect) {
     alert("hello");
   }
-}
+};
 const liste = [
   {
     id: 1,
