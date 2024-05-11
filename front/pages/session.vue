@@ -75,7 +75,7 @@
         <h2 class="text-xl mt-8 mb-4 font-semibold">Projets</h2>
         <div class="hidden md:flex items-center p-4">
           <ButtonPlus class="mr-5 neumorphism" />
-          <ButtonPrimary class="md:place-self-end place-start neumorphism"
+          <ButtonPrimary  @click="handleClick" class="md:place-self-end place-start neumorphism"
             >Enregistrer les modifications</ButtonPrimary
           >
         </div>
@@ -86,7 +86,7 @@
       >
         <ButtonPlus class="mr-5 neumorphism" />
         <ButtonPrimary
-          @onclick="handleClick()"
+          @click="handleClick"
           class="md:place-self-end place-start neumorphism"
           >Enregistrer les modifications</ButtonPrimary
         >
@@ -141,7 +141,12 @@ const groupCorrect = computed(() => {
     state.maxGroup > state.minGroup
   );
 });
-function handleClick() {
+function greet() {
+  console.log("hello")
+
+}
+const handleClick = () => {
+  console.log("hello")
   console.log("file", file);
   console.log("dateCorrect", dateCorrect);
   console.log("groupCorrect", groupCorrect);
