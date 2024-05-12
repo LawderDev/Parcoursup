@@ -3,6 +3,7 @@
     <NavBar :name="'fdsf'" />
     <div class="grid m-8 mx-10">
       <h1 class="text-3xl my-8 font-bold">Projet TIC 2024</h1>
+      <ImageButton src="~/public/delete.svg"></ImageButton>
       <h2 class="text-xl my-4 font-semibold">Liste des étudiants</h2>
       <h3 class="ml-5 text-gray-500">
         Entrez la liste des participants au format .csv
@@ -54,7 +55,7 @@
         role="alert"
         class="flex alert alert-error my-4 max-w-50 justify-center items-center"
         id="alert"
-        v-if="state.error"
+        v-if="state.error && !formCorrect"
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -69,7 +70,19 @@
             d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
           />
         </svg>
-        <span class="text-white">Error! Task failed successfully.</span>
+        <span v-if="!projectCorrect" class="">Veuillez renseigner au moins un projet</span>
+        <span v-else-if="!fileCorrect" class=""
+          >Veuillez renseigner un fichier valide</span
+        >
+        <span v-else-if="!groupCorrect"
+          >Veuillez renseigner des groupes valides</span
+        >
+        <span v-else-if="!dateCorrect"
+          >Veuillez renseigner une date de fin valide</span
+        >
+        <span v-else
+          >Erreur inconnue.</span
+        >
       </div>
       <div class="flex place-content-between mt-8">
         <h2 class="text-xl mt-8 mb-4 font-semibold">Projets</h2>
@@ -111,6 +124,7 @@ import FileInput from "~/components/FileInput.vue";
 import ButtonPrimary from "~/components/ButtonPrimary.vue";
 import ProjectCard from "~/components/ProjectCard.vue";
 import ButtonPlus from "~/components/ButtonPlus.vue";
+import ImageButton from "~/components/ImageButton.vue";
 
 const state = reactive({
   selectedFile: null,
@@ -129,7 +143,12 @@ const handleFileSelected = (file) => {
 };
 
 let formCorrect = computed(() => {
-  return fileCorrect.value && dateCorrect.value && groupCorrect.value && projectCorrect.value;
+  return (
+    fileCorrect.value &&
+    dateCorrect.value &&
+    groupCorrect.value &&
+    projectCorrect.value
+  );
 });
 const projectCorrect = computed(() => {
   return state.project != null && state.project.length > 0;
@@ -138,7 +157,7 @@ const fileCorrect = computed(() => {
   return state.selectedFile != null;
 });
 const dateCorrect = computed(() => {
-  return state.endDate != null && (new Date(state.endDate) >= new Date());
+  return state.endDate != null && new Date(state.endDate) >= new Date();
 });
 const groupCorrect = computed(() => {
   return (
@@ -149,9 +168,11 @@ const groupCorrect = computed(() => {
   );
 });
 const handleClick = () => {
-  console.log(fileCorrect)
-  if (formCorrect) {
-    alert("hello");
+  if (formCorrect.value) {
+    console.log("valid form");
+    state.error = false;
+  } else {
+    state.error = true;
   }
 };
 const liste = [
