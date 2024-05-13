@@ -2,6 +2,7 @@
   <div>
     <NavBar name="M"></NavBar>
     <div class="flex justify-end mr-10">
+      <ModalCreateSession></ModalCreateSession>
       <ButtonPrimary>Ajouter un projet</ButtonPrimary>
     </div>
     <div class="mt-6">
@@ -14,6 +15,7 @@
     <div class="flex justify-center">
       <ButtonPlus class="md:hidden neumorphism"></ButtonPlus>
     </div>
+    
   </div>
 </template> 
 

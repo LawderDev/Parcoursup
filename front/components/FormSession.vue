@@ -46,10 +46,7 @@
     <h2 class="text-xl my-8 font-semibold">
       Date de fin des formations des groupes
     </h2>
-    <DateComponent
-      v-model:endDate="state.endDateGroup"
-      class="px-5"
-    />
+    <DateComponent v-model:endDate="state.endDateGroup" class="px-5" />
     <h2 class="text-xl my-8 font-semibold">Date de fin de la session</h2>
     <DateComponent
       v-model:endDate="state.endDateSession"
@@ -141,14 +138,14 @@ const handleClick = () => {
     console.log("valid form");
     state.error = false;
     console.log(state.fileContent);
-    const formData = [
+    const formData = {"session": [
       state.sessionName,
       state.endDateGroup,
       state.endDateSession,
       state.minGroup,
       state.maxGroup,
       1
-  ];
+  ]};
 
     console.log(formData);
     const jsonData = JSON.stringify(formData);
@@ -156,4 +153,5 @@ const handleClick = () => {
     state.error = true;
   }
 };
+
 </script>
