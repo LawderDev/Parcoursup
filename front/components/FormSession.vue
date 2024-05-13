@@ -1,7 +1,20 @@
 <template>
   <div>
-    <h1 class="text-3xl my-8 font-bold">Projet TIC 2024</h1>
-    <ImageButton :src="Delete"></ImageButton>
+    <div class="flex items-center">
+      <h1 class="text-3xl my-8 font-bold max-w-48 md:max-w-96 truncate tooltip tooltip-open" data-tip="Projet TIC 2024 ffffffffffffffffffffffffff" v-if="!state.editTitle">{{state.sessionName}}</h1>
+      <input 
+        v-model="state.newTitle" 
+        v-if="state.editTitle" 
+        class="input input-bordered  my-8 font-bold"
+      >
+      <div class="ml-3 p-3 flex items-center grow">
+        <EditTitle v-if="!state.editTitle" class="m-3" :src="Edit" @click="state.editTitle=true"></EditTitle>
+        <EditTitle v-if="state.editTitle" :src="OkClickable" @click="handleEditOk" ></EditTitle>
+        <EditTitle v-if="state.editTitle" :src="Cancel" @click="handleEditCancel" ></EditTitle>
+        <ImageButton class="ml-auto" :src="Delete"></ImageButton>
+      </div>
+    </div>
+
     <h2 class="text-xl my-4 font-semibold">Liste des étudiants</h2>
     <h3 class="ml-5 text-gray-500">
       Entrez la liste des participants au format .csv
@@ -114,8 +127,14 @@
 <script setup>
 import { reactive } from "vue";
 import Delete from "~/public/delete.svg";
+import Edit from "~/public/edit.svg";
+import OkClickable from "~/public/okClickable.svg";
+import Cancel from "~/public/cancel.svg";
+
 const state = reactive({
-  sessionName: null,
+  editTitle : false,
+  newTitle : null,
+  sessionName: "Session111111111111111",
   fileContent: null,
   minGroup: 1,
   maxGroup: null,
@@ -123,6 +142,14 @@ const state = reactive({
   endDateSession: null,
   error: false,
 });
+
+const handleEditOk = () => {
+  state.sessionName = state.newTitle;
+  state.editTitle = false;
+}
+const handleEditCancel = () => {
+  state.editTitle = false;
+}
 const handleDateSelected = (selectedDate) => {
   state.endDate = selectedDate;
 };
@@ -139,6 +166,16 @@ const fileCorrect = computed(() => {
 const dateCorrect = computed(() => {
   return state.endDate != null && new Date(state.endDate) >= new Date();
 });
+
+
+watch(state, (newVal) => {
+  console.log("newVal",newVal);
+  if(!state.newTitle){
+    state.newTitle=state.sessionName;
+  }
+})
+
+
 const groupCorrect = computed(() => {
   return (
     state.minGroup != null &&
