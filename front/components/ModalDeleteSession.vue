@@ -9,7 +9,7 @@
           <div class="flex flex-col">
             <h2 class="font-semibold text-primary text-center mb-5 text-xl">Supprimer un projet</h2>
             <div class="text-secondary">
-                <p class="mb-2">Voulez-vous supprimer ce projet ?</p>
+                <p class="mb-2 text-center">Voulez-vous supprimer ce projet ?</p>
             </div>
           </div>
         </template>
@@ -34,8 +34,12 @@
       }
     })
 
-  const handleSubmit = () => {
-  
+  const handleSubmit = async () => {
+    /*try {
+      await axios.post("http://127.0.0.1:5000/api/delete-session");
+    } catch (error) {
+      console.error("Error delete session:", error);
+    }*/
   };
   </script>
   

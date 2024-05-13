@@ -6,7 +6,8 @@
 
     <dialog ref="dialog" class="modal" @close="$emit('close')">
       <div
-        class="modal-box w-[100vw] h-[100vh] max-h-[100vh] rounded-none md:w-[50%] md:h-auto md:rounded-xl md:drop-shadow-md"
+        class="modal-box md:w-[50%] md:h-auto md:rounded-xl md:drop-shadow-md"
+        :class="{'w-[100vw] h-[100vh] max-h-[100vh] rounded-none': isFullOnMobile }"
       >
         <slot name="form"></slot>
         <div class="modal-action justify-center mt-0">
@@ -30,6 +31,10 @@
 import { ref } from "vue";
 
 const dialog = ref(null);
+
+const props = defineProps({
+    isFullOnMobile: Boolean
+  });
 
 defineEmits(["handleSubmit"])
 </script>
