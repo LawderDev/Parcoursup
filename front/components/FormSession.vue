@@ -1,16 +1,35 @@
 <template>
   <div>
     <div class="flex items-center">
-      <h1 class="text-3xl my-8 font-bold max-w-48 md:max-w-96 truncate tooltip tooltip-open" data-tip="Projet TIC 2024 ffffffffffffffffffffffffff" v-if="!state.editTitle">{{state.sessionName}}</h1>
-      <input 
-        v-model="state.newTitle" 
-        v-if="state.editTitle" 
-        class="input input-bordered  my-8 font-bold"
+      <h1
+        class="text-3xl my-8 font-bold max-w-48 md:max-w-96 truncate tooltip tooltip-open"
+        data-tip="Projet TIC 2024 ffffffffffffffffffffffffff"
+        v-if="!state.editTitle"
       >
+        {{ state.sessionName }}
+      </h1>
+      <input
+        v-model="state.newTitle"
+        v-if="state.editTitle"
+        class="input input-bordered my-8 font-bold"
+      />
       <div class="ml-3 p-3 flex items-center grow">
-        <EditTitle v-if="!state.editTitle" class="m-3" :src="Edit" @click="state.editTitle=true"></EditTitle>
-        <EditTitle v-if="state.editTitle" :src="OkClickable" @click="handleEditOk" ></EditTitle>
-        <EditTitle v-if="state.editTitle" :src="Cancel" @click="handleEditCancel" ></EditTitle>
+        <EditTitle
+          v-if="!state.editTitle"
+          class="m-3"
+          :src="Edit"
+          @click="state.editTitle = true"
+        ></EditTitle>
+        <EditTitle
+          v-if="state.editTitle"
+          :src="OkClickable"
+          @click="handleEditOk"
+        ></EditTitle>
+        <EditTitle
+          v-if="state.editTitle"
+          :src="Cancel"
+          @click="handleEditCancel"
+        ></EditTitle>
         <ImageButton class="ml-auto" :src="Delete"></ImageButton>
       </div>
     </div>
@@ -92,12 +111,6 @@
       <span v-if="!fileCorrect" class=""
         >Veuillez renseigner un fichier valide</span
       >
-      <span v-else-if="!groupCorrect"
-        >Veuillez renseigner des groupes valides</span
-      >
-      <span v-else-if="!dateCorrect"
-        >Veuillez renseigner une date de fin valide</span
-      >
       <span v-else>Erreur inconnue.</span>
     </div>
     <div class="flex place-content-between mt-8">
@@ -132,8 +145,8 @@ import OkClickable from "~/public/okClickable.svg";
 import Cancel from "~/public/cancel.svg";
 
 const state = reactive({
-  editTitle : false,
-  newTitle : null,
+  editTitle: false,
+  newTitle: null,
   sessionName: "Session111111111111111",
   fileContent: null,
   minGroup: 1,
@@ -146,10 +159,10 @@ const state = reactive({
 const handleEditOk = () => {
   state.sessionName = state.newTitle;
   state.editTitle = false;
-}
+};
 const handleEditCancel = () => {
   state.editTitle = false;
-}
+};
 const handleDateSelected = (selectedDate) => {
   state.endDate = selectedDate;
 };
@@ -158,7 +171,7 @@ const handleFileSelected = (file) => {
 };
 
 let formCorrect = computed(() => {
-  return fileCorrect.value && dateCorrect.value && groupCorrect.value;
+  return fileCorrect.value && groupCorrect.value;
 });
 const fileCorrect = computed(() => {
   return state.fileContent != null;
@@ -167,14 +180,12 @@ const dateCorrect = computed(() => {
   return state.endDate != null && new Date(state.endDate) >= new Date();
 });
 
-
 watch(state, (newVal) => {
-  console.log("newVal",newVal);
-  if(!state.newTitle){
-    state.newTitle=state.sessionName;
+  console.log("newVal", newVal);
+  if (!state.newTitle) {
+    state.newTitle = state.sessionName;
   }
-})
-
+});
 
 const groupCorrect = computed(() => {
   return (
@@ -189,13 +200,14 @@ const handleClick = () => {
     console.log("valid form");
     state.error = false;
     console.log(state.fileContent);
-    const formData = {
-      sessionName: state.sessionName,
-      endDateGroup: state.endDateGroup,
-      endDateSession: state.endDateSession,
-      minGroup: state.minValue,
-      maxGroup: state.maxValue,
-    };
+    const formData = [
+      state.sessionName,
+      state.endDateGroup,
+      state.endDateSession,
+      state.minGroup,
+      state.maxGroup,
+      1,
+    ];
 
     console.log(formData);
     const jsonData = JSON.stringify(formData);
