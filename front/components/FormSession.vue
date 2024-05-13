@@ -2,7 +2,7 @@
   <div>
     <div class="flex items-center" v-if="props.editMode">
       <h1
-        class="text-3xl my-8 font-bold max-w-48 md:max-w-96 truncate tooltip tooltip-open"
+        class="text-3xl font-bold max-w-48 md:max-w-96 truncate tooltip tooltip-open"
         data-tip="Projet TIC 2024"
         v-if="!state.editTitle"
       ></h1>
@@ -31,30 +31,32 @@
         <ImageButton class="ml-auto" :src="Delete"></ImageButton>
       </div>
     </div>
+    <h1 class="font-semibold text-primary text-center mb-5 p-4 text-xl">
+      Créer une session
+    </h1>
     <div v-if="!props.editMode">
-      <h2 class="text-xl my-4 font-semibold">Nom de la session</h2>
-      <input
-        v-model="state.sessionName"
-        class="input input-bordered my-8 font-bold"
-      />
+      <h2 class="mx-5 mb-2">Nom de la session</h2>
+      <div class="flex w-full px-5 mb-5">
+        <input
+          v-model="state.sessionName"
+          class="input input-bordered w-full"
+        />
+      </div>
     </div>
-
-    <h2 class="text-xl my-4 font-semibold">Liste des étudiants</h2>
-    <h3 class="ml-5 text-gray-500">
-      Entrez la liste des participants au format .csv
-    </h3>
-    <FileInput
-      class="my-5"
-      acceptedTypes=".csv"
-      @fileSelected="handleFileSelected"
+    <h2 class="mx-5 mb-2">
+      Date de fin des formations des groupes
+    </h2>
+    <DateComponent v-model:endDate="state.endDateGroup" class="px-5 mb-5" />
+    <h2 class="mx-5 mb-2">Date de fin de la session</h2>
+    <DateComponent
+      v-model:endDate="state.endDateSession"
+      :endDateGroup="state.endDateGroup"
+      class="px-5 mb-5"
     />
-    <p v-if="state.selectedFile">
-      Fichier sélectionné: {{ state.selectedFile.name }}
-    </p>
-    <h2 class="text-xl my-8 font-semibold">Nombre de personnes par groupe</h2>
+    <h2 class="mx-5 mb-2">Nombre de personnes par groupe</h2>
     <div class="md:w-13">
       <label
-        class="input input-bordered flex items-center gap-4 m-4 rounded-badge"
+        class="input input-bordered flex items-center gap-4 mx-5 mb-2"
       >
         Minimum
         <input
@@ -67,7 +69,7 @@
         />
       </label>
       <label
-        class="input input-bordered flex items-center gap-4 m-4 rounded-badge"
+        class="input input-bordered flex items-center gap-4 mx-5 mb-5"
       >
         Maximum
         <input
@@ -80,16 +82,16 @@
         />
       </label>
     </div>
-    <h2 class="text-xl my-8 font-semibold">
-      Date de fin des formations des groupes
-    </h2>
-    <DateComponent v-model:endDate="state.endDateGroup" class="px-5" />
-    <h2 class="text-xl my-8 font-semibold">Date de fin de la session</h2>
-    <DateComponent
-      v-model:endDate="state.endDateSession"
-      :endDateGroup="state.endDateGroup"
-      class="px-5"
-    />
+    <h2 class="mx-5 mb-2">Liste des étudiants</h2>
+    <div class="mx-5 mb-5">
+      <FileInput
+        acceptedTypes=".csv"
+        @fileSelected="handleFileSelected"
+      />
+      <p v-if="state.selectedFile">
+        Fichier sélectionné: {{ state.selectedFile.name }}
+      </p>
+    </div>
     <div
       role="alert"
       class="flex alert alert-error my-4 max-w-50 justify-center items-center"
@@ -133,21 +135,21 @@
         >Enregistrer les modifications</ButtonPrimary
       >
     </div>
+    <!--Bouton mobile-->
     <div
-      class="sticky inset-x-0 bottom-1 p-4 flex items-center justify-center z-50 md:hidden"
-      v-if="!props.editMode"
-    >
+      class="sticky inset-x-0 bottom-1 p-4 flex items-center justify-center z-50 md:hidden" v-if="!props.editMode">
       <ButtonPrimary
         @click="handleClick"
         class="md:place-self-end place-start neumorphism"
         >Valider
       </ButtonPrimary>
     </div>
-    <div class="flex place-content-between mt-8" v-if="!props.editMode">
-      <div class="hidden md:flex items-center p-4">
+    <!--Bouton desktop-->
+    <div class="flex justify-center mt-8" v-if="!props.editMode">
+      <div class="hidden md:flex p-4">
         <ButtonPrimary
           @click="handleClick"
-          class="md:place-self-end place-start neumorphism"
+          class="md:place-self-end place-start"
           >Valider</ButtonPrimary
         >
       </div>
