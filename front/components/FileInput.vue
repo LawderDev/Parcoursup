@@ -27,13 +27,10 @@ const handleFileChange = (event) => {
   if (file) {
     const reader = new FileReader();
     reader.onload = (e) => {
-      state.selectedFile.value = e.target.result;
-      console.log(e);
+      emit("fileSelected", e.target.result);
     };
 
     reader.readAsText(file);
   }
-  console.log(state.selectedFile.value);
-  emit("fileSelected", state.selectedFile.value);
 };
 </script>

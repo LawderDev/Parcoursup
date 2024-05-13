@@ -107,7 +107,6 @@
 import { reactive } from "vue";
 import Delete from "~/public/delete.svg";
 const state = reactive({
-  selectedFile: null,
   fileContent: null,
   minGroup: 1,
   maxGroup: null,
@@ -118,15 +117,14 @@ const handleDateSelected = (selectedDate) => {
   state.endDate = selectedDate;
 };
 const handleFileSelected = (file) => {
-  state.selectedFile = file;
-  console.log(state.selectedFile);
+  state.fileContent = file;
 };
 
 let formCorrect = computed(() => {
   return fileCorrect.value && dateCorrect.value && groupCorrect.value;
 });
 const fileCorrect = computed(() => {
-  return state.selectedFile != null;
+  return state.fileContent != null;
 });
 const dateCorrect = computed(() => {
   return state.endDate != null && new Date(state.endDate) >= new Date();
@@ -143,6 +141,7 @@ const handleClick = () => {
   if (formCorrect.value) {
     console.log("valid form");
     state.error = false;
+    console.log(state.fileContent)
   } else {
     state.error = true;
   }
