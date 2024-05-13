@@ -5,10 +5,10 @@
       <ButtonPrimary>Ajouter un projet</ButtonPrimary>
     </div>
     <div class="mt-6">
-      <SessionItem title="Projet TIC 2024" endDate="Fin de 12/05/2024" @delete="openDeleteModal"></SessionItem>
-      <SessionItem title="Projet TIC 2022" endDate="Fin de 12/05/2024" @delete="openDeleteModal"></SessionItem>
-      <SessionItem title="Projet TIC 2021" endDate="Fin de 12/05/2024" @delete="openDeleteModal"></SessionItem>
-      <SessionItem title="Projet TIC 2020" endDate="Fin de 12/05/2024" @delete="openDeleteModal"></SessionItem>
+      <SessionItem title="Projet TIC 2024" endDate="Fin le 12/05/2024" @delete="openDeleteModal"></SessionItem>
+      <SessionItem title="Projet TIC 2022" endDate="Fin le 12/05/2024" @delete="openDeleteModal"></SessionItem>
+      <SessionItem title="Projet TIC 2021" endDate="Fin le 12/05/2024" @delete="openDeleteModal"></SessionItem>
+      <SessionItem title="Projet TIC 2020" endDate="Fin le 12/05/2024" @delete="openDeleteModal"></SessionItem>
     </div>
 
     <div class="flex justify-center">
