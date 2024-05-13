@@ -132,6 +132,48 @@ def create_group():
             return jsonify({'error': str(e)}), 500   
     else:
         return jsonify({'error': "nul"}), 50
+    
+@app.route('/api/delete_session', methods=['POST'])
+def create_session():
+    """
+_summary_
+Method that delete a session, take in parameter the id.
+Returns:
+    _type_: _description_
+"""   
+    print('Enter delete session function')
+    # Retrieve parameters from the request body
+    sessionID = request.json.get('sessionID') # json item
+
+    # Il faut utiliser os.path.join pour que ce soit multiplateforme
+    db = os.path.join(os.getcwd(), 'db', 'parcoursup.sqlite') 
+    if os.path.exists(db):
+        conn = sqlite3.connect(db)
+        cursor = conn.cursor()
+        try:
+            sqlRequest = cursor.execute("DELETE FROM ETUDIANT WHERE FK_Session = ?", (sessionID,))
+            res = sqlRequest.fetchone()
+            print("Delete Student from session " + str(sessionID) + " : OK")
+            
+            sqlRequest = cursor.execute("DELETE FROM PROJET WHERE FK_Session = ?", (sessionID,))
+            res = sqlRequest.fetchone()
+            print("Delete Project from session " + str(sessionID) + " : OK")
+            
+            sqlRequest = cursor.execute("DELETE FROM SESSION WHERE ID = ?;", (sessionID,))
+            res = sqlRequest.fetchone()
+            print("Delete Session " + str(sessionID) + " : OK")
+
+            # Commit the insertions
+            conn.commit()
+            conn.close()
+
+            # Convert data to JSON format
+            return jsonify({'result': res}), 200
+
+        except sqlite3.Error as e:
+            return jsonify({'error': str(e)}), 500   
+    else:
+        return jsonify({'error': "nul"}), 50
 
 if __name__ == '__main__':
     app.run(debug=True)
