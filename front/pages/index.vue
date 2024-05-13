@@ -14,7 +14,7 @@
     <div class="flex justify-center">
       <ButtonPlus class="md:hidden neumorphism"></ButtonPlus>
     </div>
-    
+
     <ModalDeleteSession v-model:isOpen="state.isOpen"></ModalDeleteSession>
   </div>
 </template> 
@@ -22,7 +22,6 @@
 <script setup>
 import axios from "axios";
 import { reactive } from "vue";
-import plus from "../assets/images/plus.png";
 // Petite subtilité , c'est mieux de faire ça que ref,
 // ça évite de créer une variable à chaque fois
 // quand les gens débutent ils utilisent toujours ref
