@@ -189,7 +189,7 @@ Returns:
         return jsonify({'error': "nul"}), 50
     
 @app.route('/api/delete_session', methods=['POST'])
-def create_session():
+def delete_session():
     """
 _summary_
 Method that delete a session, take in parameter the id.
