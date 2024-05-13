@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="flex items-center">
+    <div class="flex items-center" v-if="props.editMode">
       <h1
         class="text-3xl my-8 font-bold max-w-48 md:max-w-96 truncate tooltip tooltip-open"
         data-tip="Projet TIC 2024 ffffffffffffffffffffffffff"
@@ -32,6 +32,13 @@
         ></EditTitle>
         <ImageButton class="ml-auto" :src="Delete"></ImageButton>
       </div>
+    </div>
+    <div v-if="!props.editMode">
+      <h2 class="text-xl my-4 font-semibold">Liste des étudiants</h2>
+      <input
+        v-model="state.sessionName"
+        class="input input-bordered my-8 font-bold"
+      />
     </div>
 
     <h2 class="text-xl my-4 font-semibold">Liste des étudiants</h2>
@@ -143,6 +150,12 @@ import Delete from "~/public/delete.svg";
 import Edit from "~/public/edit.svg";
 import OkClickable from "~/public/okClickable.svg";
 import Cancel from "~/public/cancel.svg";
+
+
+const props = defineProps({
+  editMode: Boolean
+});
+
 
 const state = reactive({
   editTitle: false,

@@ -2,7 +2,7 @@
   <div>
     <NavBar :name="'fdsf'" />
     <div class="grid m-8 mx-10">
-      <FormSession ></FormSession>
+      <FormSession editMode></FormSession>
       <h3 class="ml-5 text-gray-500">Quels seront les projets disponibles ?</h3>
       <div class="grid grid-cols-1 md:grid-cols-4 mb-20 md:mb-0">
         <div v-for="item in liste" :key="item.id">
