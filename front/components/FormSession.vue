@@ -47,14 +47,13 @@
       Date de fin des formations des groupes
     </h2>
     <DateComponent
-      :selectedDate="state.endDateGroup"
-      @newDateSelected="handleDateSelected"
+      v-model:endDate="state.endDateGroup"
       class="px-5"
     />
     <h2 class="text-xl my-8 font-semibold">Date de fin de la session</h2>
     <DateComponent
-      :selectedDate="state.endDateSession"
-      @newDateSelected="handleDateSelected"
+      v-model:endDate="state.endDateSession"
+      :endDateGroup="state.endDateGroup"
       class="px-5"
     />
     <div
@@ -78,12 +77,6 @@
       </svg>
       <span v-if="!fileCorrect" class=""
         >Veuillez renseigner un fichier valide</span
-      >
-      <span v-else-if="!groupCorrect"
-        >Veuillez renseigner des groupes valides</span
-      >
-      <span v-else-if="!dateCorrect"
-        >Veuillez renseigner une date de fin valide</span
       >
       <span v-else>Erreur inconnue.</span>
     </div>
@@ -123,22 +116,18 @@ const state = reactive({
   endDateSession: null,
   error: false,
 });
-const handleDateSelected = (selectedDate) => {
-  state.endDate = selectedDate;
-};
+
 const handleFileSelected = (file) => {
   state.fileContent = file;
 };
 
 let formCorrect = computed(() => {
-  return fileCorrect.value && dateCorrect.value && groupCorrect.value;
+  return fileCorrect.value && groupCorrect.value;
 });
 const fileCorrect = computed(() => {
   return state.fileContent != null;
 });
-const dateCorrect = computed(() => {
-  return state.endDate != null && new Date(state.endDate) >= new Date();
-});
+
 const groupCorrect = computed(() => {
   return (
     state.minGroup != null &&
@@ -152,13 +141,14 @@ const handleClick = () => {
     console.log("valid form");
     state.error = false;
     console.log(state.fileContent);
-    const formData = {
-      sessionName: state.sessionName,
-      endDateGroup: state.endDateGroup,
-      endDateSession: state.endDateSession,
-      minGroup: state.minValue,
-      maxGroup: state.maxValue,
-    };
+    const formData = [
+      state.sessionName,
+      state.endDateGroup,
+      state.endDateSession,
+      state.minGroup,
+      state.maxGroup,
+      1
+  ];
 
     console.log(formData);
     const jsonData = JSON.stringify(formData);
