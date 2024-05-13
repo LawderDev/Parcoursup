@@ -37,8 +37,4 @@ const openDeleteModal = () => {
   console.log("open delete modal");
   state.isOpen = true;
 };
-
-const handleSubmit = async () => {
-
-};
 </script>
