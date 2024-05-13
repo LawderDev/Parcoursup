@@ -43,9 +43,17 @@
         />
       </label>
     </div>
-    <h2 class="text-xl my-8 font-semibold">Date de fin</h2>
+    <h2 class="text-xl my-8 font-semibold">
+      Date de fin des formations des groupes
+    </h2>
     <DateComponent
-      :selectedDate="state.endDate"
+      :selectedDate="state.endDateGroup"
+      @newDateSelected="handleDateSelected"
+      class="px-5"
+    />
+    <h2 class="text-xl my-8 font-semibold">Date de fin de la session</h2>
+    <DateComponent
+      :selectedDate="state.endDateSession"
       @newDateSelected="handleDateSelected"
       class="px-5"
     />
@@ -107,10 +115,12 @@
 import { reactive } from "vue";
 import Delete from "~/public/delete.svg";
 const state = reactive({
+  sessionName: null,
   fileContent: null,
   minGroup: 1,
   maxGroup: null,
-  endDate: null,
+  endDateGroup: null,
+  endDateSession: null,
   error: false,
 });
 const handleDateSelected = (selectedDate) => {
@@ -141,7 +151,17 @@ const handleClick = () => {
   if (formCorrect.value) {
     console.log("valid form");
     state.error = false;
-    console.log(state.fileContent)
+    console.log(state.fileContent);
+    const formData = {
+      sessionName: state.sessionName,
+      endDateGroup: state.endDateGroup,
+      endDateSession: state.endDateSession,
+      minGroup: state.minValue,
+      maxGroup: state.maxValue,
+    };
+
+    console.log(formData);
+    const jsonData = JSON.stringify(formData);
   } else {
     state.error = true;
   }
