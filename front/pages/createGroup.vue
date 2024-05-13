@@ -11,8 +11,10 @@
             <Steps></Steps>
             <div class="divider"></div> 
             <h2 class="text-xl my-4 font-bold ml-2">Votre groupe</h2>
-            <h3 class="ml-2 text-gray-500">De qui est composé votre groupe?</h3>
-            
+            <h3 class="ml-2 text-gray-500">De qui est composé votre groupe ?</h3>
+            <h3 class="ml-2 font-bold">Personne 1</h3>
+            <autocomplete search="search" class="ml-2 border-2 border-gray-200 rounded-xl w-full h-10">
+              </autocomplete>
         </Card>
         
     </div>
