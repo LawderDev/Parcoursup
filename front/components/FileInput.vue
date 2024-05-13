@@ -1,7 +1,7 @@
 <template>
   <input
     type="file"
-    class="file-input file-input-primary file-input-bordered file-input-m w-full"
+    class="file-input file-input-primary file-input-bordered file-input-m w-full rounded-badge"
     @change="handleFileChange"
     :accept="acceptedTypes"
   />
