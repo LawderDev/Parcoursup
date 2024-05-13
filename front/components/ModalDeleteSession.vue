@@ -1,9 +1,8 @@
 <template>
     <div>
-      <Modal @handle-submit="handleSubmit">
+      <Modal @handle-submit="handleSubmit" @close="$emit('update:isOpen', false)">
         <template v-slot:open-btn>
-            <div class="btn btn-square">
-                <img alt="delete-svg" src="../public/delete.svg" class="h-6 w-6" />
+            <div class="hidden" ref="openBtn">
             </div>
         </template>
         <template v-slot:form>
@@ -19,6 +18,22 @@
   </template> 
   
   <script setup>
+  const openBtn = ref(null);
+
+  defineEmits(["update:isOpen"])
+
+  const props = defineProps({
+    isOpen: Boolean,
+  });
+
+  watch(
+    () => props.isOpen,
+    () => {
+      if (props.isOpen) {
+        openBtn.value.click();
+      }
+    })
+
   const handleSubmit = () => {
   
   };

@@ -1,7 +1,8 @@
 <template>
-  <div class="ml-6 mr-6">
+  <div class="ml-6 mr-6 relative z-10">
     <div
       class="btn btn-block h-20 flex justify-start rounded-3xl bg-base-100 border-0 shadow-transparent"
+      @click="$emit('click')"
     >
       <ImagePlaceHolder>{{ title[0] }}</ImagePlaceHolder>
 
@@ -17,8 +18,10 @@
           </div>
         </div>
       </div>
-      <div class="ml-auto">
-        <ModalDeleteSession></ModalDeleteSession>
+      <div class="ml-auto z-0 " @click.stop="$emit('delete')">
+        <div class="btn btn-square">
+            <img alt="delete-svg" src="../public/delete.svg" class="h-6 w-6" />
+        </div>
       </div>
     </div>
   </div>
@@ -29,6 +32,8 @@ defineProps({
   title: String,
   endDate: String,
 });
+
+defineEmits(['delete'])
 </script>
 
 <style scoped></style>
