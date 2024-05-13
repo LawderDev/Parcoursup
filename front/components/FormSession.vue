@@ -34,7 +34,7 @@
       </div>
     </div>
     <div v-if="!props.editMode">
-      <h2 class="text-xl my-4 font-semibold">Liste des étudiants</h2>
+      <h2 class="text-xl my-4 font-semibold">Nom de la session</h2>
       <input
         v-model="state.sessionName"
         class="input input-bordered my-8 font-bold"
@@ -147,11 +147,9 @@ import Edit from "~/public/edit.svg";
 import OkClickable from "~/public/okClickable.svg";
 import Cancel from "~/public/cancel.svg";
 
-
 const props = defineProps({
-  editMode: Boolean
+  editMode: Boolean,
 });
-
 
 const state = reactive({
   editTitle: false,
@@ -160,6 +158,7 @@ const state = reactive({
   fileContent: null,
   minGroup: 1,
   maxGroup: null,
+  endDate: null,
   endDateGroup: null,
   endDateSession: null,
   error: false,
