@@ -25,6 +25,9 @@ const format = (date) => {
   return `${day}/${month}/${year}`;
 }
 
-
-
+const disabledDates = (date) => {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  return date < today;
+};
 </script>
