@@ -3,11 +3,9 @@
     <div class="flex items-center" v-if="props.editMode">
       <h1
         class="text-3xl my-8 font-bold max-w-48 md:max-w-96 truncate tooltip tooltip-open"
-        data-tip="Projet TIC 2024 ffffffffffffffffffffffffff"
+        data-tip="Projet TIC 2024"
         v-if="!state.editTitle"
-      >
-        {{ state.sessionName }}
-      </h1>
+      ></h1>
       <input
         v-model="state.newTitle"
         v-if="state.editTitle"
@@ -116,10 +114,8 @@
       >
       <span v-else>Erreur inconnue.</span>
     </div>
-    <div class="flex place-content-between mt-8">
-      <h2 class="text-xl mt-8 mb-4 font-semibold">Projets</h2>
+    <div class="flex place-content-between mt-8" v-if="props.editMode">
       <div class="hidden md:flex items-center p-4">
-        <ButtonPlus class="mr-5 neumorphism" />
         <ButtonPrimary
           @click="handleClick"
           class="md:place-self-end place-start neumorphism"
@@ -129,13 +125,32 @@
     </div>
     <div
       class="sticky inset-x-0 bottom-1 p-4 flex items-center justify-center z-50 md:hidden"
+      v-if="props.editMode"
     >
-      <ButtonPlus class="mr-5 neumorphism" />
       <ButtonPrimary
         @click="handleClick"
         class="md:place-self-end place-start neumorphism"
         >Enregistrer les modifications</ButtonPrimary
       >
+    </div>
+    <div
+      class="sticky inset-x-0 bottom-1 p-4 flex items-center justify-center z-50 md:hidden"
+      v-if="!props.editMode"
+    >
+      <ButtonPrimary
+        @click="handleClick"
+        class="md:place-self-end place-start neumorphism"
+        >Valider
+      </ButtonPrimary>
+    </div>
+    <div class="flex place-content-between mt-8" v-if="!props.editMode">
+      <div class="hidden md:flex items-center p-4">
+        <ButtonPrimary
+          @click="handleClick"
+          class="md:place-self-end place-start neumorphism"
+          >Valider</ButtonPrimary
+        >
+      </div>
     </div>
   </div>
 </template>
@@ -154,7 +169,7 @@ const props = defineProps({
 const state = reactive({
   editTitle: false,
   newTitle: null,
-  sessionName: "Session111111111111111",
+  sessionName: "Session",
   fileContent: null,
   minGroup: 1,
   maxGroup: null,

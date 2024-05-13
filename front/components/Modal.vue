@@ -16,9 +16,6 @@
             >
               ✕
             </button>
-            <div class="flex justify-center mt-5">
-              <ButtonPrimary @click="$emit('handleSubmit')" title="Valider"></ButtonPrimary>
-            </div>
           </form>
         </div>
       </div>

@@ -4,6 +4,8 @@
     <div class="grid m-8 mx-10">
       <FormSession editMode></FormSession>
       <h3 class="ml-5 text-gray-500">Quels seront les projets disponibles ?</h3>
+      <h2 class="text-xl mt-8 mb-4 font-semibold">Projets</h2>
+      <ButtonPlus class="mr-5 neumorphism" />
       <div class="grid grid-cols-1 md:grid-cols-4 mb-20 md:mb-0">
         <div v-for="item in liste" :key="item.id">
           <ProjectCard :title="item.title" :summary="item.summary" />
