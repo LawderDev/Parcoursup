@@ -4,27 +4,36 @@
     class="file-input file-input-primary file-input-bordered file-input-sm md:file-input-md w-full max-w-xs rounded-badge"
     @change="handleFileChange"
     :accept="acceptedTypes"
-    ref="fileInput"
   />
 </template>
 
 <script setup>
-import { ref, defineProps, defineEmits } from 'vue';
+import { ref, defineProps, defineEmits } from "vue";
+const emit = defineEmits(["fileSelected"]);
 
 const props = defineProps({
   acceptedTypes: {
     type: String,
-    default: ''
-  }
+    default: "",
+  },
 });
 
-const emit  = defineEmits(['fileSelected']);
-
-const selectedFile = ref(null);
+const state = reactive({
+  selectedFile: null,
+});
 
 const handleFileChange = (event) => {
   const file = event.target.files[0];
-  selectedFile.value = file;
-  emit('fileSelected', file);
+  if (file) {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      state.selectedFile.value = e.target.result;
+      console.log(e);
+    };
+
+    reader.readAsText(file);
+  }
+  console.log(state.selectedFile.value);
+  emit("fileSelected", state.selectedFile.value);
 };
 </script>

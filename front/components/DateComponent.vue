@@ -1,5 +1,5 @@
 <template>
-  <VueDatePicker v-model="selectedDate" :format="format"  />
+  <VueDatePicker v-model="selectedDate" :format="format" :disabled-dates="disabledDates" />
 </template>
 
 <script setup>
@@ -24,6 +24,11 @@ const format = (date) => {
 
   return `${day}/${month}/${year}`;
 }
+const disabledDates = (date) => {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  return date < today;
+};
 
 
 
