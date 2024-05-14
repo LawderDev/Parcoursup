@@ -227,7 +227,6 @@ const groupCorrect = computed(() => {
 const handleClick = async () => {
   if (formCorrect.value) {
     state.error = false;
-    console.log(state.fileContent);
 
     const formData = {
       session: [
@@ -240,11 +239,17 @@ const handleClick = async () => {
       ],
     };
 
-    const jsonData = JSON.stringify(formData);
-    const session_id = await create_session(jsonData);
-    console.log(session_id)
+    const jsonDataSession = JSON.stringify(formData);
+    const session_id = await create_session(jsonDataSession);
 
-    
+    const jsonDataStudent = {
+      session_ID: session_id,
+      data: state.fileContent,
+    };
+
+    create_student(jsonDataStudent)
+
+    console.log(jsonDataStudent);
   } else {
     state.error = true;
   }
@@ -278,9 +283,9 @@ const create_student = async (jsonData) => {
         },
       }
     );
-    return res.data.result[0];
+    return res
   } catch (err) {
     console.error(err);
   }
-}
+};
 </script>

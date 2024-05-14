@@ -9,6 +9,7 @@
 
 <script setup>
 import { ref, defineProps, defineEmits } from "vue";
+import Papa from 'papaparse';
 const emit = defineEmits(["fileSelected"]);
 
 const props = defineProps({
@@ -26,10 +27,16 @@ const handleFileChange = (event) => {
   const file = event.target.files[0];
   if (file) {
     const reader = new FileReader();
-    reader.onload = (e) => {
-      emit("fileSelected", e.target.result);
+    reader.onload = () => {
+      const csv = reader.result;
+      // Parse CSV
+      const parsedData = Papa.parse(csv, { header: true, delimiter: ";" });
+      // Construire l'objet JSON
+      // Convertir en JSON
+      
+      const jsonData = JSON.stringify(parsedData.data, null, 2);
+      emit("fileSelected", jsonData);
     };
-
     reader.readAsText(file);
   }
 };
