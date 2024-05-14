@@ -1,6 +1,6 @@
 <template>
         <div>
-            <h1 class="card-title pb-4 text-neutral">Votre classement</h1>
+            <h1 class="card-title pb-4 text-neutral">Vos préférences</h1>
             <p class="pb-4 text-accent text-sm">{{ description }}</p>
             <div class="flex">
                 <div class="relative top-[27px] opacity-60">
