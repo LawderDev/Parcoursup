@@ -5,8 +5,8 @@
         <h3 class="m-5 text-secondary text-center">{{ subTitle }}</h3>
       </div>
       <div class="flex justify-center">
-          <Card class="h-[70vh] w-[95vw] md:w-[580px] overflow-y-scroll" no-fit>
-              <Steps :nb-steps="nbStep" :nb-steps-active="nbStepActive" :nb-steps-lock="nbStepLock" class="w-full"></Steps>
+          <Card class="h-[70vh] w-[95vw] md:w-[580px] max-w-[580px] overflow-y-scroll" no-fit>
+              <Steps :nb-steps="nbSteps" :nb-steps-active="nbStepsActive" :nb-steps-lock="nbStepsLock" class="w-full"></Steps>
               <div class="divider"></div> 
               <slot></slot>
           </Card>
@@ -23,9 +23,9 @@
 defineProps({
   title: String,
   subTitle: String,
-  nbStep: Number,
-  nbStepActive: Number,
-  nbStepLock: Number,
+  nbSteps: Number,
+  nbStepsActive: Number,
+  nbStepsLock: Number,
   stepLock: Number,
   buttonTitle: String,
 });
