@@ -34,6 +34,17 @@ const state = reactive({
   isOpen: false,
 });
 
+const data = {
+  "project":["Parcoursup","La desc", 5, 6, 1]
+};
+const jsonData = JSON.stringify(data);
+
+const response = await axios.post("http://127.0.0.1:5000/api/create_project", jsonData, {
+  headers: {
+    'Content-Type': 'application/json'
+  }}
+);
+
 const openDeleteModal = () => {
   console.log("open delete modal");
   state.isOpen = true;
