@@ -1,13 +1,22 @@
 <template>
   <div>
-    <button class="btn" @click="dialog.showModal()">open modal</button>
-    <dialog ref="dialog" class="modal">
-      <div class="modal-box">
-        <slot></slot>
-        <div class="modal-action">
+    <div @click="dialog.showModal">
+      <slot name="open-btn"></slot>
+    </div>
+
+    <dialog ref="dialog" class="modal" @close="$emit('close')">
+      <div
+        class="modal-box md:w-[50%] md:h-auto md:rounded-xl md:drop-shadow-md"
+        :class="{'w-[100vw] h-[100vh] max-h-[100vh] rounded-none': isFullOnMobile }"
+      >
+        <slot name="form"></slot>
+        <div class="modal-action justify-center mt-0">
           <form method="dialog">
-            <button class="btn m-5">Valider</button>
-            <button class="btn">Annuler</button>
+            <button
+              class="btn btn-sm btn-circle btn-ghost absolute left-2 top-2"
+            >
+              ✕
+            </button>
           </form>
         </div>
       </div>
@@ -16,8 +25,13 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref } from "vue";
 
-const dialog = ref(null)
+const dialog = ref(null);
 
+const props = defineProps({
+    isFullOnMobile: Boolean
+  });
+
+defineEmits(["handleSubmit"])
 </script>
