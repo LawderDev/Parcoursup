@@ -6,16 +6,17 @@
       <ButtonPrimary>Ajouter un projet</ButtonPrimary>
     </div>
     <div class="mt-6">
-      <SessionItem title = "Projet TIC 2024" endDate = "Fin de 12/05/2024"></SessionItem>
-      <SessionItem title = "Projet TIC 2023" endDate = "Fin de 12/05/2024"></SessionItem>
-      <SessionItem title = "Projet TIC 2022" endDate = "Fin de 12/05/2024"></SessionItem>
-      <SessionItem title = "Projet TIC 2021" endDate = "Fin de 12/05/2024"></SessionItem>
-      <SessionItem title = "Projet TIC 2020" endDate = "Fin de 12/05/2024"></SessionItem>
+      <SessionItem title="Projet TIC 2024" endDate="Fin le 12/05/2024" @delete="openDeleteModal"></SessionItem>
+      <SessionItem title="Projet TIC 2022" endDate="Fin le 12/05/2024" @delete="openDeleteModal"></SessionItem>
+      <SessionItem title="Projet TIC 2021" endDate="Fin le 12/05/2024" @delete="openDeleteModal"></SessionItem>
+      <SessionItem title="Projet TIC 2020" endDate="Fin le 12/05/2024" @delete="openDeleteModal"></SessionItem>
     </div>
+
     <div class="flex justify-center">
       <ButtonPlus class="md:hidden neumorphism"></ButtonPlus>
     </div>
-    
+
+    <ModalDeleteSession v-model:isOpen="state.isOpen"></ModalDeleteSession>
   </div>
 </template> 
 
@@ -30,15 +31,11 @@ import { reactive } from "vue";
 // Tout ce qui sera dans l'objet state du coup sera reactif !
 const state = reactive({
   helloWorld: "",
+  isOpen: false,
 });
 
-const fetchHelloWorld = async () => {
-  try {
-    state.helloWorld = response.data;
-  } catch (error) {
-    console.error("Error fetching hello world:", error);
-  }
+const openDeleteModal = () => {
+  console.log("open delete modal");
+  state.isOpen = true;
 };
-
-fetchHelloWorld();
 </script>
