@@ -168,6 +168,7 @@
 
 <script setup>
 import { reactive } from "vue";
+import axios from "axios";
 import Delete from "~/public/delete.svg";
 import Edit from "~/public/edit.svg";
 import OkClickable from "~/public/okClickable.svg";
@@ -223,10 +224,11 @@ const groupCorrect = computed(() => {
     state.maxGroup > state.minGroup
   );
 });
-const handleClick = async() => {
+const handleClick = async () => {
   if (formCorrect.value) {
     state.error = false;
     console.log(state.fileContent);
+
     const formData = {
       session: [
         state.sessionName,
@@ -238,24 +240,47 @@ const handleClick = async() => {
       ],
     };
 
-    
     const jsonData = JSON.stringify(formData);
-    console.log(jsonData);
-    await sendDatatoBack(jsonData)
+    const session_id = await create_session(jsonData);
+    console.log(session_id)
+
+    
   } else {
     state.error = true;
   }
 };
 
-const sendDatatoBack = async(data) => {
-  const { data: response } = await useFetch('/api/create_session', {
-    method: 'POST',
-    body: JSON.stringify(data), // Stringify the data object
-    headers: {
-      'Content-Type': 'application/json', // Set content type header
-    },
-  });
+const create_session = async (jsonData) => {
+  try {
+    const res = await axios.post(
+      "http://127.0.0.1:5000/api/create_session",
+      jsonData,
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    return res.data.result[0];
+  } catch (err) {
+    console.error(err);
+  }
+};
 
-  console.log(response);
+const create_student = async (jsonData) => {
+  try {
+    const res = await axios.post(
+      "http://127.0.0.1:5000/api/create_student",
+      jsonData,
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    return res.data.result[0];
+  } catch (err) {
+    console.error(err);
+  }
 }
 </script>
