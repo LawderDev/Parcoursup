@@ -42,7 +42,7 @@ def get_hello_world():
 
 @app.route('/api/gale_shapley', methods=['POST'])
 def gale_shapley_route():
-    data = request.json["data"]
+    data = request.json
     if 'men_preferences' in data and 'women_preferences' in data:
         men_preferences = data['men_preferences']
         women_preferences = data['women_preferences']
