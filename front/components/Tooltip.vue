@@ -1,5 +1,5 @@
 <template>
-  <div class="tooltip tooltip-right" :data-tip="content">
+  <div class="tooltip tooltip-left" :data-tip="content">
     <div class="btn rounded-full min-w-0 min-h-0 w-7 h-6 text-sm">
       <slot></slot>
     </div>
