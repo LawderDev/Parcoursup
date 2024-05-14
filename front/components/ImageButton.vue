@@ -1,6 +1,6 @@
 <template>
-    <div class="btn btn-md btn-secondary rounded-full text-primary neumorphism">
-      <img alt="image-button" :src="src" class="h-6 w-6" />
+    <div class="btn btn-md bg-base-100 rounded-full text-primary">
+      <img alt="image-button" :src="src" class="h-4 w-4 mr-2" />
       <slot></slot>
     </div>
 </template>
