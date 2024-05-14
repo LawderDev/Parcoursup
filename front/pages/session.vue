@@ -3,9 +3,11 @@
     <NavBar :name="'fdsf'" />
     <div class="grid m-8 mx-10">
       <FormSession editMode></FormSession>
+      <div class="flex items-center mt-5">
+        <h2 class="text-xl font-semibold ">Projets</h2>
+        <ButtonPlus class="neumorphism m-4" />
+      </div>
       <h3 class="ml-5 text-gray-500">Quels seront les projets disponibles ?</h3>
-      <h2 class="text-xl mt-8 mb-4 font-semibold">Projets</h2>
-      <ButtonPlus class="mr-5 neumorphism" />
       <div class="grid grid-cols-1 md:grid-cols-4 mb-20 md:mb-0">
         <div v-for="item in liste" :key="item.id">
           <ProjectCard :title="item.title" :summary="item.summary" />
@@ -17,57 +19,6 @@
 </template>
 
 <script setup>
-import { reactive } from "vue";
-import Delete from "~/public/delete.svg";
-const state = reactive({
-  selectedFile: null,
-  file: null,
-  minGroup: 1,
-  maxGroup: null,
-  endDate: null,
-  project: [""],
-  error: false,
-});
-const handleDateSelected = (selectedDate) => {
-  state.endDate = selectedDate;
-};
-const handleFileSelected = (file) => {
-  state.selectedFile = file;
-};
-
-let formCorrect = computed(() => {
-  return (
-    fileCorrect.value &&
-    dateCorrect.value &&
-    groupCorrect.value &&
-    projectCorrect.value
-  );
-});
-const projectCorrect = computed(() => {
-  return state.project != null && state.project.length > 0;
-});
-const fileCorrect = computed(() => {
-  return state.selectedFile != null;
-});
-const dateCorrect = computed(() => {
-  return state.endDate != null && new Date(state.endDate) >= new Date();
-});
-const groupCorrect = computed(() => {
-  return (
-    state.minGroup != null &&
-    state.maxGroup != null &&
-    state.minGroup > 0 &&
-    state.maxGroup > state.minGroup
-  );
-});
-const handleClick = () => {
-  if (formCorrect.value) {
-    console.log("valid form");
-    state.error = false;
-  } else {
-    state.error = true;
-  }
-};
 const liste = [
   {
     id: 1,
