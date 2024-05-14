@@ -1,7 +1,11 @@
 <template>
     <div class="flex justify-center">
         <ul class="steps">
-            <li class="step" :class="{ 'step-primary': i <= nbStepsActive }" v-for="i in nbSteps" :key="i"></li>
+            <template v-for="i in nbSteps">
+                <li v-if="i <= nbStepsLock" class="step" :class="{ 'step-primary': i <= nbStepsActive }"></li>
+                <li v-else data-content="✕" class="step"></li>
+            </template>
+           
         </ul>
     </div>
 </template>
@@ -9,7 +13,8 @@
 <script setup>
 defineProps({
     nbSteps: Number,
-    nbStepsActive: Number
+    nbStepsActive: Number,
+    nbStepsLock: Number,
 })
 </script>
 

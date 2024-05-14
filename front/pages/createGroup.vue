@@ -8,7 +8,7 @@
     </div>
     <div class="flex justify-center">
         <Card class="h-[70vh] w-[95vw] md:w-[580px] overflow-y-scroll" no-fit>
-            <Steps :nb-steps="4" :nb-steps-active="1" class="w-full"></Steps>
+            <Steps :nb-steps="2" :nb-steps-active="1" :nb-steps-lock="1" class="w-full"></Steps>
             <div class="divider"></div> 
             <h2 class="text-xl my-4 font-bold ml-2">Votre groupe</h2>
             <h3 class="ml-2 text-secondary">De qui est composé votre groupe ?</h3>
@@ -43,8 +43,9 @@ const addPerson = () => {
    state.persons.push({})
 }
 
-const validateGroup = () => {
+const validateGroup = async () => {
   console.log(state.persons)
+  await navigateTo('/createGroupConfirmation')
 }
 
 </script>
