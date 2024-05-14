@@ -2,13 +2,14 @@ from flask import Flask, jsonify, request
 from flask_cors import CORS
 from collections import Counter
 import sqlite3
+from sqlite_utils import Database
 import os
 
-#SI ERREUR VOICI LA COMMANDE : py -m pip install scikit-learn==1.2.2 
+# SI ERREUR VOICI LA COMMANDE : py -m pip install scikit-learn==1.2.2
 api_key = 'a1b1045de421855d4d44bb2b53d4da8f'
 
 app = Flask(__name__)
-#Allow all link CORS
+# Allow all link CORS
 CORS(app, resources={r"/api/*": {"origins": "*"}})
 
 
@@ -16,7 +17,7 @@ CORS(app, resources={r"/api/*": {"origins": "*"}})
 def get_hello_world():
     print('enter')
     # Il faut utiliser os.path.join pour que ce soit multiplateforme
-    db = os.path.join(os.getcwd(), 'db', 'parcoursup.sqlite') 
+    db = os.path.join(os.getcwd(), 'db', 'parcoursup.sqlite')
     print(db)
     if os.path.exists(db):
         conn = sqlite3.connect(db)
@@ -31,9 +32,10 @@ def get_hello_world():
 
         except sqlite3.Error as e:
             return jsonify({'error': str(e)}), 500
-        
+
     else:
         return jsonify({'error': "nul"}), 50
+
 
 @app.route('/api/gale_shapley', methods=['POST'])
 def gale_shapley_route():
@@ -45,6 +47,7 @@ def gale_shapley_route():
         return jsonify(result=res)
     else:
         return jsonify({'error': 'Invalid request'}), 400
+
 
 def gale_shapley(women_preferences, men_preferences):
     waiting_list = []
@@ -59,7 +62,8 @@ def gale_shapley(women_preferences, men_preferences):
                 women = men_available[man]
                 best_choice = women[0]
 
-                proposals[(man, best_choice)] = (women_preferences[best_choice].index(man), men_preferences[man].index(best_choice))
+                proposals[(man, best_choice)] = (
+                    women_preferences[best_choice].index(man), men_preferences[man].index(best_choice))
                 del women_available[man][0]
 
         overlays = Counter([key[1] for key in proposals.keys()])
@@ -67,7 +71,7 @@ def gale_shapley(women_preferences, men_preferences):
             if overlays[woman] > 1:
                 pairs_to_drop = sorted({pair: proposals[pair] for pair in proposals.keys()
                                         if woman in pair}.items(),
-                                    key=lambda x: (x[1][1], x[1][0]))[1:]
+                                       key=lambda x: (x[1][1], x[1][0]))[1:]
                 for p_to_drop in pairs_to_drop:
                     del proposals[p_to_drop[0]]
                     del men_available[p_to_drop[0][0]][0]
@@ -100,7 +104,7 @@ def create_group():
     studentEmails = request.json.get('emails')
 
     # Il faut utiliser os.path.join pour que ce soit multiplateforme
-    db = os.path.join(os.getcwd(), 'db', 'parcoursup.sqlite') 
+    db = os.path.join(os.getcwd(), 'db', 'parcoursup.sqlite')
     if os.path.exists(db):
         conn = sqlite3.connect(db)
         cursor = conn.cursor()
@@ -113,48 +117,8 @@ def create_group():
             # Update ETUDIANT table with the group ID for this SESSION
             queryParameters = [(groupID[0], email, sessionID) for email in studentEmails]
 
-            sqlRequest = cursor.executemany("UPDATE ETUDIANT SET FK_Groupe = ? WHERE Email = ? and FK_Session = ?", queryParameters)
-            res = sqlRequest.fetchone()
-
-            # Commit the insertions
-            conn.commit()
-            conn.close()
-
-            # Convert data to JSON format
-            return jsonify({'result': res}), 200
-
-        except sqlite3.Error as e:
-            return jsonify({'error': str(e)}), 500   
-    else:
-        return jsonify({'error': "nul"}), 50
-
-@app.route('/api/create_group', methods=['POST'])
-def create_students(csv_json):
-    """
-    Args:
-        csv_json (dict): json file of all the students.
-
-    Add all the students data from the csv file.
-    Called right after the csv file of student is read.
-    :return:
-    """
-    print('Enter create students function')
-
-    # Retrieve parameters from the request body
-    sessionID = request.json.get('sessionID')  # assuming the parameters are sent in JSON format
-
-    db = os.path.join(os.getcwd(), 'db', 'parcoursup.sqlite')
-    if os.path.exists(db):
-        conn = sqlite3.connect(db)
-        cursor = conn.cursor()
-
-        try:
-            # Update ETUDIANT table with the group ID for this SESSION
-            queryParameters = [(data['id'], data['Nom'], data['Prenom'], data['Email'], sessionID) for data in csv_json]
-
-            # Create the group in the table GROUPE and return the ID
-            sqlRequest = cursor.executemany("INSERT INTO ETUDIANT VALUES (?, ?, ?, ?, ?, NULL) RETURNING ID", queryParameters)
-
+            sqlRequest = cursor.executemany("UPDATE ETUDIANT SET FK_Groupe = ? WHERE Email = ? and FK_Session = ?",
+                                            queryParameters)
             res = sqlRequest.fetchone()
 
             # Commit the insertions
@@ -168,6 +132,54 @@ def create_students(csv_json):
             return jsonify({'error': str(e)}), 500
     else:
         return jsonify({'error': "nul"}), 50
+
+
+@app.route('/api/create_students', methods=['POST'])
+def create_students():
+    """
+    Add all the students data from the csv file.
+    Called right after the csv file of student is read.
+    :return:
+    """
+    print('Enter create students function')
+
+    # Retrieve parameters from the request body
+    sessionID = request.json.get('sessionID')  # assuming the parameters are sent in JSON format
+    students = request.json.get('data')
+
+    db = os.path.join(os.getcwd(), 'db', 'parcoursup.sqlite')
+    if os.path.exists(db):
+        conn = sqlite3.connect(db)
+        cursor = conn.cursor()
+
+        try:
+            cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='ETUDIANT';")
+            table_exists = cursor.fetchone() is not None
+
+            if table_exists:
+                cursor.execute(f"DELETE FROM ETUDIANT WHERE FK_Session ='{sessionID}'")
+
+            # Insert student data (without RETURNING)
+            queryParameters = [(data['Nom'], data['Prenom'], data['Email'], sessionID) for data in students]
+
+            cursor.executemany(
+                "INSERT INTO ETUDIANT (Nom, Prenom, Email, FK_Session) VALUES (?, ?, ?, ?)",
+                queryParameters
+            )
+
+            # Commit the insertions
+            conn.commit()
+            conn.close()
+
+            response = {
+                "result": "Done"
+            }
+            return jsonify(response), 200
+
+        except sqlite3.Error as e:
+            return jsonify({'error': str(e)}), 500
+    else:
+        return jsonify({'error': "can't find database"}), 50
 
 
 if __name__ == '__main__':
