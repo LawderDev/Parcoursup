@@ -4,7 +4,7 @@
       <slot name="open-btn"></slot>
     </div>
 
-    <dialog ref="dialog" class="modal" @close="$emit('close')">
+    <dialog ref="dialog" class="modal">
       <div
         class="modal-box md:w-[50%] md:h-auto md:rounded-xl md:drop-shadow-md"
         :class="{'w-[100vw] h-[100vh] max-h-[100vh] rounded-none': isFullOnMobile }"
@@ -33,5 +33,4 @@ const props = defineProps({
     isFullOnMobile: Boolean
   });
 
-defineEmits(["handleSubmit"])
 </script>

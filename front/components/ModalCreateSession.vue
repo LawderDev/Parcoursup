@@ -1,6 +1,6 @@
 <template>
   <div>
-    <Modal @handle-submit="handleSubmit">
+    <Modal >
       <template v-slot:open-btn>
         <ButtonPrimary> Créer une session </ButtonPrimary>
       </template>
