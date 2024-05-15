@@ -22,10 +22,30 @@
 
 <script setup>
 import { reactive } from "vue";
+import axios from "axios";
 const state = reactive({
   helloWorld: "",
   isOpen: false,
 });
+
+const data = { 
+        "data" : [
+            {'Nom': "test",
+            'Deadline_Creation_Groupe':'12/02/2024', 
+            'Deadline_Choix_Projet':'12/04/2024',
+            'Nb_Etudiant_Min':4,
+            'Nb_Etudiant_Max':5,
+            'FK_Utilisateur':1,
+            }
+        ]     
+        };
+const jsonData = JSON.stringify(data);
+
+const response = await axios.post("http://127.0.0.1:5000/api/create_session", jsonData, {
+  headers: {
+    'Content-Type': 'application/json'
+  }}
+);
 
 const openDeleteModal = () => {
   console.log("open delete modal");
