@@ -7,9 +7,9 @@
         </template>
         <template v-slot:form>
           <div class="flex flex-col">
-            <h2 class="font-semibold text-primary text-center mb-5 text-xl">Supprimer un projet</h2>
+            <h2 class="font-semibold text-primary text-center mb-5 text-xl">Supprimer une session</h2>
             <div class="text-secondary">
-                <p class="mb-2 text-center">Voulez-vous supprimer ce projet ?</p>
+                <p class="mb-2 text-center">Voulez-vous supprimer cette session ?</p>
             </div>
           </div>
         </template>

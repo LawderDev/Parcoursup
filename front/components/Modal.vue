@@ -6,7 +6,7 @@
 
     <dialog ref="dialog" class="modal" @close="$emit('close')">
       <div
-        class="modal-box md:w-[50%] md:h-auto md:rounded-xl md:drop-shadow-md"
+        class="modal-box md:w-[50%] md:h-auto md:rounded-xl md:drop-shadow-md overflow-visible"
         :class="{'w-[100vw] h-[100vh] max-h-[100vh] rounded-none': isFullOnMobile }"
       >
         <slot name="form"></slot>
@@ -16,9 +16,6 @@
               class="btn btn-sm btn-circle btn-ghost absolute left-2 top-2"
             >
               ✕
-            </button>
-            <button class="flex justify-center mt-5">
-              <ButtonPrimary @click="$emit('handleSubmit')" title="Valider">Valider</ButtonPrimary>
             </button>
           </form>
         </div>
