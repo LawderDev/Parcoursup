@@ -247,9 +247,7 @@ const handleClick = async () => {
       data: state.fileContent,
     };
 
-    create_student(jsonDataStudent)
-
-    console.log(jsonDataStudent);
+    //create_student(jsonDataStudent)
   } else {
     state.error = true;
   }
