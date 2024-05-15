@@ -89,8 +89,7 @@ def create_group():
     Methods that creates a new group and update the student group (for the session)
     Example of data and post request to call in the front : 
     const data = {
-          "sessionID":1,
-          "emails":["Benjamin.Bancal@etu.u-bordeaux.fr","Sandra.Ly@etu.u-bordeaux.fr"]
+          "students_id":[1,2]
         };
         const jsonData = JSON.stringify(data);
 
@@ -106,8 +105,7 @@ def create_group():
     print('Enter create group function')
 
     # Retrieve parameters from the request body
-    sessionID = request.json.get('sessionID')  # assuming the parameters are sent in JSON format
-    studentEmails = request.json.get('emails') # list of emails
+    studentsID = request.json['students_id']  # Students ids members of the group assuming the parameters are sent in JSON format
 
     # Il faut utiliser os.path.join pour que ce soit multiplateforme
     db = os.path.join(os.getcwd(), 'db', 'parcoursup.sqlite')
@@ -120,22 +118,22 @@ def create_group():
             sqlRequest = cursor.execute("INSERT INTO GROUPE VALUES (NULL, NULL, NULL, NULL) RETURNING ID")
             groupID = sqlRequest.fetchone()
             
-            # Update ETUDIANT table with the group ID for this SESSION
-            queryParameters = [(groupID[0], email, sessionID) for email in studentEmails]
-
-            sqlRequest = cursor.executemany("UPDATE ETUDIANT SET FK_Groupe = ? WHERE Email = ? and FK_Session = ?",
-                                            queryParameters)
-            res = sqlRequest.fetchone()
-
+            # Insert in ETUDIANT_GROUPE table with the group ID
+            queryParameters = [(id, groupID[0]) for id in studentsID]
+            
+            cursor.executemany("INSERT INTO ETUDIANT_GROUPE VALUES (?, ?)", queryParameters)
+            res = cursor.fetchone()  # Fetch all rows from the result set
+ 
             # Commit the insertions
             conn.commit()
             conn.close()
 
             # Convert data to JSON format
-            return jsonify({'result': res}), 200
+            return jsonify({'result': groupID}), 200
 
         except sqlite3.Error as e:
-            return jsonify({'error': str(e)}), 500
+            print(e)
+            return jsonify({'error': str(e)}), 500   
     else:
         return jsonify({'error': "nul"}), 50
 
@@ -254,21 +252,12 @@ Returns:
     if os.path.exists(db):
         conn = sqlite3.connect(db)
         cursor = conn.cursor()
-        try:
-            sqlRequest = cursor.execute("DELETE FROM ETUDIANT WHERE FK_Session = ?", (sessionID,))
-            res = sqlRequest.fetchone()
-            print("Delete Student from session " + str(sessionID) + " : OK")
-            
-            sqlRequest = cursor.execute("DELETE FROM PROJET WHERE FK_Session = ?", (sessionID,))
-            res = sqlRequest.fetchone()
-            print("Delete Project from session " + str(sessionID) + " : OK")
-            
+        try:           
             sqlRequest = cursor.execute("DELETE FROM SESSION WHERE ID = ?;", (sessionID,))
             res = sqlRequest.fetchone()
             print("Delete Session " + str(sessionID) + " : OK")
 
-
-            # Commit the insertions
+            # Commit the delete
             conn.commit()
             conn.close()
             
