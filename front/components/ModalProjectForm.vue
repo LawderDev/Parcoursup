@@ -5,7 +5,7 @@
       @close="emit('update:isOpen', false)"
     >
       <template v-slot:open-btn>
-        <ButtonPlus ref="openBtn" @click="handleCreateProject" class="neumorphism m-4"/>
+        <ButtonPlus ref="openBtn" @click="handleCreateProject" class="neumorphism"/>
         <div id="hidden" class="hidden" ref="openBtn"></div>
       </template>
       <template v-slot:form>

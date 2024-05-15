@@ -4,7 +4,7 @@
     <div class="grid m-8 mx-10">
       <FormSession editMode></FormSession>
       <div class="flex items-center mt-5">
-        <h2 class="text-xl font-semibold">Projets</h2>
+        <h2 class="text-xl font-semibold mr-5">Projets</h2>
         <ModalProjectForm
           v-model:isOpen="state.isOpen"
           :editMode="state.editMode"
