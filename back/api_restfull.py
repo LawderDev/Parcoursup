@@ -221,9 +221,64 @@ Returns:
         conn = sqlite3.connect(db)
         cursor = conn.cursor()
         try:
-            queryParameters = [(session[0]['Nom'], session[0]['Deadline_Creation_Groupe'], session[0]['Deadline_Choix_Projet'], session[0]['Nb_Etudiant_Min'], session[0]['Nb_Etudiant_Max'], session[0]['Etat'], session[0]['FK_Utilisateur'])]
+            queryParameters = (session[0]['Nom'], session[0]['Deadline_Creation_Groupe'], session[0]['Deadline_Choix_Projet'], session[0]['Nb_Etudiant_Min'], session[0]['Nb_Etudiant_Max'], session[0]['Etat'], session[0]['FK_Utilisateur'])
              
-            sqlRequest = cursor.execute("INSERT INTO SESSION VALUES (NULL, ?, ?, ?, ?, ?, ?) RETURNING ID", queryParameters[0])
+            sqlRequest = cursor.execute("INSERT INTO SESSION VALUES (NULL, ?, ?, ?, ?, ?, ?, ?) RETURNING ID", queryParameters)
+            sessionID = sqlRequest.fetchone()
+
+            # Commit the insertions
+            conn.commit()
+            conn.close()
+
+            # Convert data to JSON format
+            return jsonify({'result': sessionID}), 200
+
+        except sqlite3.Error as e:
+            return jsonify({'error': str(e)}), 500   
+    else:
+        return jsonify({'error': "nul"}), 50
+    
+           
+@app.route('/api/update_session', methods=['POST'])
+def update_session():
+    """
+_summary_
+Method that create a session, take in parameter a name, 
+the group and project deadline, and the fk user creator
+Example of data and post request to call in the front : 
+    const data = { 
+        "session_ID":1,
+        "data" : [
+            {
+            'Nom': 1,
+            'Deadline_Creation_Groupe':'12/02/2024', 
+            'Deadline_Choix_Projet':'12/04/2024',
+            'Nb_Etudiant_Min':4,
+            'Nb_Etudiant_Max':5,
+            'Etat':'Choosing',
+            'Fk_Utilisateur':1,
+            }
+        ]     
+        };
+     const jsonData = JSON.stringify(data);
+
+Returns:
+    _type_: _description_
+"""   
+    print('Enter create session function')
+    # Retrieve parameters from the request body
+    sessionID = request.json.get('session_ID')
+    session = request.json.get('data')
+    
+    # Il faut utiliser os.path.join pour que ce soit multiplateforme
+    db = os.path.join(os.getcwd(), 'db', 'parcoursup.sqlite') 
+    if os.path.exists(db):
+        conn = sqlite3.connect(db)
+        cursor = conn.cursor()
+        try:
+            queryParameters = [(session[0]['Nom'], session[0]['Deadline_Creation_Groupe'], session[0]['Deadline_Choix_Projet'], session[0]['Nb_Etudiant_Min'], session[0]['Nb_Etudiant_Max'], session[0]['Etat'], session[0]['FK_Utilisateur'], sessionID)]
+             
+            sqlRequest = cursor.execute("UPDATE SESSION SET Nom = ?, Deadline_Creation_Groupe = ?, Deadline_Choix_Projet = ?, Nb_Etudiant_Min = ?, Nb_Etudiant_Max = ?, Etat = ?, FK_Utilisateur = ? WHERE ID = ?", queryParameters[0])
             sessionID = sqlRequest.fetchone()
 
             # Commit the insertions
