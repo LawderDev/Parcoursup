@@ -5,6 +5,9 @@ settings:
   excludeLinksFromLockfile: false
 
 dependencies:
+  '@tarekraafat/autocomplete.js':
+    specifier: ^10.2.7
+    version: 10.2.7
   vuedraggable:
     specifier: ^4.1.0
     version: 4.1.0(vue@3.4.27)
@@ -40,6 +43,10 @@ packages:
 
   /@jridgewell/sourcemap-codec@1.4.15:
     resolution: {integrity: sha512-eF2rxCRulEKXHTRiDrDy6erMYWqNw4LPdQ8UQA4huuxaQsVeRPFl2oM8oDGxMFhJUWZf9McpLtJasDDZb/Bpeg==}
+    dev: false
+
+  /@tarekraafat/autocomplete.js@10.2.7:
+    resolution: {integrity: sha512-iE+dnXI8/LrTaSORrnNdSyXg/bFCbCpz/R5GUdB3ioW+9PVEhglxNcSDQNeCXtrbRG0kOBFUd4unEiwcmqyn8A==}
     dev: false
 
   /@vue/compiler-core@3.4.27:
