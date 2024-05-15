@@ -1,11 +1,13 @@
 <template>
   <div>
     <Modal
-      @handle-submit="editMode ? handleModify : handleSubmit"
-      @close="emit('update:isOpen', false)"
-    >
+    @close="emit('update:isOpen', false)">
       <template v-slot:open-btn>
-        <ButtonPlus ref="openBtn" @click="handleCreateProject" class="neumorphism"/>
+        <ButtonPlus
+          ref="openBtn"
+          @click="handleCreateProject"
+          class="neumorphism"
+        />
         <div id="hidden" class="hidden" ref="openBtn"></div>
       </template>
       <template v-slot:form>
@@ -28,12 +30,22 @@
           </div>
         </div>
       </template>
+      <template v-slot:action>
+        <button>
+          <ButtonPrimary
+            @click="editMode ? handleModify : handleSubmit"
+            class="flex justify-center"
+            >Valider
+          </ButtonPrimary>
+        </button>
+      </template>
     </Modal>
   </div>
 </template>
 <script setup>
 import { defineEmits, reactive } from "vue";
 const openBtn = ref(null);
+const closeBtn = ref(null);
 const props = defineProps({
   isOpen: Boolean,
   editMode: Boolean,
@@ -41,22 +53,24 @@ const props = defineProps({
   summary: String,
 });
 
-const emit = defineEmits(["submit:project", "update:isOpen","createProject"]);
+const emit = defineEmits(["submit:project", "update:isOpen", "createProject"]);
 
 const handleSubmit = () => {
+  closeBtn.value.click();
   emit("submit:project", {
     name: props.name,
     summary: props.summary,
   });
 };
 const handleModify = () => {
+  closeBtn.value.click();
   emit("modify:project", {
     name: props.name,
     summary: props.summary,
   });
 };
 const handleCreateProject = () => {
-  emit("create:project")
+  emit("create:project");
 };
 watch(
   () => props.isOpen,

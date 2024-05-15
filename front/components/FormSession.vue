@@ -5,7 +5,7 @@
       <h1
         class="text-3xl font-bold max-w-48 md:max-w-96 truncate tooltip tooltip-open"
         data-tip="Projet TIC 2024"
-        v-if="!state.editTitle"
+        v-show="!state.editTitle"
       >
         {{ state.sessionName }}
       </h1>
@@ -16,18 +16,18 @@
       />
       <div class="ml-3 flex items-center grow">
         <EditTitle
-          v-if="!state.editTitle"
+          v-show="!state.editTitle"
           class="m-3"
           :src="Edit"
           @click="state.editTitle = true"
         ></EditTitle>
         <EditTitle
-          v-if="state.editTitle && state.newTitle.length"
+          v-show="state.editTitle && state.newTitle.length"
           :src="OkClickable"
           @click="handleEditOk"
         ></EditTitle>
         <EditTitle
-          v-if="state.editTitle"
+          v-show="state.editTitle"
           :src="Cancel"
           @click="handleEditCancel"
         ></EditTitle>

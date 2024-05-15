@@ -10,6 +10,7 @@
           :editMode="state.editMode"
           :name="state.name"
           :summary="state.summary"
+          @update:isOpen=""
           @submit:project="handleNewProject"
           @modify:project="handleModifyProject"
           @create:project="openCreateModal"
@@ -19,7 +20,9 @@
       </div>
 
       <h3 class="ml-5 text-gray-500">Quels seront les projets disponibles ?</h3>
-      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 mb-20 md:mb-0">
+      <div
+        class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 mb-20 md:mb-0"
+      >
         <div v-for="item in liste" :key="item.id">
           <ProjectCard
             @modifyProject="openModifyModal"
@@ -35,31 +38,33 @@
 
 <script setup>
 const state = reactive({
-  editMode : false,
+  editMode: false,
   createProject: false,
-  name:null,
-  summary:null,
+  name: null,
+  summary: null,
   isOpen: false,
 });
 const handleNewProject = (newProject) => {
-  console.log("handleNewProject", handleNewProject);
+  state.isOpen = false;
+  console.log("handleNewProject", newProject);
 };
 const handleModifyProject = (newProject) => {
-  console.log("handleModifyProject", handleModifyProject);
+  state.isOpen = false;
+  console.log("handleModifyProject", newProject);
 };
 const openCreateModal = (event) => {
-  state.isOpen = true
-  state.editMode = false
-  state.name=null
-  state.summary=null
+  console.log("openCreateModal", event);
+  state.editMode = false;
+  state.name = null;
+  state.summary = null;
 };
 const openModifyModal = (event) => {
-  console.log("openModifyModal",event.name)
-  console.log("openModifyModal",event.summary)
-  state.isOpen = true
-  state.editMode = true
-  state.name=event.name
-  state.summary=event.summary
+  console.log("openModifyModal", event.name);
+  console.log("openModifyModal", event.summary);
+  state.isOpen = true;
+  state.editMode = true;
+  state.name = event.name;
+  state.summary = event.summary;
 };
 
 const liste = [
