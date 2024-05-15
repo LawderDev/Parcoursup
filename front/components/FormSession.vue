@@ -178,6 +178,8 @@ const props = defineProps({
   editMode: Boolean,
 });
 
+const emit = defineEmits(['handleValidate'])
+
 const state = reactive({
   editTitle: false,
   newTitle: null,
@@ -248,7 +250,8 @@ const handleClick = async () => {
     };
 
     create_student(jsonDataStudent)
-
+    emit("handleValidate");
+    
     console.log(jsonDataStudent);
   } else {
     state.error = true;
