@@ -3,7 +3,6 @@
     <NavBar name="M"></NavBar>
     <div class="flex justify-end mr-10">
       <ModalCreateSession></ModalCreateSession>
-      <ButtonPrimary>Ajouter un projet</ButtonPrimary>
     </div>
     <div class="mt-6">
       <SessionItem title="Projet TIC 2024" endDate="Fin le 12/05/2024" @delete="openDeleteModal"></SessionItem>
