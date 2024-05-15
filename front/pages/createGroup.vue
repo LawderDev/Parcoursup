@@ -1,35 +1,25 @@
 <template>
-  <div>
-    <div>
-      <h2 class="text-3xl my-8 font-extrabold text-center">GROUPE</h2>
-      <h3 class="m-5 text-secondary text-center">
-        Renseignez les informations ci-dessous afin de créer votre demande de projet
-      </h3>
-    </div>
-    <div class="flex justify-center">
-        <Card class="h-[70vh] w-[95vw] md:w-[580px] overflow-y-scroll" no-fit>
-            <Steps :nb-steps="2" :nb-steps-active="1" :nb-steps-lock="1" class="w-full"></Steps>
-            <div class="divider"></div> 
-            <h2 class="text-xl my-4 font-bold ml-2">Votre groupe</h2>
-            <h3 class="ml-2 text-secondary">De qui est composé votre groupe ?</h3>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div v-for="(_, index) in state.persons" class="w-fit">
-                <h3 class="ml-2 mb-2 font-bold">{{ 'Personne ' + (index + 1) }}</h3>
-                <AutoComplete v-model:selected="state.persons[index]"></AutoComplete>
-              </div>
+  <StudentsActions 
+    title="GROUPE"
+    :nb-steps="2"
+    :nb-steps-active="1"
+    :nb-steps-lock="1"
+    sub-title="Renseignez les informations ci-dessous afin de créer votre demande de projet"
+    button-title="Valider le groupe"
+    @handle-button-click="validateGroup">
+      <h1 class="card-title pb-4 text-neutral">Votre groupe</h1>
+      <h2 class="pb-4 text-accent text-sm">De qui est composé votre groupe ?</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div v-for="(_, index) in state.persons" class="w-fit">
+            <h3 class="ml-2 mb-2 font-bold">{{ 'Personne ' + (index + 1) }}</h3>
+              <AutoComplete v-model:selected="state.persons[index]"></AutoComplete>
+        </div>
 
-              <div class="mt-8">
-                <ImageButton :src="ButtonPlus" class="shadow-md min-h-[2.5rem] h-[2.5rem]" @click="addPerson">Ajouter un membre</ImageButton>
-              </div>
-          </div>
-        </Card>
-    </div>
-    <div class="flex justify-center">
-      <div class="flex justify-center md:justify-end md:w-[580px] mt-5">
-        <ButtonPrimary @click="validateGroup">Valider le groupe</ButtonPrimary>
+        <div class="mt-8">
+          <ImageButton :src="ButtonPlus" class="shadow-md min-h-[2.5rem] h-[2.5rem]" @click="addPerson">Ajouter un membre</ImageButton>
+        </div>
       </div>
-    </div>
-  </div>
+  </StudentsActions>
 </template>
 
 <script setup>

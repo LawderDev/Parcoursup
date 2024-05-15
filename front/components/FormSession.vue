@@ -1,11 +1,14 @@
 <template>
   <div>
+    <!-- VERSION PAGE -->
     <div class="flex items-center" v-if="props.editMode">
       <h1
         class="text-3xl font-bold max-w-48 md:max-w-96 truncate tooltip tooltip-open"
         data-tip="Projet TIC 2024"
         v-if="!state.editTitle"
-      ></h1>
+      >
+        {{ state.newTitle }}
+      </h1>
       <input
         v-model="state.newTitle"
         v-if="state.editTitle"
@@ -31,9 +34,8 @@
         <ImageButton class="ml-auto" :src="Delete"></ImageButton>
       </div>
     </div>
-    <h1 class="font-semibold text-primary text-center mb-5 p-4 text-xl">
-      Créer une session
-    </h1>
+
+    <!-- VERSION MODAL -->
     <div v-if="!props.editMode">
       <h2 class="mx-5 mb-2">Nom de la session</h2>
       <div class="flex w-full px-5 mb-5">
@@ -43,9 +45,8 @@
         />
       </div>
     </div>
-    <h2 class="mx-5 mb-2">
-      Date de fin des formations des groupes
-    </h2>
+
+    <h2 class="mx-5 mb-2">Date de fin des formations des groupes</h2>
     <DateComponent v-model:endDate="state.endDateGroup" class="px-5 mb-5" />
     <h2 class="mx-5 mb-2">Date de fin de la session</h2>
     <DateComponent
@@ -82,16 +83,18 @@
         />
       </label>
     </div>
-    <h2 class="mx-5 mb-2">Liste des étudiants</h2>
-    <div class="mx-5">
-      <FileInput
-        acceptedTypes=".csv"
-        @fileSelected="handleFileSelected"
-      />
-      <p v-if="state.selectedFile">
-        Fichier sélectionné: {{ state.selectedFile.name }}
-      </p>
+
+    <!-- VERSION MODAL UNIQUEMENT -->
+    <div v-if="!props.editMode">
+      <h2 class="mx-5 mb-2">Liste des étudiants</h2>
+      <div class="mx-5">
+        <FileInput acceptedTypes=".csv" @fileSelected="handleFileSelected" />
+        <p v-if="state.selectedFile">
+          Fichier sélectionné: {{ state.selectedFile.name }}
+        </p>
+      </div>
     </div>
+
     <div class="m-5">
       <div
         role="alert"
@@ -116,8 +119,10 @@
           >Veuillez renseigner un fichier valide</span
         >
         <span v-else>Erreur inconnue.</span>
-     </div>
+      </div>
     </div>
+
+    <!-- VERSION PAGE -->
     <div class="flex place-content-between mt-8" v-if="props.editMode">
       <div class="hidden md:flex items-center p-4">
         <ButtonPrimary
@@ -137,16 +142,18 @@
         >Enregistrer les modifications</ButtonPrimary
       >
     </div>
-    <!--Bouton mobile-->
+
+    <!-- VERSION MODAL -->
     <div
-      class="sticky inset-x-0 bottom-1 p-4 flex items-center justify-center z-50 md:hidden" v-if="!props.editMode">
+      class="sticky inset-x-0 bottom-1 p-4 flex items-center justify-center z-50 md:hidden"
+      v-if="!props.editMode"
+    >
       <ButtonPrimary
         @click="handleClick"
         class="md:place-self-end place-start neumorphism"
         >Valider
       </ButtonPrimary>
     </div>
-    <!--Bouton desktop-->
     <div class="flex justify-center" v-if="!props.editMode">
       <div class="hidden md:flex p-4">
         <ButtonPrimary
@@ -161,6 +168,7 @@
 
 <script setup>
 import { reactive } from "vue";
+import axios from "axios";
 import Delete from "~/public/delete.svg";
 import Edit from "~/public/edit.svg";
 import OkClickable from "~/public/okClickable.svg";
@@ -183,6 +191,12 @@ const state = reactive({
   error: false,
 });
 
+watch(state, (newVal) => {
+  if (!state.newTitle) {
+    state.newTitle = state.sessionName;
+  }
+});
+
 const handleEditOk = () => {
   state.sessionName = state.newTitle;
   state.editTitle = false;
@@ -190,9 +204,7 @@ const handleEditOk = () => {
 const handleEditCancel = () => {
   state.editTitle = false;
 };
-const handleDateSelected = (selectedDate) => {
-  state.endDate = selectedDate;
-};
+
 const handleFileSelected = (file) => {
   state.fileContent = file;
 };
@@ -203,16 +215,6 @@ let formCorrect = computed(() => {
 const fileCorrect = computed(() => {
   return state.fileContent != null;
 });
-const dateCorrect = computed(() => {
-  return state.endDate != null && new Date(state.endDate) >= new Date();
-});
-
-watch(state, (newVal) => {
-  console.log("newVal", newVal);
-  if (!state.newTitle) {
-    state.newTitle = state.sessionName;
-  }
-});
 
 const groupCorrect = computed(() => {
   return (
@@ -222,11 +224,10 @@ const groupCorrect = computed(() => {
     state.maxGroup > state.minGroup
   );
 });
-const handleClick = () => {
+const handleClick = async () => {
   if (formCorrect.value) {
-    console.log("valid form");
     state.error = false;
-    console.log(state.fileContent);
+
     const formData = {
       session: [
         state.sessionName,
@@ -238,10 +239,53 @@ const handleClick = () => {
       ],
     };
 
-    console.log(formData);
-    const jsonData = JSON.stringify(formData);
+    const jsonDataSession = JSON.stringify(formData);
+    const session_id = await create_session(jsonDataSession);
+
+    const jsonDataStudent = {
+      session_ID: session_id,
+      data: state.fileContent,
+    };
+
+    create_student(jsonDataStudent)
+
+    console.log(jsonDataStudent);
   } else {
     state.error = true;
+  }
+};
+
+const create_session = async (jsonData) => {
+  try {
+    const res = await axios.post(
+      "http://127.0.0.1:5000/api/create_session",
+      jsonData,
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    return res.data.result[0];
+  } catch (err) {
+    console.error(err);
+  }
+};
+
+const create_student = async (jsonData) => {
+  try {
+    const res = await axios.post(
+      "http://127.0.0.1:5000/api/create_student",
+      jsonData,
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    return res
+  } catch (err) {
+    console.error(err);
   }
 };
 </script>

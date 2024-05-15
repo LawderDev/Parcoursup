@@ -4,7 +4,6 @@
     :format="format"
     :disabled-dates="disabledDates"
     :disabled="endDateGroup !== undefined && !endDateGroup"
-    style="--dp-border-radius:999px;"
   ></VueDatePicker>
 </template>
 
