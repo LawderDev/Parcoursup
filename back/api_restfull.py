@@ -88,8 +88,12 @@ def create_group():
     """
     Methods that creates a new group and update the student group (for the session)
     Example of data and post request to call in the front : 
-    const data = {
-          "students_id":[1,2]
+            
+        const data = { 
+        "data" : [
+            {'studentID': 1},
+            {'studentID': 2}
+        ]     
         };
         const jsonData = JSON.stringify(data);
 
@@ -105,8 +109,8 @@ def create_group():
     print('Enter create group function')
 
     # Retrieve parameters from the request body
-    studentsID = request.json['students_id']  # Students ids members of the group assuming the parameters are sent in JSON format
-
+    studentsID = request.json.get('data')  # Students ids members of the group assuming the parameters are sent in JSON format
+    
     # Il faut utiliser os.path.join pour que ce soit multiplateforme
     db = os.path.join(os.getcwd(), 'db', 'parcoursup.sqlite')
     if os.path.exists(db):
@@ -119,10 +123,8 @@ def create_group():
             groupID = sqlRequest.fetchone()
             
             # Insert in ETUDIANT_GROUPE table with the group ID
-            queryParameters = [(id, groupID[0]) for id in studentsID]
-            
+            queryParameters = [(data['studentID'], groupID[0]) for data in studentsID]
             cursor.executemany("INSERT INTO ETUDIANT_GROUPE VALUES (?, ?)", queryParameters)
-            res = cursor.fetchone()  # Fetch all rows from the result set
  
             # Commit the insertions
             conn.commit()
@@ -132,7 +134,6 @@ def create_group():
             return jsonify({'result': groupID}), 200
 
         except sqlite3.Error as e:
-            print(e)
             return jsonify({'error': str(e)}), 500   
     else:
         return jsonify({'error': "nul"}), 50
@@ -193,9 +194,17 @@ _summary_
 Method that create a session, take in parameter a name, 
 the group and project deadline, and the fk user creator
 Example of data and post request to call in the front : 
-    const data = {
-       "session":["TestProjetTIC","14/05/2024", "25/05/2024", 5, 6 1]
-     };
+    const data = { 
+        "data" : [
+            {'Nom': 1,
+            'Deadline_Creation_Groupe':'12/02/2024', 
+            'Deadline_Choix_Projet':'12/04/2024',
+            'Nb_Etudiant_Min':4,
+            'Nb_Etudiant_Max':5,
+            'Fk_Utilisateur':1,
+            }
+        ]     
+        };
      const jsonData = JSON.stringify(data);
 
 Returns:
@@ -203,24 +212,17 @@ Returns:
 """   
     print('Enter create session function')
     # Retrieve parameters from the request body
-    session = request.json.get('session') # json item
-
+    session = request.json.get('data')
+    
     # Il faut utiliser os.path.join pour que ce soit multiplateforme
     db = os.path.join(os.getcwd(), 'db', 'parcoursup.sqlite') 
     if os.path.exists(db):
         conn = sqlite3.connect(db)
         cursor = conn.cursor()
         try:
-            # Create the group in the table GROUPE and return the ID
-            sessionName = session[0]
-            sessionDeadlineGroup = session[1]
-            sessionDeadlineProjet = session[2]
-            sessionNbEtudiantMin = session[3]
-            sessionNbEtudiantMax = session[4]
-            sessionFKUtilisateur = session[5]
-            sessionData = [sessionName, sessionDeadlineGroup, sessionDeadlineProjet, sessionNbEtudiantMin, sessionNbEtudiantMax, sessionFKUtilisateur]
+            queryParameters = [(session[0]['Nom'], session[0]['Deadline_Creation_Groupe'], session[0]['Deadline_Choix_Projet'], session[0]['Nb_Etudiant_Min'], session[0]['Nb_Etudiant_Max'], session[0]['FK_Utilisateur'])]
              
-            sqlRequest = cursor.execute("INSERT INTO SESSION VALUES (NULL, ?, ?, ?, ?, ?, ?) RETURNING ID", sessionData)
+            sqlRequest = cursor.execute("INSERT INTO SESSION VALUES (NULL, ?, ?, ?, ?, ?, ?) RETURNING ID", queryParameters[0])
             sessionID = sqlRequest.fetchone()
 
             # Commit the insertions
@@ -310,9 +312,16 @@ def create_project():
     """
     Methods that creates a new project
     Example of data and post request to call in the front : 
-    const data = {
-       "project":["Parcoursup","La desc", nb etu min 5, nb etu max 6, fk_session 1]
-     };
+    const data = { 
+        "data" : [
+            {'Nom': 1,
+            'Description':'desc',
+            'Nb_Etudiant_Min':4,
+            'Nb_Etudiant_Max':5,
+            'FK_Session':1,
+            }
+        ]     
+        };
         const jsonData = JSON.stringify(data);
 
         const response = await axios.post("http://127.0.0.1:5000/api/create_project", jsonData, {
@@ -327,8 +336,7 @@ def create_project():
     print('Enter create project function')
 
     # Retrieve parameters from the request body
-    project = request.json.get('project')  # assuming the parameters are sent in JSON format
-    
+    projet = request.json.get('data')  # assuming the parameters are sent in JSON format
 
     # Il faut utiliser os.path.join pour que ce soit multiplateforme
     db = os.path.join(os.getcwd(), 'db', 'parcoursup.sqlite') 
@@ -338,15 +346,9 @@ def create_project():
 
         try:
             # Create the group in the table GROUPE and return the ID
-             # Create the group in the table GROUPE and return the ID
-            projectName = project[0]
-            projectDescription = project[1]
-            projectNbEtudiantMin = project[2]
-            projectNbEtudiantMax = project[3]
-            projectFKSession = project[4]
-            projectData = [projectName, projectDescription, projectNbEtudiantMin, projectNbEtudiantMax, projectFKSession]
-             
-            sqlRequest = cursor.execute("INSERT INTO PROJET VALUES (NULL, ?, ?, ?, ?, ?) RETURNING ID", projectData)
+            queryParameters = [(projet[0]['Nom'], projet[0]['Description'], projet[0]['Nb_Etudiant_Min'], projet[0]['Nb_Etudiant_Max'], projet[0]['FK_Session'])]
+
+            sqlRequest = cursor.execute("INSERT INTO PROJET VALUES (NULL, ?, ?, ?, ?, ?) RETURNING ID", queryParameters[0])
             projectID = sqlRequest.fetchone()
             
             # Commit the insertions
