@@ -305,7 +305,7 @@ Returns:
         except sqlite3.Error as e:
             return jsonify({'error': str(e)}), 500   
     else:
-        return jsonify({'error': "nul"}), 50 
+        return jsonify({'error': "nul"}), 50
 
 @app.route('/api/create_project', methods=['POST'])
 def create_project():
