@@ -17,8 +17,6 @@
     </div>
 
     <ModalDeleteSession v-model:isOpen="state.isOpen"></ModalDeleteSession>
-
-    <RankingGroupModal></RankingGroupModal>
   </div>
 </template> 
 
