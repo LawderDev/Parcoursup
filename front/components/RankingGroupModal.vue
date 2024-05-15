@@ -8,6 +8,11 @@
           
             <Ranking :items="state.groups" description="Classez les groupes de projets en fonction de vos préférences"></Ranking>
         </template>
+        <template v-slot:action>
+            <button class="mt-5">
+              <ButtonPrimary @click="handleSubmit" title="Valider">Valider</ButtonPrimary>
+          </button>
+        </template>
    </Modal>
   </template>
 
@@ -30,5 +35,9 @@
         description: "test"
     }],
   })
+
+  const handleSubmit = async () => {
+    console.log(state.groups)
+  }
   </script>
   

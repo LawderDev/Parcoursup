@@ -17,6 +17,7 @@
             >
               ✕
             </button>
+            <slot name="action"></slot>
           </form>
         </div>
       </div>
@@ -33,4 +34,5 @@ const props = defineProps({
     isFullOnMobile: Boolean
   });
 
+defineEmits(["handleSubmit", "close"])
 </script>

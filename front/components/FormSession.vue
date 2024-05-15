@@ -178,6 +178,8 @@ const props = defineProps({
   editMode: Boolean,
 });
 
+const emit = defineEmits(['handleValidate'])
+
 const state = reactive({
   sessionID: 1,
   editTitle: false,
@@ -255,7 +257,8 @@ const handleClick = async () => {
       console.log(state.fileContent);
 
       //create_student(jsonDataStudent)
-
+    emit("handleValidate");
+    
 
     } else if (props.editMode) {
       const formData = {

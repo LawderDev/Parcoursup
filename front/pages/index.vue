@@ -12,7 +12,7 @@
       <ButtonPlus class="md:hidden neumorphism"></ButtonPlus>
     </div>
 
-    <ModalDeleteSession v-model:isOpen="state.isOpen"></ModalDeleteSession>
+    <ModalDeleteSession v-model:isOpen="state.isOpen" :session-title="state.selectedSession.title", :session-id="state.selectedSession.id"></ModalDeleteSession>
   </div>
 </template> 
 
@@ -21,11 +21,14 @@ import { reactive } from "vue";
 const state = reactive({
   helloWorld: "",
   isOpen: false,
-  sessions: [],
+  selectedSession: {
+    id: 1,
+    title: "test",
+    endDate: "test",
+  },
 });
 
 const openDeleteModal = () => {
-  console.log("open delete modal");
   state.isOpen = true;
 };
 

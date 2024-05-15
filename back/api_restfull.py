@@ -132,8 +132,7 @@ def create_group():
     Methods that creates a new group and update the student group (for the session)
     Example of data and post request to call in the front : 
     const data = {
-          "sessionID":1,
-          "emails":["Benjamin.Bancal@etu.u-bordeaux.fr","Sandra.Ly@etu.u-bordeaux.fr"]
+          "students_id":[1,2]
         };
         const jsonData = JSON.stringify(data);
 
@@ -149,9 +148,7 @@ def create_group():
     print('Enter create group function')
 
     # Retrieve parameters from the request body
-    # assuming the parameters are sent in JSON format
-    sessionID = request.json.get('sessionID')
-    studentEmails = request.json.get('emails')  # list of emails
+    studentsID = request.json['students_id']  # Students ids members of the group assuming the parameters are sent in JSON format
 
     # Il faut utiliser os.path.join pour que ce soit multiplateforme
     db = os.path.join(os.getcwd(), 'db', 'parcoursup.sqlite')
@@ -165,24 +162,23 @@ def create_group():
             sqlRequest = cursor.execute(
                 "INSERT INTO GROUPE VALUES (NULL, NULL, NULL, NULL) RETURNING ID")
             groupID = sqlRequest.fetchone()
-
-            # Update ETUDIANT table with the group ID for this SESSION
-            queryParameters = [(groupID[0], email, sessionID)
-                               for email in studentEmails]
-
-            sqlRequest = cursor.executemany(
-                "UPDATE ETUDIANT SET FK_Groupe = ? WHERE Email = ? and FK_Session = ?", queryParameters)
-            res = sqlRequest.fetchone()
-
+            
+            # Insert in ETUDIANT_GROUPE table with the group ID
+            queryParameters = [(id, groupID[0]) for id in studentsID]
+            
+            cursor.executemany("INSERT INTO ETUDIANT_GROUPE VALUES (?, ?)", queryParameters)
+            res = cursor.fetchone()  # Fetch all rows from the result set
+ 
             # Commit the insertions
             conn.commit()
             conn.close()
 
             # Convert data to JSON format
-            return jsonify({'result': "done"}), 200
+            return jsonify({'result': groupID}), 200
 
         except sqlite3.Error as e:
-            return jsonify({'error': str(e)}), 500
+            print(e)
+            return jsonify({'error': str(e)}), 500   
     else:
         return jsonify({'error': "nul"}), 50
 
@@ -257,31 +253,112 @@ Returns:
     if os.path.exists(db):
         conn = sqlite3.connect(db)
         cursor = conn.cursor()
-        try:
-            sqlRequest = cursor.execute(
-                "DELETE FROM ETUDIANT WHERE FK_Session = ?", (sessionID,))
-            res = sqlRequest.fetchone()
-            print("Delete Student from session " + str(sessionID) + " : OK")
-
-            sqlRequest = cursor.execute(
-                "DELETE FROM PROJET WHERE FK_Session = ?", (sessionID,))
-            res = sqlRequest.fetchone()
-            print("Delete Project from session " + str(sessionID) + " : OK")
-
-            sqlRequest = cursor.execute(
-                "DELETE FROM SESSION WHERE ID = ?;", (sessionID,))
+        try:           
+            sqlRequest = cursor.execute("DELETE FROM SESSION WHERE ID = ?;", (sessionID,))
             res = sqlRequest.fetchone()
             print("Delete Session " + str(sessionID) + " : OK")
 
+            # Commit the delete
+            conn.commit()
+            conn.close()
+            
+            # Convert data to JSON format
+            return jsonify({'result': res}), 200
+
+        except sqlite3.Error as e:
+            return jsonify({'error': str(e)}), 500   
+    else:
+        return jsonify({'error': "nul"}), 50
+    
+@app.route('/api/student_is_in_group', methods=['POST'])
+def is_in_group():
+    """
+_summary_
+Method that delete a session, take in parameter the id.
+Returns:
+    _type_: _description_
+"""   
+    print('Enter student is in group function')
+    # Retrieve parameters from the request body
+    studentID = request.json.get('studentID')
+
+    # Il faut utiliser os.path.join pour que ce soit multiplateforme
+    db = os.path.join(os.getcwd(), 'db', 'parcoursup.sqlite') 
+    if os.path.exists(db):
+        conn = sqlite3.connect(db)
+        cursor = conn.cursor()
+        try:
+            sqlRequest = cursor.execute("SELECT FK_Groupe from ETUDIANT_GROUPE WHERE FK_Etudiant = ?", (studentID,))
+            res = sqlRequest.fetchone()
+            
+            conn.close()
+
+            if res != None:
+                res = True # Déjà dans un groupe
+            else:
+                res = False # Pas dans un groupe
+                
+            # Convert data to JSON format
+            return jsonify({'result': projectID}), 200
+
+        except sqlite3.Error as e:
+            return jsonify({'error': str(e)}), 500   
+    else:
+        return jsonify({'error': "nul"}), 50
+
+@app.route('/api/create_project', methods=['POST'])
+def create_project():
+    """
+    Methods that creates a new project
+    Example of data and post request to call in the front : 
+    const data = {
+       "project":["Parcoursup","La desc", nb etu min 5, nb etu max 6, fk_session 1]
+     };
+        const jsonData = JSON.stringify(data);
+
+        const response = await axios.post("http://127.0.0.1:5000/api/create_project", jsonData, {
+          headers: {
+            'Content-Type': 'application/json'
+          }}
+        );
+
+    Returns:
+    _type_: _description_
+"""   
+    print('Enter create project function')
+
+    # Retrieve parameters from the request body
+    project = request.json.get('project')  # assuming the parameters are sent in JSON format
+    
+
+    # Il faut utiliser os.path.join pour que ce soit multiplateforme
+    db = os.path.join(os.getcwd(), 'db', 'parcoursup.sqlite') 
+    if os.path.exists(db):
+        conn = sqlite3.connect(db)
+        cursor = conn.cursor()
+
+        try:
+            # Create the group in the table GROUPE and return the ID
+             # Create the group in the table GROUPE and return the ID
+            projectName = project[0]
+            projectDescription = project[1]
+            projectNbEtudiantMin = project[2]
+            projectNbEtudiantMax = project[3]
+            projectFKSession = project[4]
+            projectData = [projectName, projectDescription, projectNbEtudiantMin, projectNbEtudiantMax, projectFKSession]
+             
+            sqlRequest = cursor.execute("INSERT INTO PROJET VALUES (NULL, ?, ?, ?, ?, ?) RETURNING ID", projectData)
+            projectID = sqlRequest.fetchone()
+            
             # Commit the insertions
             conn.commit()
             conn.close()
 
             # Convert data to JSON format
-            return jsonify({'result': res}), 200
+            return jsonify({'result': projectID}), 200
 
         except sqlite3.Error as e:
-            return jsonify({'error': str(e)}), 500
+            return jsonify({'error': str(e)}), 500   
     else:
         return jsonify({'error': "nul"}), 50
 
