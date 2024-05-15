@@ -119,7 +119,7 @@ def create_group():
             # Create the group in the table GROUPE and return the ID
             sqlRequest = cursor.execute("INSERT INTO GROUPE VALUES (NULL, NULL, NULL, NULL) RETURNING ID")
             groupID = sqlRequest.fetchone()
-
+            
             # Update ETUDIANT table with the group ID for this SESSION
             queryParameters = [(groupID[0], email, sessionID) for email in studentEmails]
 
@@ -272,6 +272,42 @@ Returns:
             conn.commit()
             conn.close()
             
+            # Convert data to JSON format
+            return jsonify({'result': res}), 200
+
+        except sqlite3.Error as e:
+            return jsonify({'error': str(e)}), 500   
+    else:
+        return jsonify({'error': "nul"}), 50
+    
+@app.route('/api/student_is_in_group', methods=['POST'])
+def is_in_group():
+    """
+_summary_
+Method that delete a session, take in parameter the id.
+Returns:
+    _type_: _description_
+"""   
+    print('Enter student is in group function')
+    # Retrieve parameters from the request body
+    studentID = request.json.get('studentID')
+
+    # Il faut utiliser os.path.join pour que ce soit multiplateforme
+    db = os.path.join(os.getcwd(), 'db', 'parcoursup.sqlite') 
+    if os.path.exists(db):
+        conn = sqlite3.connect(db)
+        cursor = conn.cursor()
+        try:
+            sqlRequest = cursor.execute("SELECT FK_Groupe from ETUDIANT_GROUPE WHERE FK_Etudiant = ?", (studentID,))
+            res = sqlRequest.fetchone()
+            
+            conn.close()
+
+            if res != None:
+                res = True # Déjà dans un groupe
+            else:
+                res = False # Pas dans un groupe
+                
             # Convert data to JSON format
             return jsonify({'result': res}), 200
 
