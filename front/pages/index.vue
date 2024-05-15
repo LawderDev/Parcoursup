@@ -17,7 +17,6 @@
     </div>
 
     <ModalDeleteSession v-model:isOpen="state.isOpen" :session-title="state.selectedSession.title", :session-id="state.selectedSession.id"></ModalDeleteSession>
-    <RankingGroupModal></RankingGroupModal>
   </div>
 </template> 
 
