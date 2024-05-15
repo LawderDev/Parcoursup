@@ -1,10 +1,10 @@
 <template>
   <div>
     <NavBar :name="'fdsf'" />
-    <div class="grid m-8 mx-10">
+    <div class="grid justify-center m-8">
       <FormSession editMode></FormSession>
-      <div class="flex items-center mt-5">
-        <h2 class="text-xl font-semibold mr-5">Projets</h2>
+      <div class="flex items-center mt-5 mb-5">
+        <h2 class="text-3xl font-semibold mr-5">Projets</h2>
         <ModalProjectForm
           v-model:isOpen="state.isOpen"
           :editMode="state.editMode"
@@ -15,10 +15,11 @@
           @create:project="openCreateModal"
         >
         </ModalProjectForm>
+        <ButtonPrimary class="ml-auto">Assigner les projets</ButtonPrimary>
       </div>
 
       <h3 class="ml-5 text-gray-500">Quels seront les projets disponibles ?</h3>
-      <div class="grid grid-cols-1 md:grid-cols-4 mb-20 md:mb-0">
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 mb-20 md:mb-0">
         <div v-for="item in liste" :key="item.id">
           <ProjectCard
             @modifyProject="openModifyModal"

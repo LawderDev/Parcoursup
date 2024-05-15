@@ -43,13 +43,6 @@ const props = defineProps({
 
 const emit = defineEmits(["submit:project", "update:isOpen","createProject"]);
 
-const state = reactive({
-  project: {
-    name: props.name,
-    summary: props.summary,
-  },
-});
-
 const handleSubmit = () => {
   emit("submit:project", {
     name: props.name,

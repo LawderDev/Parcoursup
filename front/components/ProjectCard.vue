@@ -4,7 +4,7 @@
       <h1 class="text-xl">{{props.name}}</h1>
       <p class="my-5 max-h-32 text-ellipsis overflow-auto">{{props.summary}}</p>
       <div>
-        <ButtonSecondary @click="handleClickModify" class="mr-2 ">Modifier</ButtonSecondary>
+        <ButtonSecondary @click="handleClickModify" class="mr-2 my-2">Modifier</ButtonSecondary>
         <ButtonPrimary>Vos préférences</ButtonPrimary>
       </div>
     </Card>
