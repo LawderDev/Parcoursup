@@ -1,9 +1,9 @@
 <template>
   <StudentsActions 
     title="GROUPE"
-    :nb-step="2"
-    :nb-step-active="1"
-    :nb-step-lock="1"
+    :nb-steps="2"
+    :nb-steps-active="1"
+    :nb-steps-lock="1"
     sub-title="Renseignez les informations ci-dessous afin de créer votre demande de projet"
     button-title="Valider le groupe"
     @handle-button-click="validateGroup">
