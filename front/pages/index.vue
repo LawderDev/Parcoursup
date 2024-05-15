@@ -12,7 +12,7 @@
     </div>
 
     <div class="flex justify-center">
-      <ButtonPlus class="md:hidden neumorphism"></ButtonPlus>
+      <ButtonPlus class="md:hidden"></ButtonPlus>
     </div>
 
     <ModalDeleteSession v-model:isOpen="state.isOpen" :session-title="state.selectedSession.title", :session-id="state.selectedSession.id"></ModalDeleteSession>

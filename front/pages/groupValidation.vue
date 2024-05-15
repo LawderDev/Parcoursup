@@ -2,27 +2,50 @@
     <div>
         <NavBar name="M"></NavBar>
         <div class="mx-8 mt-10">
-            <h1 class="text-3xl font-bold max-w-48 md:max-w-96 truncate tooltip tooltip-open mb-8" data-tip="Projet TIC 2024">
-                {{ state.sessionName }}
-            </h1>
-            <h2 class="text-xl font-semibold mb-6">Groupes :</h2>
-
+            <div class="flex flex-wrap">
+                <h1 class="text-3xl font-bold max-w-48 md:max-w-96 truncate tooltip tooltip-open mb-8" data-tip="Projet TIC 2024">
+                    {{ state.sessionName }}
+                </h1>
+                <div class="flex ml-auto gap-4">
+                    <ButtonSecondary>Retourner à la session</ButtonSecondary>
+                
+                    <ButtonPrimary>Valider les groupes</ButtonPrimary>
+                </div>
+            </div>
+            <div class="flex gap-4 items-center mb-6">
+                <h2 class="text-xl font-semibold">Groupes</h2>
+                <ButtonAdd>Ajouter un groupe</ButtonAdd>
+            </div>
+             
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-7">
                 <Card v-for="group in state.groups" :key="group.name" class="w-full flex items-center">
                     <div class="flex flex-col items-center gap-4">
                         <h3 class="card-title text-primary">{{ group.name }} ({{ group.students.length }})</h3>
                         <div class="flex flex-col gap-2">
-                            <AutoComplete v-for="(_,index) in group.students" v-model:selected="group.students[index]" :peoples="group.students" :default-index="index"></AutoComplete>
+                            <div  class="flex gap-4" v-for="(_,index) in group.students">
+                                <AutoComplete v-model:selected="group.students[index]" :peoples="group.students" :default-index="index"></AutoComplete>
+                                <button>
+                                    <img src="@/public/minus.svg" alt="Image" class="w-6 h-6 mr-2">
+                                </button>
+                            </div>
                         </div>
-                        <ButtonPrimary @click="handleEditGroup(group)">Modifier</ButtonPrimary>
+                        <ButtonAdd>Ajouter un membre</ButtonAdd>
+                        <div class="flex gap-4">
+                            <ButtonSecondary>Supprimer</ButtonSecondary>
+                            <ButtonPrimary @click="handleEditGroup(group)">Modifier</ButtonPrimary>
+                        </div>
                     </div>
                 </Card>
             </div>
+            
+            
         </div>
     </div>
 </template>
   
   <script setup>
+
+
   const state = reactive({
     sessionName: "Projet TIC 2024",
     groups: [
