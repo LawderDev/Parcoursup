@@ -201,6 +201,7 @@ Example of data and post request to call in the front :
             'Deadline_Choix_Projet':'12/04/2024',
             'Nb_Etudiant_Min':4,
             'Nb_Etudiant_Max':5,
+            'Etat':'Choosing',
             'Fk_Utilisateur':1,
             }
         ]     
@@ -220,7 +221,7 @@ Returns:
         conn = sqlite3.connect(db)
         cursor = conn.cursor()
         try:
-            queryParameters = [(session[0]['Nom'], session[0]['Deadline_Creation_Groupe'], session[0]['Deadline_Choix_Projet'], session[0]['Nb_Etudiant_Min'], session[0]['Nb_Etudiant_Max'], session[0]['FK_Utilisateur'])]
+            queryParameters = [(session[0]['Nom'], session[0]['Deadline_Creation_Groupe'], session[0]['Deadline_Choix_Projet'], session[0]['Nb_Etudiant_Min'], session[0]['Nb_Etudiant_Max'], session[0]['Etat'], session[0]['FK_Utilisateur'])]
              
             sqlRequest = cursor.execute("INSERT INTO SESSION VALUES (NULL, ?, ?, ?, ?, ?, ?) RETURNING ID", queryParameters[0])
             sessionID = sqlRequest.fetchone()
