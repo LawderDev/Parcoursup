@@ -130,7 +130,8 @@ def gale_shapley(women_preferences, men_preferences):
 def create_group():
     """
     Methods that creates a new group and update the student group (for the session)
-    Example of data and post request to call in the front : 
+
+    Example of data and post request to call in the front :
             
         const data = { 
         "data" : [
@@ -148,7 +149,7 @@ def create_group():
 
     Returns:
     _type_: _description_
-"""
+    """
     print('Enter create group function')
 
     # Retrieve parameters from the request body
@@ -187,10 +188,11 @@ def create_group():
 @app.route('/api/create_session', methods=['POST'])
 def create_session():
     """
-_summary_
-Method that create a session, take in parameter a name, 
-the group and project deadline, and the fk user creator
-Example of data and post request to call in the front : 
+    _summary_
+        Method that create a session, take in parameter a name,
+        the group and project deadline, and the fk user creator
+
+    Example of data and post request to call in the front :
     const data = { 
         "data" : [
             {'Nom': 1,
@@ -205,9 +207,9 @@ Example of data and post request to call in the front :
         };
      const jsonData = JSON.stringify(data);
 
-Returns:
-    _type_: _description_
-"""
+    Returns:
+        _type_: _description_
+    """
     print('Enter create session function')
     # Retrieve parameters from the request body
     session = request.json.get('data')
@@ -240,10 +242,11 @@ Returns:
 @app.route('/api/update_session', methods=['POST'])
 def update_session():
     """
-_summary_
-Method that create a session, take in parameter a name, 
-the group and project deadline, and the fk user creator
-Example of data and post request to call in the front : 
+    _summary_
+        Method that create a session, take in parameter a name,
+        the group and project deadline, and the fk user creator
+
+    Example of data and post request to call in the front :
     const data = { 
         "session_ID":1,
         "data" : [
@@ -260,9 +263,9 @@ Example of data and post request to call in the front :
         };
      const jsonData = JSON.stringify(data);
 
-Returns:
-    _type_: _description_
-"""   
+    Returns:
+        _type_: _description_
+    """
     print('Enter create session function')
     # Retrieve parameters from the request body
     sessionID = request.json.get('session_ID')
@@ -295,11 +298,11 @@ Returns:
 @app.route('/api/delete_session', methods=['POST'])
 def delete_session():
     """
-_summary_
-Method that delete a session, take in parameter the id.
-Returns:
-    _type_: _description_
-"""
+    _summary_
+        Method that delete a session, take in parameter the id.
+    Returns:
+        _type_: _description_
+    """
     print('Enter delete session function')
     # Retrieve parameters from the request body
     sessionID = request.json.get('sessionID')  # json item
@@ -328,11 +331,11 @@ Returns:
 @app.route('/api/student_is_in_group', methods=['POST'])
 def is_in_group():
     """
-_summary_
-Method that return if a student is in a group, take in parameter the student id.
-Returns:
-    _type_: _description_
-"""   
+    _summary_
+        Method that return if a student is in a group, take in parameter the student id.
+    Returns:
+        _type_: _description_
+    """
     print('Enter student is in group function')
     # Retrieve parameters from the request body
     studentID = request.json.get('studentID')
@@ -354,7 +357,7 @@ Returns:
                 res = False # Pas dans un groupe
                 
             # Convert data to JSON format
-            return jsonify({'result': projectID}), 200
+            return jsonify({'result': res}), 200
 
         except sqlite3.Error as e:
             return jsonify({'error': str(e)}), 500   
@@ -420,8 +423,7 @@ def create_project():
 @app.route('/api/reaffect_group', methods=['POST'])
 def reaffect_group():
     """
-    Add all the students data from the csv file.
-    Called right after the csv file of student is read.
+    Update all the students' groups if they have been changed by a user on the front-end.
 
     Example of data and post request to call in the front :
     const data = {
@@ -485,11 +487,11 @@ def reaffect_group():
 @app.route('/api/delete_project', methods=['POST'])
 def delete_project():
     """
-_summary_
-Method that delete a project, take in parameter the id.
-Returns:
-    _type_: _description_
-"""   
+    _summary_
+    Method that delete a project, take in parameter the id.
+    Returns:
+        _type_: _description_
+    """
     print('Enter delete project function')
     # Retrieve parameters from the request body
     projectID = request.json.get('projectID') # json item
@@ -519,8 +521,8 @@ Returns:
 @app.route('/api/get_all_projects', methods=['POST'])
 def get_all_projects():
     """
-_summary_
-Method that retrieve all the projects from a session.
+    _summary_
+    Method that retrieve all the projects from a session.
         const data = {
             "sessionID" : 1
         };
@@ -531,7 +533,7 @@ Method that retrieve all the projects from a session.
             'Content-Type': 'application/json'
           }}
         );
-Returns:
+    Returns:
     Json with all the projects from a session
 """
     print('Enter get all projects function')
@@ -573,6 +575,74 @@ Returns:
             return jsonify({'error': str(e)}), 500
     else:
         return jsonify({'error': "nul"}), 50
+
+@app.route('/api/update_project', methods=['POST'])
+def update_project():
+    """
+    Update the project in the database after being changed on the front-end.
+
+    Example of data and post request to call in the front :
+    const data = {
+        "data": [
+            {
+                'id': 1,
+                'nom': 'Parcoursup',
+                'description': 'Projet parcoursup',
+                'min_etu': 6,
+                'max_etu': 7,
+                'id_session': 1
+            }
+        ]
+    }
+
+    const jsonData = JSON.stringify(data);
+
+        const response = await axios.post("http://127.0.0.1:5000/api/update_project", jsonData, {
+          headers: {
+            'Content-Type': 'application/json'
+          }}
+        );
+
+    :return:
+    """
+    print('Enter update project function')
+
+    # Retrieve parameters from the request body
+    data = request.json.get('data')[0]
+    print(data)
+
+    db = os.path.join(os.getcwd(), 'db', 'parcoursup.sqlite')
+    if os.path.exists(db):
+        conn = sqlite3.connect(db)
+        cursor = conn.cursor()
+
+        try:
+            queryParameters = [data['nom'],
+                                data['description'],
+                                data['min_etu'],
+                                data['max_etu'],
+                                data['id'],
+                                data['id_session']
+                                ]
+
+            sqlRequest = cursor.execute(
+                "UPDATE PROJET SET Nom = ?, Description = ?, Nb_Etudiant_Min = ?, Nb_Etudiant_Max = ? WHERE ID = ? "
+                "and FK_Session = ?;",
+                queryParameters)
+            res = sqlRequest.fetchone()
+
+            # Commit the insertions
+            conn.commit()
+            conn.close()
+
+            # Convert data to JSON format
+            return jsonify({'result': res}), 200
+
+        except sqlite3.Error as e:
+            print(e)
+            return jsonify({'error': str(e)}), 500
+    else:
+        return jsonify({'error': "can't find database"}), 50
 
 if __name__ == '__main__':
     app.run(debug=True)
