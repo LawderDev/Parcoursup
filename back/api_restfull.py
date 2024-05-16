@@ -78,6 +78,36 @@ def get_sessions():
 
     else:
         return jsonify({'error': "nul"}), 50
+    
+@app.route('/api/get_session_id', methods=['GET'])
+def get_session_id():
+    print('enter')
+    # Il faut utiliser os.path.join pour que ce soit multiplateforme
+    db = os.path.join(os.getcwd(), 'db', 'parcoursup.sqlite')
+    if os.path.exists(db):
+        try:
+            sessionID = request.args.get('sessionID')
+            if not sessionID:
+                return jsonify({'error': 'Session ID parameter is missing'}), 400
+            
+            conn = sqlite3.connect(db)
+            cursor = conn.cursor()
+
+            cursor.execute("SELECT ID from SESSION where ID = " + sessionID)
+
+            response = cursor.fetchall()
+            print(response)
+
+            conn.close()
+
+            # Convert data to JSON format
+            return jsonify(response)
+
+        except sqlite3.Error as e:
+            return jsonify({'error': str(e)}), 500
+
+    else:
+        return jsonify({'error': "nul"}), 50
 
 @app.route('/api/get_session_data', methods=['GET'])
 def get_session_data():

@@ -2,9 +2,9 @@
   <div>
     <NavBar :name="'fdsf'" />
     <div class="grid m-8 mx-10">
-      <FormSession editMode></FormSession>
+      <FormSession v-if="state.session_data" editMode :session-data="state.session_data"></FormSession>
       <div class="flex items-center mt-5">
-        <h2 class="text-xl font-semibold ">Projets</h2>
+        <h2 class="text-xl font-semibold">Projets</h2>
         <ButtonPlus class="neumorphism m-4" />
       </div>
       <h3 class="ml-5 text-gray-500">Quels seront les projets disponibles ?</h3>
@@ -21,35 +21,60 @@
 <script setup>
 import { useRoute } from "vue-router";
 import axios from "axios";
-
+import { onMounted } from "vue";
 
 const route = useRoute();
 const sessionID = route.params.id;
 
+const state = reactive({
+  session_data: null,
+});
 
 definePageMeta({
   validate: async (route) => {
-    // Check if the id is made up of digits
-    return typeof route.params.id === 'string' && /^\d+$/.test(route.params.id)
-  }
-})
+    const api_check_id = async (sessionID) => {
+      try {
+        const response = await axios.get(
+          "http://127.0.0.1:5000/api/get_session_id?sessionID=" + sessionID
+        );
 
+        if (!response.data || response.data.length == 0) {
+          return false;
+        } else {
+          return true;
+        }
+      } catch (error) {
+        console.error("Erreur lors de la récupération des sessions :", error);
+      }
+    };
+    return (
+      typeof route.params.id === "string" &&
+      /^\d+$/.test(route.params.id) &&
+      api_check_id(route.params.id)
+    );
+  },
+});
 
 const api_call_session_data = async (sessionID) => {
   try {
-
-    const response = await axios.get("http://127.0.0.1:5000/api/get_session_data?sessionID=" + sessionID);
-    console.log(response.data);
-
-  } catch (error) {
-    console.error(
-      "Erreur lors de la récupération des sessions :",
-      error
+    const response = await axios.get(
+      "http://127.0.0.1:5000/api/get_session_data?sessionID=" + sessionID
     );
+    console.log(response.data);
+    if (response.data) {
+      state.session_data = response.data;
+      return true;
+    } else {
+      return false;
+    }
+  } catch (error) {
+    console.error("Erreur lors de la récupération des sessions :", error);
   }
 };
 
-api_call_session_data(sessionID)
+onMounted( () => {
+  api_call_session_data(sessionID)
+})
 
 
 const liste = [
