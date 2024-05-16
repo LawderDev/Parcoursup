@@ -2,7 +2,7 @@
   <div>
     <Modal >
       <template v-slot:open-btn>
-        <ButtonPrimary> Créer une session </ButtonPrimary>
+        <ButtonPrimary>Créer une session </ButtonPrimary>
       </template>
       <template v-slot:form>
         <h1 class="font-semibold text-primary text-center mb-5 p-4 text-xl">
@@ -19,7 +19,10 @@
 <script setup>
 const closeBtn = ref(null);
 
+const emit = defineEmits(["handleValidate"]);
+
 const closeModal = () => {
+  emit("handleValidate");
   closeBtn.value.click();
 }
 </script>

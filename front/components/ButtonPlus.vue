@@ -1,5 +1,5 @@
 <template>
-    <div class="btn btn-circle bg-base-100">
+    <div class="btn btn-circle bg-base-100  neumorphism">
         <img alt="plus" src="../assets/images/plus.png" class="h-6 w-6"/>
     </div>
 </template>
