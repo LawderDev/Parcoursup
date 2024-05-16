@@ -1,6 +1,6 @@
 <template>
-    <div>
-      <Combobox :value="selected" :default-value="peoples[defaultIndex]" @update:model-value="updateSelected">
+    <div class="flex gap-4">
+      <Combobox :value="selected" :default-value="defaultValue" @update:model-value="updateSelected">
         <div class="relative mt-1">
           <div
             class="relative w-full cursor-default rounded-full bg-base-100 text-left sm:text-sm"
@@ -58,6 +58,9 @@
           </TransitionRoot>
         </div>
       </Combobox>
+      <button @click.prevent="$emit('delete')">
+           <img src="@/public/minus.svg" alt="Image" class="w-6 h-6 mr-2">
+        </button>
     </div>
   </template>
   
@@ -76,7 +79,7 @@
   const props = defineProps({
       selected: Object,
       peoples: Array,
-      defaultIndex: Number,
+      defaultValue: Object,
   })
 
   const emit = defineEmits(['update:selected'])
@@ -87,10 +90,11 @@
 
 
   onMounted(() => {
-     emit('update:selected', props.peoples[props.defaultIndex])
+     emit('update:selected', props.defaultValue)
   })
 
   const updateSelected = (person) => {
+    console.log(person)
     emit('update:selected', person)
   }
 
