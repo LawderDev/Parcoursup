@@ -53,7 +53,8 @@ def get_sessions():
         try:
             # Retrieve data from SQLite database
 
-            cursor.execute("SELECT Nom, Deadline_Choix_Projet FROM SESSION")
+            cursor.execute("SELECT id, Nom, Deadline_Choix_Projet FROM SESSION")
+
 
             response = cursor.fetchall()
             print(response)
@@ -61,8 +62,9 @@ def get_sessions():
             sessions = []
             for idx,session in enumerate(response):
                 session_dict = {
-                    'nom': response[idx][0],
-                    'end_date': response[idx][1],
+                    'id': response[idx][0],
+                    'nom': response[idx][1],
+                    'end_date': response[idx][2],
                 }
                 sessions.append(session_dict)
 
@@ -77,6 +79,45 @@ def get_sessions():
     else:
         return jsonify({'error': "nul"}), 50
 
+@app.route('/api/get_session_data', methods=['GET'])
+def get_session_data():
+    print('enter')
+    # Il faut utiliser os.path.join pour que ce soit multiplateforme
+    db = os.path.join(os.getcwd(), 'db', 'parcoursup.sqlite')
+    if os.path.exists(db):
+        try:
+            sessionID = request.args.get('sessionID')
+            if not sessionID:
+                return jsonify({'error': 'Session ID parameter is missing'}), 400
+            
+            conn = sqlite3.connect(db)
+            cursor = conn.cursor()
+
+            cursor.execute("SELECT * from SESSION where ID = " + sessionID)
+
+            response = cursor.fetchall()
+            print(response)
+
+            session_dict = {
+                'id': response[0][0],
+                'name_session': response[0][1],
+                'end_date_group': response[0][2],
+                'end_date_session': response[0][3],
+                'group_min': response[0][4],
+                'group_max': response[0][5],
+                'fk_user': response[0][6],
+            }
+
+            conn.close()
+
+            # Convert data to JSON format
+            return jsonify(session_dict)
+
+        except sqlite3.Error as e:
+            return jsonify({'error': str(e)}), 500
+
+    else:
+        return jsonify({'error': "nul"}), 50
 
 @app.route('/api/gale_shapley', methods=['POST'])
 def gale_shapley_route():

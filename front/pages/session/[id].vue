@@ -19,6 +19,39 @@
 </template>
 
 <script setup>
+import { useRoute } from "vue-router";
+import axios from "axios";
+
+
+const route = useRoute();
+const sessionID = route.params.id;
+
+
+definePageMeta({
+  validate: async (route) => {
+    // Check if the id is made up of digits
+    return typeof route.params.id === 'string' && /^\d+$/.test(route.params.id)
+  }
+})
+
+
+const api_call_session_data = async (sessionID) => {
+  try {
+
+    const response = await axios.get("http://127.0.0.1:5000/api/get_session_data?sessionID=" + sessionID);
+    console.log(response.data);
+
+  } catch (error) {
+    console.error(
+      "Erreur lors de la récupération des sessions :",
+      error
+    );
+  }
+};
+
+api_call_session_data(sessionID)
+
+
 const liste = [
   {
     id: 1,

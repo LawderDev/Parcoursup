@@ -156,13 +156,15 @@ const handleClick = async () => {
 
     if (!props.editMode) {
       const formData = {
-        session: [
-          state.sessionName,
-          state.endDateGroup,
-          state.endDateSession,
-          state.minGroup,
-          state.maxGroup,
-          1,
+        data: [{
+          'Nom': state.sessionName,
+          'Deadline_Creation_Groupe': state.endDateGroup,
+          'Deadline_Choix_Projet': state.endDateSession,
+          'Nb_Etudiant_Min': state.minGroup,
+          'Nb_Etudiant_Max': state.maxGroup,
+          'Etat': 'Choosing',
+          'Fk_Utilisateur': 1,
+        }
         ],
       };
 
@@ -180,19 +182,22 @@ const handleClick = async () => {
 
     } else if (props.editMode) {
       const formData = {
-        session: [
-          state.session_ID,
-          state.sessionName,
-          state.endDateGroup,
-          state.endDateSession,
-          state.minGroup,
-          state.maxGroup,
-          1,
+        data: [{
+          'Nom': state.sessionName,
+          'Session_id': state.session_ID,
+          'Deadline_Creation_Groupe': state.endDateGroup,
+          'Deadline_Choix_Projet': state.endDateSession,
+          'Nb_Etudiant_Min': state.minGroup,
+          'Nb_Etudiant_Max': state.maxGroup,
+          'Etat': 'Choosing',
+          'Fk_Utilisateur': 1,
+        }
         ],
       };
 
       const jsonDataSession = JSON.stringify(formData);
       const session_id = await update_session(jsonDataSession);
+
     }
 
   } else {
