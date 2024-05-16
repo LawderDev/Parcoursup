@@ -1,9 +1,9 @@
 <template>
     <StudentsActions 
       title="SELECTION"
-      :nb-step="2"
-      :nb-step-active="2"
-      :nb-step-lock="0"
+      :nb-steps="2"
+      :nb-steps-active="2"
+      :nb-steps-lock="0"
       sub-title="Renseignez les informations pour permettre de créer votre demande de projet"
       button-title="Valider les préférences"
       @handle-button-click="validateRanking">

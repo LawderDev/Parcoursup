@@ -12,27 +12,24 @@
       <ButtonPlus class="md:hidden neumorphism"></ButtonPlus>
     </div>
 
-    <ModalDeleteSession v-model:isOpen="state.isOpen"></ModalDeleteSession>
+    <ModalDeleteSession v-model:isOpen="state.isOpen" :session-title="state.selectedSession.title", :session-id="state.selectedSession.id"></ModalDeleteSession>
   </div>
 </template> 
 
 <script setup>
-import axios from "axios";
 import { reactive } from "vue";
-// Petite subtilité , c'est mieux de faire ça que ref,
-// ça évite de créer une variable à chaque fois
-// quand les gens débutent ils utilisent toujours ref
-// mais en réalité ref est plus utilisé pour autre chose :D
-
-// Tout ce qui sera dans l'objet state du coup sera reactif !
+import axios from "axios";
 const state = reactive({
   helloWorld: "",
   isOpen: false,
-  sessions: [],
+  selectedSession: {
+    id: 1,
+    title: "test",
+    endDate: "test",
+  },
 });
 
 const openDeleteModal = () => {
-  console.log("open delete modal");
   state.isOpen = true;
 };
 

@@ -2,7 +2,7 @@
   <div class="ml-6 mr-6 relative">
     <div
       class="btn btn-block relative z-0 h-20 flex justify-start rounded-3xl bg-base-100 border-0 shadow-transparent"
-      @click="$emit('click')"
+      @click="$emit('handleClick')"
     >
       <ImagePlaceHolder>{{ title[0] }}</ImagePlaceHolder>
 
