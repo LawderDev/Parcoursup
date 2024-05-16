@@ -5,33 +5,33 @@
       <h1
         class="text-3xl font-bold max-w-48 md:max-w-96 truncate tooltip tooltip-open"
         data-tip="Projet TIC 2024"
-        v-if="!state.editTitle"
+        v-show="!state.editTitle"
       >
-        {{ state.newTitle }}
+        {{ state.sessionName }}
       </h1>
       <input
         v-model="state.newTitle"
         v-if="state.editTitle"
-        class="input input-bordered my-8 font-bold"
+        class="input input-bordered my-8 font-bold max-w-40 md:max-w-48"
       />
-      <div class="ml-3 p-3 flex items-center grow">
+      <div class="ml-3 flex items-center grow">
         <EditTitle
-          v-if="!state.editTitle"
+          v-show="!state.editTitle"
           class="m-3"
           :src="Edit"
           @click="state.editTitle = true"
         ></EditTitle>
         <EditTitle
-          v-if="state.editTitle"
+          v-show="state.editTitle && state.newTitle.length"
           :src="OkClickable"
           @click="handleEditOk"
         ></EditTitle>
         <EditTitle
-          v-if="state.editTitle"
+          v-show="state.editTitle"
           :src="Cancel"
           @click="handleEditCancel"
         ></EditTitle>
-        <ImageButton class="ml-auto" :src="Delete"></ImageButton>
+        <ImageButton class="ml-auto mr-5" :src="Delete"></ImageButton>
       </div>
     </div>
 
@@ -115,7 +115,7 @@
             d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
           />
         </svg>
-        <span v-if="!fileCorrect" class=""
+        <span v-if="!fileCorrect && !props.editMode" class=""
           >Veuillez renseigner un fichier valide</span
         >
         <span v-else>Erreur inconnue.</span>
@@ -123,8 +123,8 @@
     </div>
 
     <!-- VERSION PAGE -->
-    <div class="flex place-content-between mt-8" v-if="props.editMode">
-      <div class="hidden md:flex items-center p-4">
+    <div class="" v-if="props.editMode">
+      <div class="hidden md:flex justify-center p-4">
         <ButtonPrimary
           @click="handleClick"
           class="md:place-self-end place-start neumorphism"
@@ -133,7 +133,7 @@
       </div>
     </div>
     <div
-      class="sticky inset-x-0 bottom-1 p-4 flex items-center justify-center z-50 md:hidden"
+      class="p-4 flex items-center justify-center z-50 md:hidden"
       v-if="props.editMode"
     >
       <ButtonPrimary
@@ -145,7 +145,7 @@
 
     <!-- VERSION MODAL -->
     <div
-      class="sticky inset-x-0 bottom-1 p-4 flex items-center justify-center z-50 md:hidden"
+      class="p-4 flex items-center justify-center z-50 md:hidden"
       v-if="!props.editMode"
     >
       <ButtonPrimary
@@ -181,6 +181,7 @@ const props = defineProps({
 const emit = defineEmits(['handleValidate'])
 
 const state = reactive({
+  sessionID: 1,
   editTitle: false,
   newTitle: null,
   sessionName: "Session",
@@ -193,11 +194,13 @@ const state = reactive({
   error: false,
 });
 
-watch(state, (newVal) => {
-  if (!state.newTitle) {
-    state.newTitle = state.sessionName;
-  }
-});
+watch(
+    () => state.editTitle,
+    () => {
+      if (state.editTitle) {
+        state.newTitle = state.sessionName;
+      }
+    })
 
 const handleEditOk = () => {
   state.sessionName = state.newTitle;
@@ -226,33 +229,54 @@ const groupCorrect = computed(() => {
     state.maxGroup > state.minGroup
   );
 });
+
+
 const handleClick = async () => {
   if (formCorrect.value) {
     state.error = false;
 
-    const formData = {
-      session: [
-        state.sessionName,
-        state.endDateGroup,
-        state.endDateSession,
-        state.minGroup,
-        state.maxGroup,
-        1,
-      ],
-    };
+    if (!props.editMode) {
+      const formData = {
+        session: [
+          state.sessionName,
+          state.endDateGroup,
+          state.endDateSession,
+          state.minGroup,
+          state.maxGroup,
+          1,
+        ],
+      };
 
-    const jsonDataSession = JSON.stringify(formData);
-    const session_id = await create_session(jsonDataSession);
+      const jsonDataSession = JSON.stringify(formData);
+      const session_id = await create_session(jsonDataSession);
 
-    const jsonDataStudent = {
-      session_ID: session_id,
-      data: state.fileContent,
-    };
+      const jsonDataStudent = {
+        session_ID: session_id,
+        data: state.fileContent,
+      };
+      console.log(state.fileContent);
 
-    create_student(jsonDataStudent)
+      //create_student(jsonDataStudent)
     emit("handleValidate");
     
-    console.log(jsonDataStudent);
+
+    } else if (props.editMode) {
+      const formData = {
+        session: [
+          state.session_ID,
+          state.sessionName,
+          state.endDateGroup,
+          state.endDateSession,
+          state.minGroup,
+          state.maxGroup,
+          1,
+        ],
+      };
+
+      const jsonDataSession = JSON.stringify(formData);
+      const session_id = await update_session(jsonDataSession);
+    }
+
   } else {
     state.error = true;
   }
@@ -287,6 +311,23 @@ const create_student = async (jsonData) => {
       }
     );
     return res
+  } catch (err) {
+    console.error(err);
+  }
+};
+
+const update_session = async (jsonData) => {
+  try {
+    const res = await axios.post(
+      "http://127.0.0.1:5000/api/update_session",
+      jsonData,
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    return res.data.result[0];
   } catch (err) {
     console.error(err);
   }
