@@ -25,6 +25,8 @@
         <div v-for="item in liste" :key="item.id">
           <ProjectCard
             @modifyProject="openModifyModal"
+            @deleteProject="handleDeleteProject"
+            id="1"
             :name="item.name"
             :summary="item.summary"
           />
@@ -37,6 +39,9 @@
 
 <script setup>
 import axios from "axios";
+const handleDeleteProject = (newProject) => {
+  console.log("handleDeleteProject");
+};
 const state = reactive({
   editMode: false,
   name: null,
