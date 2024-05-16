@@ -58,62 +58,34 @@
       :endDateGroup="state.endDateGroup"
       class="px-5 mb-5"
     />
-    <DateComponent
-      v-model:endDate="state.endDateSession"
-      :endDateGroup="state.endDateGroup"
-      class="px-5 mb-5"
-    />
     <h2 class="mx-5 mb-2">Nombre de personnes par groupe</h2>
     <div class="md:w-13">
       <label
         class="input input-bordered flex items-center gap-4 mx-5 mb-2 rounded-badge"
       >
-        <label
-          class="input input-bordered flex items-center gap-4 mx-5 mb-2 rounded-badge"
-        >
-          Minimum
-          <input
-            v-model="state.minGroup"
-            type="number"
-            class="grow"
-            placeholder="Entrez un nombre"
-            :min="0"
-            :max="state.maxGroup"
-          />
-          <input
-            v-model="state.minGroup"
-            type="number"
-            class="grow"
-            placeholder="Entrez un nombre"
-            :min="0"
-            :max="state.maxGroup"
-          />
-        </label>
-        <label
-          class="input input-bordered flex items-center gap-4 mx-5 mb-5 rounded-badge"
-        >
-        </label>
+        Minimum
+        <input
+          v-model="state.minGroup"
+          type="number"
+          class="grow"
+          placeholder="Entrez un nombre"
+          :min="0"
+          :max="state.maxGroup"
+        />
+      </label>
 
-        <label
-          class="input input-bordered flex items-center gap-4 mx-5 mb-5 rounded-badge"
-        ></label>
-        Maximum
-        <input
-          v-model="state.maxGroup"
-          type="number"
-          class="grow"
-          placeholder="Entrez un nombre"
-          :min="state.minGroup"
-          :max="9999"
-        />
-        <input
-          v-model="state.maxGroup"
-          type="number"
-          class="grow"
-          placeholder="Entrez un nombre"
-          :min="state.minGroup"
-          :max="9999"
-        />
+      <label
+        class="input input-bordered flex items-center gap-4 mx-5 mb-2 rounded-badge"
+      >
+      Maximum
+      <input
+        v-model="state.maxGroup"
+        type="number"
+        class="grow"
+        placeholder="Entrez un nombre"
+        :min="state.minGroup"
+        :max="9999"
+      />
       </label>
     </div>
 
@@ -129,26 +101,7 @@
     </div>
 
     <div class="m-5">
-      <div
-        role="alert"
-        class="flex alert alert-error max-w-50 justify-center items-center rounded-badge"
-        id="alert"
-        v-if="state.error && !formCorrect"
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          class="stroke-current shrink-0 h-6 w-6"
-          fill="none"
-          viewBox="0 0 24 24"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
-          />
-        </svg>
-      </div>
+      
       <div
         role="alert"
         class="flex alert alert-error max-w-50 justify-center items-center rounded-badge"
@@ -171,7 +124,7 @@
         <span v-if="!fileCorrect" class=""
           >Veuillez renseigner un fichier valide</span
         >
-        <span v-if="!groupCorrect" class=""
+        <span v-else-if="!groupCorrect" class=""
           >Veuillez respecter les contraintes de groupes</span
         >
         <span v-else>Erreur inconnue.</span>
@@ -211,16 +164,6 @@
     </div>
 
     <!-- VERSION MODAL -->
-    <div
-      class="p-4 flex items-center justify-center z-50 md:hidden"
-      v-if="!props.editMode"
-    >
-      <ButtonPrimary
-        @click="handleClick"
-        class="md:place-self-end place-start neumorphism"
-        >Valider
-      </ButtonPrimary>
-    </div>
     <div
       class="p-4 flex items-center justify-center z-50 md:hidden"
       v-if="!props.editMode"

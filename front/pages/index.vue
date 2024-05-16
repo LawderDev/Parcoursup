@@ -5,7 +5,7 @@
       <ModalCreateSession></ModalCreateSession>
     </div>
     <div class="mt-6">
-      <SessionItem v-for="session in state.sessions" :title="session.nom" :endDate="'Fin le ' + session.end_date" @delete="openDeleteModal" @click="openSessionPage(session.id)"></SessionItem>
+      <SessionItem v-for="session in state.sessions" :title="session.nom" :endDate="'Fin le ' + session.end_date" @delete="openDeleteModal" @handleClick="openSessionPage(session.id)"></SessionItem>
     </div>
 
     <div class="flex justify-center">
