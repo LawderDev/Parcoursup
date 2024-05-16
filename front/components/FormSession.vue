@@ -43,26 +43,25 @@
           v-model="state.sessionName"
           class="input input-bordered w-full rounded-badge"
         />
-        <input
-          v-model="state.sessionName"
-          class="input input-bordered w-full rounded-badge"
-        />
       </div>
     </div>
 
+    <!--- DATE FORM --->
     <h2 class="mx-5 mb-2">Date de fin des formations des groupes</h2>
-    <DateComponent v-model:endDate="state.endDateGroup" class="px-5 mb-5" />
-    <h2 class="mx-5 mb-2">Date de fin de la session</h2>
     <DateComponent
-      v-model:endDate="state.endDateSession"
-      :endDateGroup="state.endDateGroup"
+      v-model="state.endDateGroup"
       class="px-5 mb-5"
     />
+    <h2 class="mx-5 mb-2">Date de fin de la session</h2>
+    <DateComponent
+      v-model="state.endDateSession"
+      class="px-5 mb-5"
+    />
+
+    <!--- GROUP FORM --->
     <h2 class="mx-5 mb-2">Nombre de personnes par groupe</h2>
     <div class="md:w-13">
-      <label
-        class="input input-bordered flex items-center gap-4 mx-5 mb-2 rounded-badge"
-      >
+      <label class="input input-bordered flex items-center gap-4 mx-5 mb-2 rounded-badge">
         Minimum
         <input
           v-model="state.minGroup"
@@ -74,18 +73,16 @@
         />
       </label>
 
-      <label
-        class="input input-bordered flex items-center gap-4 mx-5 mb-2 rounded-badge"
-      >
-      Maximum
-      <input
-        v-model="state.maxGroup"
-        type="number"
-        class="grow"
-        placeholder="Entrez un nombre"
-        :min="state.minGroup"
-        :max="9999"
-      />
+      <label class="input input-bordered flex items-center gap-4 mx-5 mb-2 rounded-badge">
+        Maximum
+        <input
+          v-model="state.maxGroup"
+          type="number"
+          class="grow"
+          placeholder="Entrez un nombre"
+          :min="state.minGroup"
+          :max="9999"
+        />
       </label>
     </div>
 
@@ -101,7 +98,6 @@
     </div>
 
     <div class="m-5">
-      
       <div
         role="alert"
         class="flex alert alert-error max-w-50 justify-center items-center rounded-badge"
@@ -121,12 +117,12 @@
             d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
           />
         </svg>
-        <span v-if="!fileCorrect" class=""
-          >Veuillez renseigner un fichier valide</span
-        >
-        <span v-else-if="!groupCorrect" class=""
+        <span v-if="!groupCorrect" class=""
           >Veuillez respecter les contraintes de groupes</span
         >
+        <span v-else-if="!dateCorrect" class="">
+        Veuillez respecter les contraintes de dates
+        </span>
         <span v-else>Erreur inconnue.</span>
       </div>
     </div>
@@ -176,14 +172,7 @@
     </div>
     <div class="flex justify-center" v-if="!props.editMode">
       <div class="hidden md:flex p-4">
-        <ButtonPrimary
-          @click="handleClick"
-          class="md:place-self-end place-start"
-          >Valider</ButtonPrimary
-        >
-        <ButtonPrimary
-          @click="handleClick"
-          class="md:place-self-end place-start"
+        <ButtonPrimary @click="handleClick" class="md:place-self-end place-start"
           >Valider</ButtonPrimary
         >
       </div>
@@ -249,10 +238,7 @@ const handleFileSelected = (file) => {
 };
 
 let formCorrect = computed(() => {
-  return fileCorrect.value && groupCorrect.value;
-});
-const fileCorrect = computed(() => {
-  return state.fileContent != null;
+  return dateCorrect.value && groupCorrect.value;
 });
 
 const groupCorrect = computed(() => {
@@ -263,6 +249,12 @@ const groupCorrect = computed(() => {
     state.maxGroup > state.minGroup
   );
 });
+
+const dateCorrect = computed(() =>{
+  return(
+    state.endDateGroup < state.endDateSession
+  )
+})
 
 const handleClick = async () => {
   if (formCorrect.value) {
@@ -296,22 +288,24 @@ const handleClick = async () => {
       emit("handleValidate");
     } else if (props.editMode) {
       const formData = {
+        "session_ID" : state.sessionID,
         data: [
           {
             Nom: state.sessionName,
-            Session_id: state.session_ID,
             Deadline_Creation_Groupe: state.endDateGroup,
             Deadline_Choix_Projet: state.endDateSession,
             Nb_Etudiant_Min: state.minGroup,
             Nb_Etudiant_Max: state.maxGroup,
             Etat: "Choosing",
-            Fk_Utilisateur: 1,
+            FK_Utilisateur: 1,
           },
         ],
       };
-
+      console.log(formData)
       const jsonDataSession = JSON.stringify(formData);
+      console.log(jsonDataSession)
       const session_id = await update_session(jsonDataSession);
+      console.log(session_id)
     }
   } else {
     state.error = true;
@@ -320,15 +314,11 @@ const handleClick = async () => {
 
 const create_session = async (jsonData) => {
   try {
-    const res = await axios.post(
-      "http://127.0.0.1:5000/api/create_session",
-      jsonData,
-      {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
-    );
+    const res = await axios.post("http://127.0.0.1:5000/api/create_session", jsonData, {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
     return res.data.result[0];
   } catch (err) {
     console.error(err);
@@ -337,15 +327,11 @@ const create_session = async (jsonData) => {
 
 const create_student = async (jsonData) => {
   try {
-    const res = await axios.post(
-      "http://127.0.0.1:5000/api/create_student",
-      jsonData,
-      {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
-    );
+    const res = await axios.post("http://127.0.0.1:5000/api/create_student", jsonData, {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
     return res;
   } catch (err) {
     console.error(err);
@@ -354,16 +340,13 @@ const create_student = async (jsonData) => {
 
 const update_session = async (jsonData) => {
   try {
-    const res = await axios.post(
-      "http://127.0.0.1:5000/api/update_session",
-      jsonData,
-      {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
-    );
-    return res.data.result[0];
+    const res = await axios.post("http://127.0.0.1:5000/api/update_session", jsonData, {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    console.log(res.data)
+    return res.data;
   } catch (err) {
     console.error(err);
   }

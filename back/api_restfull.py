@@ -346,13 +346,13 @@ Returns:
         cursor = conn.cursor()
         try:
             queryParameters = [(session[0]['Nom'], session[0]['Deadline_Creation_Groupe'], session[0]['Deadline_Choix_Projet'], session[0]['Nb_Etudiant_Min'], session[0]['Nb_Etudiant_Max'], session[0]['Etat'], session[0]['FK_Utilisateur'], sessionID)]
-             
-            sqlRequest = cursor.execute("UPDATE SESSION SET Nom = ?, Deadline_Creation_Groupe = ?, Deadline_Choix_Projet = ?, Nb_Etudiant_Min = ?, Nb_Etudiant_Max = ?, Etat = ?, FK_Utilisateur = ? WHERE ID = ?", queryParameters[0])
-            sessionID = sqlRequest.fetchone()
+            sqlRequest = cursor.execute("UPDATE SESSION SET Nom = ?, Deadline_Creation_Groupe = ?, Deadline_Choix_Projet = ?, Nb_Etudiant_Min = ?, Nb_Etudiant_Max = ?, Etat = ?, FK_Utilisateur = ? WHERE ID = ? RETURNING ID", queryParameters[0])
+            sessionID = sqlRequest.fetchall()
 
             # Commit the insertions
             conn.commit()
             conn.close()
+            print(sessionID)
 
             # Convert data to JSON format
             return jsonify({'result': sessionID}), 200
