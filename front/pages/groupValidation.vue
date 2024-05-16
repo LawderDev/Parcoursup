@@ -14,7 +14,7 @@
             </div>
             <div class="flex gap-4 items-center mb-6">
                 <h2 class="text-xl font-semibold">Groupes</h2>
-                <ButtonAdd>Ajouter un groupe</ButtonAdd>
+                <ModalCreateGroup></ModalCreateGroup>
             </div>
              
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-7">
