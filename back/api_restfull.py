@@ -53,7 +53,7 @@ def get_sessions():
         try:
             # Retrieve data from SQLite database
 
-            cursor.execute("SELECT Nom, Deadline_Choix_Projet FROM SESSION")
+            cursor.execute("SELECT id, Nom, Deadline_Choix_Projet FROM SESSION")
 
             response = cursor.fetchall()
             print(response)
@@ -61,8 +61,9 @@ def get_sessions():
             sessions = []
             for idx,session in enumerate(response):
                 session_dict = {
-                    'nom': response[idx][0],
-                    'end_date': response[idx][1],
+                    'id': response[idx][0],
+                    'nom': response[idx][1],
+                    'end_date': response[idx][2],
                 }
                 sessions.append(session_dict)
 
