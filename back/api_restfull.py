@@ -417,6 +417,70 @@ def create_project():
     else:
         return jsonify({'error': "nul"}), 50
 
+@app.route('/api/reaffect_group', methods=['POST'])
+def reaffect_group():
+    """
+    Add all the students data from the csv file.
+    Called right after the csv file of student is read.
+
+    Example of data and post request to call in the front :
+    const data = {
+        "data": [
+            {
+              "id_student": 1,
+              "id_new_group": 56
+            },
+            {
+              "id_student": 2,
+              "id_new_group": 4
+            }
+        ]
+    }
+
+    const jsonData = JSON.stringify(data);
+
+        const response = await axios.post("http://127.0.0.1:5000/api/reaffect_group", jsonData, {
+          headers: {
+            'Content-Type': 'application/json'
+          }}
+        );
+
+    :return:
+    """
+    print('Enter reaffect group function')
+
+    # Retrieve parameters from the request body
+    group = request.json.get('data')
+
+    db = os.path.join(os.getcwd(), 'db', 'parcoursup.sqlite')
+    if os.path.exists(db):
+        conn = sqlite3.connect(db)
+        cursor = conn.cursor()
+
+        try:
+            cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='ETUDIANT-GROUPE';")
+
+            queryParameters = [(student['id_new_group'], student['id_student']) for student in group]
+
+            cursor.executemany(
+                "UPDATE ETUDIANT_GROUPE SET FK_Groupe=? WHERE FK_ETUDIANT=?",
+                queryParameters
+            )
+
+            # Commit the insertions
+            conn.commit()
+            conn.close()
+
+            response = {
+                "result": "Done"
+            }
+            return jsonify(response), 200
+
+        except sqlite3.Error as e:
+            print(e)
+            return jsonify({'error': str(e)}), 500
+    else:
+        return jsonify({'error': "can't find database"}), 50
       
 @app.route('/api/delete_project', methods=['POST'])
 def delete_project():
