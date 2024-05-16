@@ -515,5 +515,64 @@ Returns:
     else:
         return jsonify({'error': "nul"}), 50
 
+
+@app.route('/api/get_all_projects', methods=['POST'])
+def get_all_projects():
+    """
+_summary_
+Method that retrieve all the projects from a session.
+        const data = {
+            "sessionID" : 1
+        };
+        const jsonData = JSON.stringify(data);
+
+        const response = await axios.post("http://127.0.0.1:5000/api/get_all_projects", jsonData, {
+          headers: {
+            'Content-Type': 'application/json'
+          }}
+        );
+Returns:
+    Json with all the projects from a session
+"""
+    print('Enter get all projects function')
+
+    # Retrieve parameters from the request body
+    sessionID = request.json.get('sessionID')
+
+    db = os.path.join(os.getcwd(), 'db', 'parcoursup.sqlite')
+    if os.path.exists(db):
+        conn = sqlite3.connect(db)
+        cursor = conn.cursor()
+
+        try:
+            # Retrieve data from SQLite database
+            cursor.execute("SELECT * FROM Projet WHERE FK_Session = ? ;", (sessionID,))
+            response = cursor.fetchall()
+
+            #Prepare data for the front-end
+            projects = []
+            for idx, project in enumerate(response):
+                project_dict = {
+                    'id': response[idx][0],
+                    'nom': response[idx][1],
+                    'description': response[idx][2],
+                    'min_etu': response[idx][3],
+                    'max_etu': response[idx][4],
+                    'id_session': response[idx][5]
+                }
+                projects.append(project_dict)
+
+            print(projects)
+
+            conn.close()
+
+            # Convert data to JSON format
+            return jsonify(projects)
+
+        except sqlite3.Error as e:
+            return jsonify({'error': str(e)}), 500
+    else:
+        return jsonify({'error': "nul"}), 50
+
 if __name__ == '__main__':
     app.run(debug=True)
