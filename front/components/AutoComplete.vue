@@ -1,6 +1,6 @@
 <template>
-    <div>
-      <Combobox :value="selected" :default-value="people[0]" @update:model-value="updateSelected">
+    <div class="flex gap-4">
+      <Combobox :value="selected" :default-value="defaultValue" @update:model-value="updateSelected">
         <div class="relative mt-1">
           <div
             class="relative w-full cursor-default rounded-full bg-base-100 text-left sm:text-sm"
@@ -58,6 +58,9 @@
           </TransitionRoot>
         </div>
       </Combobox>
+      <button @click.prevent="$emit('delete')">
+           <img src="@/public/minus.svg" alt="Image" class="w-6 h-6 mr-2">
+        </button>
     </div>
   </template>
   
@@ -73,17 +76,10 @@
   } from '@headlessui/vue'
   
 
-  const people = [
-    { id: 1, firstname:'Wade', name:"Cooper", email: "wade.cooper@example.com" },
-    { id: 2, firstname: 'Arlene', name:"Mccoy", email: "arlene.mccoy@example.com" },
-    { id: 3, firstname: 'Devon', name: 'Webb', email: "devon.webb@example.com" },
-    { id: 4, firstname:'Tom', name: 'Cook', email: "tom.cook@example.com" },
-    { id: 5, firstname: 'Tanya', name: 'Fox', email: "tanya.fox@example.com" },
-    { id: 6, firstname:'Hellen', name: 'Schmidt', email: "hellen.schmidt@example.com" },
-];
-
   const props = defineProps({
-      selected: Object
+      selected: Object,
+      peoples: Array,
+      defaultValue: Object,
   })
 
   const emit = defineEmits(['update:selected'])
@@ -94,17 +90,18 @@
 
 
   onMounted(() => {
-     emit('update:selected', people[0])
+     emit('update:selected', props.defaultValue)
   })
 
   const updateSelected = (person) => {
+    console.log(person)
     emit('update:selected', person)
   }
 
   let filteredPeople = computed(() =>
     state.query === ''
-      ? people
-      : people.filter((person) =>
+      ? props.peoples
+      : props.peoples.filter((person) =>
       (person.firstname +
           person.name)
             .toLowerCase()
