@@ -68,33 +68,35 @@
       <label
         class="input input-bordered flex items-center gap-4 mx-5 mb-2 rounded-badge"
       >
-      <label
-        class="input input-bordered flex items-center gap-4 mx-5 mb-2 rounded-badge"
-      >
-        Minimum
-        <input
-          v-model="state.minGroup"
-          type="number"
-          class="grow"
-          placeholder="Entrez un nombre"
-          :min="0"
-          :max="state.maxGroup"
-        />
-        <input
-          v-model="state.minGroup"
-          type="number"
-          class="grow"
-          placeholder="Entrez un nombre"
-          :min="0"
-          :max="state.maxGroup"
-        />
-      </label>
-      <label
-        class="input input-bordered flex items-center gap-4 mx-5 mb-5 rounded-badge"
-      >
-      <label
-        class="input input-bordered flex items-center gap-4 mx-5 mb-5 rounded-badge"
-      >
+        <label
+          class="input input-bordered flex items-center gap-4 mx-5 mb-2 rounded-badge"
+        >
+          Minimum
+          <input
+            v-model="state.minGroup"
+            type="number"
+            class="grow"
+            placeholder="Entrez un nombre"
+            :min="0"
+            :max="state.maxGroup"
+          />
+          <input
+            v-model="state.minGroup"
+            type="number"
+            class="grow"
+            placeholder="Entrez un nombre"
+            :min="0"
+            :max="state.maxGroup"
+          />
+        </label>
+        <label
+          class="input input-bordered flex items-center gap-4 mx-5 mb-5 rounded-badge"
+        >
+        </label>
+
+        <label
+          class="input input-bordered flex items-center gap-4 mx-5 mb-5 rounded-badge"
+        ></label>
         Maximum
         <input
           v-model="state.maxGroup"
@@ -145,6 +147,8 @@
             stroke-width="2"
             d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
           />
+        </svg>
+      </div>
       <div
         role="alert"
         class="flex alert alert-error max-w-50 justify-center items-center rounded-badge"
@@ -184,6 +188,7 @@
         >
       </div>
     </div>
+
     <div
       class="p-4 flex items-center justify-center z-50 md:hidden"
       v-if="props.editMode"
@@ -193,6 +198,7 @@
         class="md:place-self-end place-start neumorphism"
         >Enregistrer les modifications</ButtonPrimary
       >
+    </div>
     <div
       class="p-4 flex items-center justify-center z-50 md:hidden"
       v-if="props.editMode"
@@ -213,6 +219,8 @@
         @click="handleClick"
         class="md:place-self-end place-start neumorphism"
         >Valider
+      </ButtonPrimary>
+    </div>
     <div
       class="p-4 flex items-center justify-center z-50 md:hidden"
       v-if="!props.editMode"
@@ -253,7 +261,7 @@ const props = defineProps({
   sessionData: Object,
 });
 
-const emit = defineEmits(['handleValidate'])
+const emit = defineEmits(["handleValidate"]);
 
 const state = reactive({
   sessionID: 1,
@@ -342,9 +350,7 @@ const handleClick = async () => {
       console.log(state.fileContent);
 
       //create_student(jsonDataStudent)
-    emit("handleValidate");
-    
-
+      emit("handleValidate");
     } else if (props.editMode) {
       const formData = {
         data: [
