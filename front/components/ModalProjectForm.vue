@@ -44,19 +44,13 @@
   </div>
 </template>
 <script setup>
-import { defineEmits, reactive } from "vue";
+import { defineEmits } from "vue";
 const openBtn = ref(null);
-const closeBtn = ref(null);
 const props = defineProps({
   isOpen: Boolean,
   editMode: Boolean,
   name: String,
   summary: String,
-});
-
-const state = reactive({
-  name: null,
-  summary: null,
 });
 
 onMounted(() => {});

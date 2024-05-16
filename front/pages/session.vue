@@ -44,11 +44,9 @@ const state = reactive({
   isOpen: false,
 });
 const handleNewProject = (newProject) => {
-  state.isOpen = false;
   console.log("handleNewProject", newProject);
 };
 const handleModifyProject = (newProject) => {
-  state.isOpen = false;
   console.log("handleModifyProject", newProject);
 };
 const openCreateModal = (event) => {
