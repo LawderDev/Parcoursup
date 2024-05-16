@@ -35,17 +35,4 @@ const state = reactive({
 const openDeleteModal = () => {
   state.isOpen = true;
 };
-
-import axios from "axios";
-const data = { 
-"projectID":4
-};
-const jsonData = JSON.stringify(data);
-
-const response = await axios.post("http://127.0.0.1:5000/api/delete_project", jsonData, {
-  headers: {
-    'Content-Type': 'application/json'
-  }}
-);
-
 </script>
