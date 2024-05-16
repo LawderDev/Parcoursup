@@ -36,21 +36,52 @@
 </template>
 
 <script setup>
+import axios from "axios";
 const state = reactive({
   editMode: false,
-  createProject: false,
   name: null,
   summary: null,
   isOpen: false,
 });
-const handleNewProject = (newProject) => {
+const create_project = async (jsonData) => {
+  try {
+    const res = await axios.post(
+      "http://127.0.0.1:5000/api/create_project",
+      jsonData,
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    return res;
+  } catch (err) {
+    console.error(err.response);
+  }
+};
+const handleNewProject = async (newProject) => {
   console.log("handleNewProject", newProject);
+  const formData = {
+    data: [
+      {
+        Nom: "fdsfsdfs",
+        Description: "desc",
+        Nb_Etudiant_Min: null,
+        Nb_Etudiant_Max: null,
+        FK_Session: 1,
+      },
+    ],
+  };
+  const jsonDataSession = JSON.stringify(formData);
+  const project_id = await create_project(jsonDataSession);
+
+  console.log(project_id);
 };
 const handleModifyProject = (newProject) => {
   console.log("handleModifyProject", newProject);
 };
-const openCreateModal = (event) => {
-  console.log("openCreateModal", event);
+const openCreateModal = () => {
+  console.log("openCreateModal");
   state.isOpen = true;
   state.editMode = false;
   state.name = null;

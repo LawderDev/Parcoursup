@@ -30,7 +30,7 @@
       <template v-slot:action>
         <button @click="emit('update:isOpen', false)">
           <ButtonPrimary
-            @click="editMode ? handleModify : handleSubmit"
+            @click="handleClickValidate"
             class="flex justify-center"
             v-if="props.name && props.name.length > 0"
             >Valider
@@ -52,23 +52,24 @@ const props = defineProps({
   name: String,
   summary: String,
 });
-
-onMounted(() => {});
 const emit = defineEmits([
   "submit:project",
   "update:isOpen",
-  "createProject",
+  "create:project",
   "update:name",
   "update:summary",
+  "modify:project",
 ]);
 
 const handleSubmit = () => {
+  console.log("handleSubmit")
   emit("submit:project", {
     name: props.name,
     summary: props.summary,
   });
 };
 const handleModify = () => {
+  console.log("handleModify")
   emit("modify:project", {
     name: props.name,
     summary: props.summary,
@@ -77,6 +78,14 @@ const handleModify = () => {
 const handleCreateProject = () => {
   emit("create:project");
 };
+const handleClickValidate = ()=>{
+  console.log("handleClickModal")
+  if(props.editMode ){
+    handleModify()
+  }else{
+    handleSubmit()
+  }
+}
 watch(
   () => props.isOpen,
   () => {

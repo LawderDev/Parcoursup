@@ -354,7 +354,7 @@ Returns:
                 res = False # Pas dans un groupe
                 
             # Convert data to JSON format
-            return jsonify({'result': projectID}), 200
+            return jsonify({'result': res}), 200
 
         except sqlite3.Error as e:
             return jsonify({'error': str(e)}), 500   

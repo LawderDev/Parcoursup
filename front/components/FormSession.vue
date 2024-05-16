@@ -178,7 +178,7 @@ const props = defineProps({
   editMode: Boolean,
 });
 
-const emit = defineEmits(['handleValidate'])
+const emit = defineEmits(["handleValidate"]);
 
 const state = reactive({
   sessionID: 1,
@@ -195,12 +195,13 @@ const state = reactive({
 });
 
 watch(
-    () => state.editTitle,
-    () => {
-      if (state.editTitle) {
-        state.newTitle = state.sessionName;
-      }
-    })
+  () => state.editTitle,
+  () => {
+    if (state.editTitle) {
+      state.newTitle = state.sessionName;
+    }
+  }
+);
 
 const handleEditOk = () => {
   state.sessionName = state.newTitle;
@@ -230,7 +231,6 @@ const groupCorrect = computed(() => {
   );
 });
 
-
 const handleClick = async () => {
   if (formCorrect.value) {
     state.error = false;
@@ -257,9 +257,7 @@ const handleClick = async () => {
       console.log(state.fileContent);
 
       //create_student(jsonDataStudent)
-    emit("handleValidate");
-    
-
+      emit("handleValidate");
     } else if (props.editMode) {
       const formData = {
         session: [
@@ -276,7 +274,6 @@ const handleClick = async () => {
       const jsonDataSession = JSON.stringify(formData);
       const session_id = await update_session(jsonDataSession);
     }
-
   } else {
     state.error = true;
   }
@@ -310,7 +307,7 @@ const create_student = async (jsonData) => {
         },
       }
     );
-    return res
+    return res;
   } catch (err) {
     console.error(err);
   }
