@@ -8,8 +8,8 @@
         <ModalProjectForm
           v-model:isOpen="state.isOpen"
           :editMode="state.editMode"
-          :name="state.name"
-          :summary="state.summary"
+          v-model:name="state.name"
+          v-model:summary="state.summary"
           @submit:project="handleNewProject"
           @modify:project="handleModifyProject"
           @create:project="openCreateModal"
