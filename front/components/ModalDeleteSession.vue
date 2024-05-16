@@ -24,9 +24,11 @@
   </template> 
   
   <script setup>
+  import axios from "axios";
+
   const openBtn = ref(null);
 
-  defineEmits(["update:isOpen"])
+  const emit = defineEmits(["update:isOpen", "handleDelete"])
 
   const props = defineProps({
     isOpen: Boolean,
@@ -43,12 +45,17 @@
     })
 
   const handleSubmit = async () => {
-    //TODO use sessionId parameter to delete
-    /*try {
-      await axios.post("http://127.0.0.1:5000/api/delete-session");
-    } catch (error) {
-      console.error("Error delete session:", error);
-    }*/
+    try {
+        await axios.post("http://127.0.0.1:5000/api/delete_session", {
+          sessionID: props.sessionId
+        });
+        emit('handleDelete')
+      } catch (error) {
+      console.error(
+        "Erreur lors de la suppression de la session",
+        error
+      );
+      }
   };
   </script>
   
