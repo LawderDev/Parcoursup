@@ -10,7 +10,6 @@
           :editMode="state.editMode"
           :name="state.name"
           :summary="state.summary"
-          @update:isOpen=""
           @submit:project="handleNewProject"
           @modify:project="handleModifyProject"
           @create:project="openCreateModal"
@@ -54,6 +53,7 @@ const handleModifyProject = (newProject) => {
 };
 const openCreateModal = (event) => {
   console.log("openCreateModal", event);
+  state.isOpen = true;
   state.editMode = false;
   state.name = null;
   state.summary = null;

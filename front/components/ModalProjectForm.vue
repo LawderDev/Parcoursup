@@ -17,13 +17,13 @@
             <h2 class="ml-1 my-5">Nom</h2>
             <input
               type="text"
-              v-model="props.name"
+              v-model="state.name"
               placeholder="Nom du projet..."
               class="input input-bordered w-full max-w-xs"
             />
             <h2 class="ml-1 my-5">Description</h2>
             <textarea
-              v-model="props.summary"
+              v-model="state.summary"
               class="textarea textarea-bordered"
               placeholder="Description du projet..."
             ></textarea>
@@ -31,10 +31,17 @@
         </div>
       </template>
       <template v-slot:action>
-        <button>
+        <button ref="openBtn">
           <ButtonPrimary
             @click="editMode ? handleModify : handleSubmit"
             class="flex justify-center"
+            v-if="state.name && state.name.length>0"
+            >Valider
+          </ButtonPrimary>
+          <ButtonPrimary
+            disabled="disabled"
+            class="flex justify-center"
+            v-else
             >Valider
           </ButtonPrimary>
         </button>
@@ -53,20 +60,33 @@ const props = defineProps({
   summary: String,
 });
 
+const state = reactive({
+  name: null,
+  summary: null,
+})
+
+onMounted(() => {
+  if(props.editMode){
+    state.name = props.name
+    state.summary = props.summary
+  
+  }
+  openBtn.value.click();
+})
 const emit = defineEmits(["submit:project", "update:isOpen", "createProject"]);
 
 const handleSubmit = () => {
   closeBtn.value.click();
   emit("submit:project", {
-    name: props.name,
-    summary: props.summary,
+    name: state.name,
+    summary: state.summary,
   });
 };
 const handleModify = () => {
   closeBtn.value.click();
   emit("modify:project", {
-    name: props.name,
-    summary: props.summary,
+    name: state.name,
+    summary: state.summary,
   });
 };
 const handleCreateProject = () => {
@@ -76,7 +96,7 @@ watch(
   () => props.isOpen,
   () => {
     if (props.isOpen) {
-      console.log(props.isOpen);
+      console.log("props.isOpen",props.isOpen);
       openBtn.value.click();
     }
   }
