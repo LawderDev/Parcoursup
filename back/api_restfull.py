@@ -645,5 +645,58 @@ def update_project():
     else:
         return jsonify({'error': "can't find database"}), 50
 
+@app.route('/api/affect_preference_groupe', methods=['POST'])
+def affect_preference_groupe():
+    """
+    Methods that insert a group project's preference
+    Example of data and post request to call in the front : 
+    const data = {
+        "data": [
+            {
+              "groupID": 1,
+              "projectID": 1,
+              "order": 1
+            },
+            {
+              "groupID": 1,
+              "projectID": 2,
+              "order": 2
+            }
+        ]
+    }
+        const jsonData = JSON.stringify(data);
+
+    Returns:
+    _type_: _description_
+"""   
+    print('Enter affect preference group function')
+
+    # Retrieve parameters from the request body
+    preferences = request.json.get('data')  # assuming the parameters are sent in JSON format
+
+    # Il faut utiliser os.path.join pour que ce soit multiplateforme
+    db = os.path.join(os.getcwd(), 'db', 'parcoursup.sqlite') 
+    if os.path.exists(db):
+        conn = sqlite3.connect(db)
+        cursor = conn.cursor()
+
+        try:
+            # Create the group in the table GROUPE and return the ID
+            queryParameters = [(preference['groupID'], preference['projectID'], preference['order'])for preference in preferences]
+
+            sqlRequest = cursor.executemany("INSERT INTO PREFERENCE_GROUPE VALUES (?, ?, ?)", queryParameters)
+            
+            # Commit the insertions
+            conn.commit()
+            conn.close()
+
+            # Convert data to JSON format
+            return jsonify({'result': "done"}), 200
+
+        except sqlite3.Error as e:
+            return jsonify({'error': str(e)}), 500   
+    else:
+        return jsonify({'error': "nul"}), 50
+
 if __name__ == '__main__':
     app.run(debug=True)
