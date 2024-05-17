@@ -16,8 +16,7 @@
             @modify:project="handleModifyProject"
             @create:project="openCreateModal"
           >
-          </ModalProjectForm>
-          <ButtonPrimary class="ml-auto">Assigner les projets</ButtonPrimary>
+        </ModalProjectForm>
         </div>
         <h3 class="ml-5 text-gray-500">
           Quels seront les projets disponibles ?
@@ -108,6 +107,7 @@ const create_project = async (jsonData) => {
   }
 };
 const update_project = async (jsonData) => {
+  console.log(jsonData)
   try {
     const res = await axios.post(
       "http://127.0.0.1:5000/api/update_project",
@@ -152,6 +152,7 @@ const handleModifyProject = async (newProject) => {
       },
     ],
   };
+  console.log(formData)
   const jsonDataSession = JSON.stringify(formData);
   const project_id = await update_project(jsonDataSession);
 };

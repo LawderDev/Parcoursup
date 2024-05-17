@@ -31,7 +31,12 @@
           :src="Cancel"
           @click="handleEditCancel"
         ></EditTitle>
-        <ImageButton class="ml-auto mr-5" :src="Delete"></ImageButton>
+        <div class="ml-auto flex gap-4">
+          <ButtonPrimary v-if="state.sessionState === 'Grouping'" class="ml-auto" @click="handleGrouping">Vérifier les groupes</ButtonPrimary>
+          <ButtonPrimary v-else-if="state.sessionState === 'Choosing'" class="ml-auto">Terminer la session</ButtonPrimary>
+          <ButtonPrimary v-else-if="state.sessionState === 'Attributing'" class="ml-auto">Assigner les projets</ButtonPrimary>
+          <ImageButton class="ml-auto mr-5" :src="Delete"></ImageButton>
+        </div>
       </div>
     </div>
 
@@ -189,6 +194,7 @@ const state = reactive({
   editTitle: false,
   newTitle: null,
   sessionName: null,
+  sessionState: "",
   fileContent: null,
   minGroup: 1,
   maxGroup: null,
@@ -209,6 +215,7 @@ watch(
 onMounted(() => {
   if (props.sessionData) {
     state.sessionName = props.sessionData.name_session;
+    state.sessionState = props.sessionData.state;
     state.minGroup = props.sessionData.group_min;
     state.maxGroup = props.sessionData.group_max;
     state.endDateGroup = new Date(props.sessionData.end_date_group);
@@ -357,4 +364,8 @@ const update_session = async (jsonData) => {
     console.error(err);
   }
 };
+
+const handleGrouping = async () => {
+  await navigateTo("/groupValidation");
+}
 </script>

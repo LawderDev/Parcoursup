@@ -67,7 +67,8 @@ def get_session_data():
                 'end_date_session': response[0][3],
                 'group_min': response[0][4],
                 'group_max': response[0][5],
-                'fk_user': response[0][6],
+                'state': response[0][6],
+                'fk_user': response[0][7],
             }
 
             conn.close()
@@ -330,7 +331,7 @@ def get_sessions():
         try:
             # Retrieve data from SQLite database
 
-            cursor.execute("SELECT id, Nom, Deadline_Choix_Projet FROM SESSION")
+            cursor.execute("SELECT id, Nom, Deadline_Choix_Projet, Etat FROM SESSION")
 
             response = cursor.fetchall()
             print(response)
@@ -341,6 +342,7 @@ def get_sessions():
                     'id': response[idx][0],
                     'nom': response[idx][1],
                     'end_date': response[idx][2],
+                    'state': response[idx][3]
                 }
                 sessions.append(session_dict)
 
