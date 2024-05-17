@@ -443,7 +443,6 @@ def is_in_group():
     else:
         return jsonify({'error': "nul"}), 50
     
-
 @app.route('/api/get_all_students', methods=['POST'])
 def get_all_students():
     """
@@ -803,11 +802,12 @@ def create_group():
     Example of data and post request to call in the front :
 
         const data = {
-        "data" : [
-            {'studentID': 1},
-            {'studentID': 2}
-        ]
+            "data" : [
+                {'studentID': 1},
+                {'studentID': 2}
+            ]
         };
+
         const jsonData = JSON.stringify(data);
 
         const response = await axios.post("http://127.0.0.1:5000/api/create_group", jsonData, {
@@ -827,15 +827,15 @@ def create_group():
 
     # Il faut utiliser os.path.join pour que ce soit multiplateforme
     db = os.path.join(os.getcwd(), 'db', 'parcoursup.sqlite')
-
+            
+    print(db)
     if os.path.exists(db):
         conn = sqlite3.connect(db)
         cursor = conn.cursor()
-
         try:
             # Create the group in the table GROUPE and return the ID
             sqlRequest = cursor.execute(
-                "INSERT INTO GROUPE VALUES (NULL, NULL, NULL, NULL) RETURNING ID")
+                "INSERT INTO GROUPE VALUES (NULL) RETURNING ID")
             groupID = sqlRequest.fetchone()
 
             # Insert in ETUDIANT_GROUPE table with the group ID
@@ -850,6 +850,7 @@ def create_group():
             return jsonify({'result': groupID}), 200
 
         except sqlite3.Error as e:
+            print(e)
             return jsonify({'error': str(e)}), 500
     else:
         return jsonify({'error': "nul"}), 50
