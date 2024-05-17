@@ -7,7 +7,7 @@
           >
             <ComboboxInput
               class="w-[250px] rounded-full border-[1px] shadow-md py-2 pl-3 pr-10 text-sm leading-5"
-              :displayValue="(person) => `${person.nom} ${person.prénom}`"
+              :displayValue="(person) => `${person.name} ${person.firstname}`"
               @change="state.query = $event.target.value"
             />
             <ComboboxButton
@@ -50,7 +50,7 @@
                     class="block truncate"
                     :class="{ 'font-medium': selected, 'font-normal': !selected }"
                   >
-                    {{ person.nom }} {{  person.prénom }}
+                    {{ person.name }} {{  person.firstname }}
                   </span>
                 </li>
               </ComboboxOption>
@@ -102,8 +102,8 @@
     state.query === ''
       ? props.peoples
       : props.peoples.filter((person) =>
-      (person.nom +
-          person.prénom)
+      (person.name +
+          person.firstname)
             .toLowerCase()
             .replace(/\s+/g, '')
             .includes(state.query.toLowerCase().replace(/\s+/g, ''))

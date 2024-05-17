@@ -7,7 +7,7 @@
 
         <template v-slot:form>
             <div>
-                <FormCreateGroup title="Nouveau groupe" subTitle="De qui est composé votre groupe ?"></FormCreateGroup>
+                <FormCreateGroup title="Nouveau groupe" subTitle="De qui est composé votre groupe ?" v-model:group="stateCreateGroup.group"></FormCreateGroup>
             </div>
          
         </template>
@@ -22,9 +22,11 @@
   </template> 
   
   <script setup>
+  const {stateCreateGroup, validateGroup} = useCreateGroup()
+
   const openBtn = ref(null);
 
-  defineEmits(["update:isOpen"])
+  const emit = defineEmits(["update:isOpen", "handleCreateGroup"]);
 
   const props = defineProps({
     isOpen: Boolean,
@@ -40,13 +42,11 @@
       }
     })
 
-  const handleSubmit = async () => {
-    //TODO use sessionId parameter to delete
-    /*try {
-      await axios.post("http://127.0.0.1:5000/api/delete-session");
-    } catch (error) {
-      console.error("Error delete session:", error);
-    }*/
-  };
+  const handleSubmit = async() => {
+    await validateGroup()
+    nextTick(() => {
+      emit('handleCreateGroup')
+    })
+  }
   </script>
   

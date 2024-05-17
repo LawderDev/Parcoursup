@@ -483,8 +483,8 @@ def get_all_students():
             for idx, student in enumerate(response):
                 student_dict = {
                     'id': response[idx][0],
-                    'nom': response[idx][1],
-                    'prénom': response[idx][2],
+                    'name': response[idx][1],
+                    'firstname': response[idx][2],
                     'email': response[idx][3],
                 }
                 students.append(student_dict)

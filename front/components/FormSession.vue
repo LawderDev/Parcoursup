@@ -366,6 +366,6 @@ const update_session = async (jsonData) => {
 };
 
 const handleGrouping = async () => {
-  await navigateTo("/groupValidation");
+  await navigateTo(`/validateGroup/${state.sessionID}`);
 }
 </script>
