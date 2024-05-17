@@ -31,11 +31,7 @@ const handleFileChange = (event) => {
       const csv = reader.result;
       // Parse CSV
       const parsedData = Papa.parse(csv, { header: true, delimiter: ";" });
-      // Construire l'objet JSON
-      // Convertir en JSON
-      
-      const jsonData = JSON.stringify(parsedData.data, null, 2);
-      emit("fileSelected", jsonData);
+      emit("fileSelected", parsedData);
     };
     reader.readAsText(file);
   }

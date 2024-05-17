@@ -386,7 +386,7 @@ def create_students():
 
             # Insert student data (without RETURNING)
             queryParameters = [(data['Nom'], data['Prenom'], data['Email'], sessionID) for data in students]
-
+            
             cursor.executemany(
                 "INSERT INTO ETUDIANT (Nom, Prenom, Email, FK_Session) VALUES (?, ?, ?, ?)",
                 queryParameters

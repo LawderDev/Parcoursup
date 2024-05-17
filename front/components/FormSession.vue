@@ -111,12 +111,16 @@
             d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
           />
         </svg>
-        <span v-if="!groupCorrect" class="">
-          Veuillez respecter les contraintes de groupes         
+        <span v-if="!nameCorrect" class="">
+          Veuillez respecter les contraintes de nom
         </span>
         <span v-else-if="!dateCorrect" class="">
           Veuillez respecter les contraintes de dates
         </span>
+        <span v-else-if="!groupCorrect" class="">
+          Veuillez respecter les contraintes de groupes
+        </span>
+
         <span v-else>Erreur inconnue.</span>
       </div>
     </div>
@@ -180,7 +184,7 @@ const props = defineProps({
 const emit = defineEmits(["handleValidate"]);
 
 const state = reactive({
-  sessionID: 1,
+  sessionID: null,
   editTitle: false,
   newTitle: null,
   sessionName: null,
@@ -222,7 +226,7 @@ const handleFileSelected = (file) => {
 };
 
 let formCorrect = computed(() => {
-  return dateCorrect.value && groupCorrect.value;
+  return dateCorrect.value && groupCorrect.value && nameCorrect.value;
 });
 
 const groupCorrect = computed(() => {
@@ -234,43 +238,26 @@ const groupCorrect = computed(() => {
   );
 });
 
+const nameCorrect = computed(() => {
+  return state.sessionName != null;
+});
+
 const dateCorrect = computed(() => {
-  return state.endDateGroup < state.endDateSession && state.endDateGroup != new Date();
+  const today = new Date();
+  return (
+    state.endDateGroup < state.endDateSession &&
+    state.endDateGroup > today &&
+    state.endDateGroup != null &&
+    state.endDateSession != null
+  );
 });
 
 const handleClick = async () => {
   if (formCorrect.value) {
     state.error = false;
-
     if (!props.editMode) {
+      //MODAL
       const formData = {
-        data: [
-          {
-            Nom: state.sessionName,
-            Deadline_Creation_Groupe: state.endDateGroup,
-            Deadline_Choix_Projet: state.endDateSession,
-            Nb_Etudiant_Min: state.minGroup,
-            Nb_Etudiant_Max: state.maxGroup,
-            Etat: "Choosing",
-            Fk_Utilisateur: 1,
-          },
-        ],
-      };
-
-      const jsonDataSession = JSON.stringify(formData);
-      const session_id = await create_session(jsonDataSession);
-
-      const jsonDataStudent = {
-        session_ID: session_id,
-        data: state.fileContent,
-      };
-      console.log(state.fileContent);
-
-      //create_student(jsonDataStudent)
-      emit("handleValidate");
-    } else if (props.editMode) {
-      const formData = {
-        session_ID: state.sessionID,
         data: [
           {
             Nom: state.sessionName,
@@ -283,11 +270,43 @@ const handleClick = async () => {
           },
         ],
       };
-      console.log(formData);
+
       const jsonDataSession = JSON.stringify(formData);
-      console.log(jsonDataSession);
+      const session_id = await create_session(jsonDataSession);
+
+      console.log("file content : " + state.fileContent)
+      const jsonNul = JSON.stringify(state.fileContent)
+      console.log("FILE NUL ", jsonNul)
+
+      if (session_id) {
+        const dictStudent = {
+          sessionID: session_id,
+          data: state.fileContent.data,
+        };
+        const jsonDataStudent = JSON.stringify(dictStudent);
+        const std_id = await create_student(jsonDataStudent);
+        emit("handleValidate");
+      } else {
+        console.error("Probleme de session id : ", session_id);
+      }
+    } else if (props.editMode) {
+      //UPDATE
+      const formData = {
+        sessionID: state.sessionID,
+        data: [
+          {
+            Nom: state.sessionName,
+            Deadline_Creation_Groupe: state.endDateGroup,
+            Deadline_Choix_Projet: state.endDateSession,
+            Nb_Etudiant_Min: state.minGroup,
+            Nb_Etudiant_Max: state.maxGroup,
+            Etat: "Choosing",
+            FK_Utilisateur: 1,
+          },
+        ],
+      };
+      const jsonDataSession = JSON.stringify(formData);
       const session_id = await update_session(jsonDataSession);
-      console.log(session_id);
     }
   } else {
     state.error = true;
@@ -309,7 +328,7 @@ const create_session = async (jsonData) => {
 
 const create_student = async (jsonData) => {
   try {
-    const res = await axios.post("http://127.0.0.1:5000/api/create_student", jsonData, {
+    const res = await axios.post("http://127.0.0.1:5000/api/create_students", jsonData, {
       headers: {
         "Content-Type": "application/json",
       },
