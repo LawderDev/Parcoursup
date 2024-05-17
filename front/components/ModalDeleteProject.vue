@@ -17,7 +17,7 @@
           </h2>
           <div class="text-secondary">
             <p class="mb-2 text-center">
-              Voulez-vous supprimer le projet {{ props.projectTitle }}?
+              Voulez-vous supprimer le projet {{ props.projectName }}?
             </p>
           </div>
         </div>
@@ -36,14 +36,13 @@
 <script setup>
 const openBtn = ref(null);
 
-const emit =defineEmits(["deleteProject","update:isOpen"]);
+const emit = defineEmits(["deleteProject", "update:isOpen"]);
 
 const props = defineProps({
   isOpen: Boolean,
-  projectTitle: String,
-  project: Number,
+  projectName: String,
+  projectId: Number,
 });
-
 
 watch(
   () => props.isOpen,
@@ -56,6 +55,6 @@ watch(
 );
 
 const handleSubmit = async () => {
-  emit("deleteProject", props.project);
+  emit("deleteProject", props.projectId);
 };
 </script>

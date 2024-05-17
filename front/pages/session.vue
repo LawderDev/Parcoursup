@@ -26,10 +26,9 @@
         >
           <div v-for="project in state.projects" :key="project.id">
             <ProjectCard
-            
               @modifyProject="openModifyModal"
               @deleteProject="handleDeleteProject"
-              :id:="project.id"
+              :id="project.id"
               :name="project.nom"
               :summary="project.description"
             />
@@ -43,8 +42,16 @@
 
 <script setup>
 import axios from "axios";
-const handleDeleteProject = (newProject) => {
-  console.log("handleDeleteProject");
+const handleDeleteProject = async (id) => {
+  console.log("id",id)
+  try {
+    await axios.post("http://127.0.0.1:5000/api/delete_project", {
+      projectID: id,
+    });
+    await api_call_projects();
+  } catch (error) {
+    console.error("Erreur lors de la suppression de la session", error);
+  }
 };
 const state = reactive({
   editMode: false,
@@ -90,6 +97,7 @@ const create_project = async (jsonData) => {
         },
       }
     );
+    await api_call_projects();
     return res;
   } catch (err) {
     console.error(err.response);
