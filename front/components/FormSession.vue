@@ -48,15 +48,9 @@
 
     <!--- DATE FORM --->
     <h2 class="mx-5 mb-2">Date de fin des formations des groupes</h2>
-    <DateComponent
-      v-model="state.endDateGroup"
-      class="px-5 mb-5"
-    />
+    <DateComponent v-model="state.endDateGroup" class="px-5 mb-5" />
     <h2 class="mx-5 mb-2">Date de fin de la session</h2>
-    <DateComponent
-      v-model="state.endDateSession"
-      class="px-5 mb-5"
-    />
+    <DateComponent v-model="state.endDateSession" class="px-5 mb-5" />
 
     <!--- GROUP FORM --->
     <h2 class="mx-5 mb-2">Nombre de personnes par groupe</h2>
@@ -117,11 +111,11 @@
             d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
           />
         </svg>
-        <span v-if="!groupCorrect" class=""
-          >Veuillez respecter les contraintes de groupes</span
-        >
+        <span v-if="!groupCorrect" class="">
+          Veuillez respecter les contraintes de groupes         
+        </span>
         <span v-else-if="!dateCorrect" class="">
-        Veuillez respecter les contraintes de dates
+          Veuillez respecter les contraintes de dates
         </span>
         <span v-else>Erreur inconnue.</span>
       </div>
@@ -138,16 +132,6 @@
       </div>
     </div>
 
-    <div
-      class="p-4 flex items-center justify-center z-50 md:hidden"
-      v-if="props.editMode"
-    >
-      <ButtonPrimary
-        @click="handleClick"
-        class="md:place-self-end place-start neumorphism"
-        >Enregistrer les modifications</ButtonPrimary
-      >
-    </div>
     <div
       class="p-4 flex items-center justify-center z-50 md:hidden"
       v-if="props.editMode"
@@ -250,11 +234,9 @@ const groupCorrect = computed(() => {
   );
 });
 
-const dateCorrect = computed(() =>{
-  return(
-    state.endDateGroup < state.endDateSession
-  )
-})
+const dateCorrect = computed(() => {
+  return state.endDateGroup < state.endDateSession && state.endDateGroup != new Date();
+});
 
 const handleClick = async () => {
   if (formCorrect.value) {
@@ -288,7 +270,7 @@ const handleClick = async () => {
       emit("handleValidate");
     } else if (props.editMode) {
       const formData = {
-        "session_ID" : state.sessionID,
+        session_ID: state.sessionID,
         data: [
           {
             Nom: state.sessionName,
@@ -301,11 +283,11 @@ const handleClick = async () => {
           },
         ],
       };
-      console.log(formData)
+      console.log(formData);
       const jsonDataSession = JSON.stringify(formData);
-      console.log(jsonDataSession)
+      console.log(jsonDataSession);
       const session_id = await update_session(jsonDataSession);
-      console.log(session_id)
+      console.log(session_id);
     }
   } else {
     state.error = true;
@@ -345,7 +327,7 @@ const update_session = async (jsonData) => {
         "Content-Type": "application/json",
       },
     });
-    console.log(res.data)
+    console.log(res.data);
     return res.data;
   } catch (err) {
     console.error(err);
