@@ -728,20 +728,94 @@ def affect_preference_groupe():
         cursor = conn.cursor()
 
         try:
-            # Create the group in the table GROUPE and return the ID
-            queryParameters = [(preference['groupID'], preference['projectID'], preference['order'])for preference in preferences]
+            for preference in preferences:
+                group_id, project_id, order = preference['groupID'], preference['projectID'], preference['order']
 
-            sqlRequest = cursor.executemany("INSERT INTO PREFERENCE_GROUPE VALUES (?, ?, ?)", queryParameters)
-            
-            # Commit the insertions
-            conn.commit()
+                # Check for existing entry with projectID and groupID
+                existing_row = cursor.execute("SELECT * FROM PREFERENCE_GROUPE WHERE FK_Projet = ? AND FK_Groupe = ?", (project_id, group_id)).fetchone()
+
+                if existing_row:
+                    # Update existing order
+                    cursor.execute("UPDATE PREFERENCE_GROUPE SET Ordre_Preference = ? WHERE FK_Projet = ? AND FK_Groupe = ?",
+                                   (order, project_id, group_id))
+                else:
+                    # Insert new preference
+                    cursor.execute("INSERT INTO PREFERENCE_GROUPE (FK_Groupe, FK_Projet, Ordre_Preference) VALUES (?, ?, ?)",(group_id, project_id, order))
+
+                conn.commit()
             conn.close()
 
             # Convert data to JSON format
             return jsonify({'result': "done"}), 200
 
         except sqlite3.Error as e:
+            print(e)
             return jsonify({'error': str(e)}), 500   
+    else:
+        return jsonify({'error': "nul"}), 50
+
+
+@app.route('/api/affect_preference_projet', methods=['POST'])
+def affect_preference_projet():
+    """
+    Methods that insert a group project's preference
+    Example of data and post request to call in the front :
+    const data = {
+        "data": [
+            {
+              "projectID": 1,
+              "groupID": 1,
+              "order": 1
+            },
+            {
+              "projectID": 1,
+              "groupID": 2,
+              "order": 2
+            }
+        ]
+    }
+        const jsonData = JSON.stringify(data);
+
+    Returns:
+    _type_: _description_
+"""
+    print('Enter affect preference project function')
+
+    # Retrieve parameters from the request body
+    preferences = request.json.get('data')  # assuming the parameters are sent in JSON format
+
+    # Il faut utiliser os.path.join pour que ce soit multiplateforme
+    db = os.path.join(os.getcwd(), 'db', 'parcoursup.sqlite')
+    if os.path.exists(db):
+        conn = sqlite3.connect(db)
+        cursor = conn.cursor()
+
+        try:
+            for preference in preferences:
+                project_id, group_id, order = preference['projectID'], preference['groupID'], preference['order']
+
+                # Check for existing entry with projectID and groupID
+                cursor.execute("SELECT * FROM PREFERENCE_PROJET WHERE FK_Projet = ? AND FK_Groupe = ?", (project_id, group_id))
+                existing_row = cursor.fetchone()
+
+                if existing_row:
+                    # Update existing order
+                    cursor.execute("UPDATE PREFERENCE_PROJET SET Ordre_Preference = ? WHERE FK_Projet = ? AND FK_Groupe = ?",
+                                   (order, project_id, group_id))
+                else:
+                    # Insert new preference
+                    cursor.execute("INSERT INTO PREFERENCE_PROJET (FK_Projet, FK_Groupe, Ordre_Preference) VALUES (?, ?, ?)",
+                                   (project_id, group_id,  order))
+
+                conn.commit()
+            conn.close()
+
+            # Convert data to JSON format
+            return jsonify({'result': "done"}), 200
+
+        except sqlite3.Error as e:
+            print(e)
+            return jsonify({'error': str(e)}), 500
     else:
         return jsonify({'error': "nul"}), 50
 
