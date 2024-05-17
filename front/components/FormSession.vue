@@ -66,8 +66,9 @@
           :max="state.maxGroup"
         />
       </label>
-
-      <label class="input input-bordered flex items-center gap-4 mx-5 mb-2 rounded-badge">
+      <label
+        class="input input-bordered flex items-center gap-4 mx-5 my-5 rounded-badge"
+      >
         Maximum
         <input
           v-model="state.maxGroup"
@@ -196,11 +197,14 @@ const state = reactive({
   error: false,
 });
 
-watch(state, (newVal) => {
-  if (!state.newTitle) {
-    state.newTitle = state.sessionName;
+watch(
+  () => state.editTitle,
+  () => {
+    if (state.editTitle) {
+      state.newTitle = state.sessionName;
+    }
   }
-});
+);
 
 onMounted(() => {
   if (props.sessionData) {
@@ -274,9 +278,6 @@ const handleClick = async () => {
       const jsonDataSession = JSON.stringify(formData);
       const session_id = await create_session(jsonDataSession);
 
-      console.log("file content : " + state.fileContent)
-      const jsonNul = JSON.stringify(state.fileContent)
-      console.log("FILE NUL ", jsonNul)
 
       if (session_id) {
         const dictStudent = {
@@ -328,11 +329,15 @@ const create_session = async (jsonData) => {
 
 const create_student = async (jsonData) => {
   try {
-    const res = await axios.post("http://127.0.0.1:5000/api/create_students", jsonData, {
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
+    const res = await axios.post(
+      "http://127.0.0.1:5000/api/create_student",
+      jsonData,
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
     return res;
   } catch (err) {
     console.error(err);
