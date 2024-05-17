@@ -1,54 +1,61 @@
 <template>
-    <div>
-      <Modal @close="$emit('update:isOpen', false)">
-        <template v-slot:open-btn>
-            <div class="hidden" ref="openBtn">
-            </div>
-        </template>
-        <template v-slot:form>
-          <div class="flex flex-col">
-            <h2 class="font-semibold text-primary text-center mb-5 text-xl">Supprimer une session</h2>
-            <div class="text-secondary">
-                <p class="mb-2 text-center">Voulez-vous supprimer la session {{ sessionTitle }}?</p>
-            </div>
+  <div>
+    <Modal @close="$emit('update:isOpen', false)">
+      <template v-slot:open-btn>
+        <button
+          @click.stop="$emit('update:isOpen', true)"
+          class="btn btn-ghost"
+        >
+          <img alt="delete-svg" src="../public/delete.svg" class="h-6 w-6" />
+        </button>
+        <div ref="openBtn" class="hidden"></div>
+      </template>
+      <template v-slot:form>
+        <div class="flex flex-col">
+          <h2 class="font-semibold text-primary text-center mb-5 text-xl">
+            Supprimer un projet
+          </h2>
+          <div class="text-secondary">
+            <p class="mb-2 text-center">
+              Voulez-vous supprimer le projet {{ props.projectTitle }}?
+            </p>
           </div>
-          
-        </template>
-        <template v-slot:action>
-          <button class="mt-5">
-              <ButtonPrimary @click="handleSubmit" title="Valider">Valider</ButtonPrimary>
-          </button>
-        </template>
-      </Modal>
-    </div>
-  </template> 
-  
-  <script setup>
-  const openBtn = ref(null);
+        </div>
+      </template>
+      <template v-slot:action>
+        <button @click="emit('update:isOpen', false)" class="mt-5">
+          <ButtonPrimary @click="handleSubmit" title="Valider"
+            >Valider</ButtonPrimary
+          >
+        </button>
+      </template>
+    </Modal>
+  </div>
+</template>
 
-  defineEmits(["update:isOpen"])
+<script setup>
+const openBtn = ref(null);
 
-  const props = defineProps({
-    isOpen: Boolean,
-    sessionTitle: String,
-    sessionId: Number,
-  });
+const emit =defineEmits(["deleteProject","update:isOpen"]);
 
-  watch(
-    () => props.isOpen,
-    () => {
-      if (props.isOpen) {
-        openBtn.value.click();
-      }
-    })
+const props = defineProps({
+  isOpen: Boolean,
+  projectTitle: String,
+  project: Number,
+});
 
-  const handleSubmit = async () => {
-    //TODO use sessionId parameter to delete
-    /*try {
-      await axios.post("http://127.0.0.1:5000/api/delete-session");
-    } catch (error) {
-      console.error("Error delete session:", error);
-    }*/
-  };
-  </script>
-  
+
+watch(
+  () => props.isOpen,
+  () => {
+    console.log("props.isOpen", props.isOpen);
+    if (props.isOpen) {
+      openBtn.value.click();
+    }
+  }
+);
+
+const handleSubmit = async () => {
+  emit("deleteProject", props.project);
+};
+</script>

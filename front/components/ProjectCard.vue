@@ -3,7 +3,7 @@
     <Card class="m-5">
       <div class="flex items-center">
         <h1 class="text-xl">{{ props.name }}</h1>
-        <ModalDeleteSession v-model:isOpen="state.isOpen" :session-title="state.selectedSession.title", :session-id="state.selectedSession.id"></ModalDeleteSession>
+        <ModalDeleteProject class="ml-auto" @delete-project="handleClickDelete" v-model:isOpen="state.isOpen" :project-title="props.name" :project-id="props.id"></ModalDeleteProject>
       </div>
       <p class="my-5 max-h-32 text-ellipsis overflow-auto">
         {{ props.summary }}
