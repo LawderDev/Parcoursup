@@ -13,7 +13,7 @@
         @handleClick="openSessionPage(session.id)"
       ></SessionItem>
     </div>
-    <ModalDeleteSession v-model:isOpen="state.isOpen" :session-title="state.selectedSession.title", :session-id="state.selectedSession.id" @handle-delete="api_call_sessions"></ModalDeleteSession>
+    <ModalDeleteSession v-model:isOpen="state.isOpen" :session-title="state.selectedSession.title" :session-id="state.selectedSession.id" @handle-delete="api_call_sessions"></ModalDeleteSession>
   </div>
 </template>
 

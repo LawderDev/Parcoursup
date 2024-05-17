@@ -7,7 +7,8 @@
         <div class="avatar">
           <div class="w-16 rounded-xl">
             <img
-              :src=Logo
+              src="../public/logo.png"
+              alt="logo"
             />
           </div>
         </div>
@@ -45,7 +46,6 @@
   </div>
 </template>
 <script setup>
-import Logo from "../public/logo.png";
 const props = defineProps(["name"]);
 const letter = computed(() => props.name.charAt(0));
 </script>
