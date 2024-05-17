@@ -11,6 +11,76 @@ app = Flask(__name__)
 # Allow all link CORS
 CORS(app, resources={r"/api/*": {"origins": "*"}})
 
+@app.route('/api/get_session_id', methods=['GET'])
+def get_session_id():
+    print('enter')
+    # Il faut utiliser os.path.join pour que ce soit multiplateforme
+    db = os.path.join(os.getcwd(), 'db', 'parcoursup.sqlite')
+    if os.path.exists(db):
+        try:
+            sessionID = request.args.get('sessionID')
+            if not sessionID:
+                return jsonify({'error': 'Session ID parameter is missing'}), 400
+            
+            conn = sqlite3.connect(db)
+            cursor = conn.cursor()
+
+            cursor.execute("SELECT ID from SESSION where ID = " + sessionID)
+
+            response = cursor.fetchall()
+            print(response)
+
+            conn.close()
+
+            # Convert data to JSON format
+            return jsonify(response)
+
+        except sqlite3.Error as e:
+            return jsonify({'error': str(e)}), 500
+
+    else:
+        return jsonify({'error': "nul"}), 50
+
+@app.route('/api/get_session_data', methods=['GET'])
+def get_session_data():
+    print('enter')
+    # Il faut utiliser os.path.join pour que ce soit multiplateforme
+    db = os.path.join(os.getcwd(), 'db', 'parcoursup.sqlite')
+    if os.path.exists(db):
+        try:
+            sessionID = request.args.get('sessionID')
+            if not sessionID:
+                return jsonify({'error': 'Session ID parameter is missing'}), 400
+            
+            conn = sqlite3.connect(db)
+            cursor = conn.cursor()
+
+            cursor.execute("SELECT * from SESSION where ID = " + sessionID)
+
+            response = cursor.fetchall()
+            print(response)
+
+            session_dict = {
+                'id': response[0][0],
+                'name_session': response[0][1],
+                'end_date_group': response[0][2],
+                'end_date_session': response[0][3],
+                'group_min': response[0][4],
+                'group_max': response[0][5],
+                'fk_user': response[0][6],
+            }
+
+            conn.close()
+
+            # Convert data to JSON format
+            return jsonify(session_dict)
+
+        except sqlite3.Error as e:
+            return jsonify({'error': str(e)}), 500
+
+    else:
+        return jsonify({'error': "nul"}), 50
+
 # -----------------------------------------------------------------------------
 
 @app.route('/api/gale_shapley', methods=['POST'])
