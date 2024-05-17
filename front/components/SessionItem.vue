@@ -36,7 +36,7 @@ defineProps({
   endDate: String,
 });
 
-defineEmits(['delete', 'handleClick'])
+defineEmits(['delete','handleClick'])
 </script>
 
 <style scoped></style>

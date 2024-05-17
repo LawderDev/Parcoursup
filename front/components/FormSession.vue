@@ -46,19 +46,16 @@
       </div>
     </div>
 
+    <!--- DATE FORM --->
     <h2 class="mx-5 mb-2">Date de fin des formations des groupes</h2>
-    <DateComponent v-model:endDate="state.endDateGroup" class="px-5 mb-5" />
+    <DateComponent v-model="state.endDateGroup" class="px-5 mb-5" />
     <h2 class="mx-5 mb-2">Date de fin de la session</h2>
-    <DateComponent
-      v-model:endDate="state.endDateSession"
-      :endDateGroup="state.endDateGroup"
-      class="px-5 mb-5"
-    />
+    <DateComponent v-model="state.endDateSession" class="px-5 mb-5" />
+
+    <!--- GROUP FORM --->
     <h2 class="mx-5 mb-2">Nombre de personnes par groupe</h2>
     <div class="md:w-13">
-      <label
-        class="input input-bordered flex items-center gap-4 mx-5 mb-2 rounded-badge"
-      >
+      <label class="input input-bordered flex items-center gap-4 mx-5 mb-2 rounded-badge">
         Minimum
         <input
           v-model="state.minGroup"
@@ -115,9 +112,16 @@
             d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
           />
         </svg>
-        <span v-if="!fileCorrect && !props.editMode" class=""
-          >Veuillez renseigner un fichier valide</span
-        >
+        <span v-if="!nameCorrect" class="">
+          Veuillez respecter les contraintes de nom
+        </span>
+        <span v-else-if="!dateCorrect" class="">
+          Veuillez respecter les contraintes de dates
+        </span>
+        <span v-else-if="!groupCorrect" class="">
+          Veuillez respecter les contraintes de groupes
+        </span>
+
         <span v-else>Erreur inconnue.</span>
       </div>
     </div>
@@ -132,6 +136,7 @@
         >
       </div>
     </div>
+
     <div
       class="p-4 flex items-center justify-center z-50 md:hidden"
       v-if="props.editMode"
@@ -156,9 +161,7 @@
     </div>
     <div class="flex justify-center" v-if="!props.editMode">
       <div class="hidden md:flex p-4">
-        <ButtonPrimary
-          @click="handleClick"
-          class="md:place-self-end place-start"
+        <ButtonPrimary @click="handleClick" class="md:place-self-end place-start"
           >Valider</ButtonPrimary
         >
       </div>
@@ -176,19 +179,19 @@ import Cancel from "~/public/cancel.svg";
 
 const props = defineProps({
   editMode: Boolean,
+  sessionData: Object,
 });
 
 const emit = defineEmits(["handleValidate"]);
 
 const state = reactive({
-  sessionID: 1,
+  sessionID: null,
   editTitle: false,
   newTitle: null,
-  sessionName: "Session",
+  sessionName: null,
   fileContent: null,
   minGroup: 1,
   maxGroup: null,
-  endDate: null,
   endDateGroup: null,
   endDateSession: null,
   error: false,
@@ -203,6 +206,17 @@ watch(
   }
 );
 
+onMounted(() => {
+  if (props.sessionData) {
+    state.sessionName = props.sessionData.name_session;
+    state.minGroup = props.sessionData.group_min;
+    state.maxGroup = props.sessionData.group_max;
+    state.endDateGroup = new Date(props.sessionData.end_date_group);
+    state.endDateSession = new Date(props.sessionData.end_date_session);
+    state.sessionID = props.sessionData.id;
+  }
+});
+
 const handleEditOk = () => {
   state.sessionName = state.newTitle;
   state.editTitle = false;
@@ -216,10 +230,7 @@ const handleFileSelected = (file) => {
 };
 
 let formCorrect = computed(() => {
-  return fileCorrect.value && groupCorrect.value;
-});
-const fileCorrect = computed(() => {
-  return state.fileContent != null;
+  return dateCorrect.value && groupCorrect.value && nameCorrect.value;
 });
 
 const groupCorrect = computed(() => {
@@ -231,46 +242,70 @@ const groupCorrect = computed(() => {
   );
 });
 
+const nameCorrect = computed(() => {
+  return state.sessionName != null;
+});
+
+const dateCorrect = computed(() => {
+  const today = new Date();
+  return (
+    state.endDateGroup < state.endDateSession &&
+    state.endDateGroup > today &&
+    state.endDateGroup != null &&
+    state.endDateSession != null
+  );
+});
+
 const handleClick = async () => {
   if (formCorrect.value) {
     state.error = false;
-
     if (!props.editMode) {
+      //MODAL
       const formData = {
-        session: [
-          state.sessionName,
-          state.endDateGroup,
-          state.endDateSession,
-          state.minGroup,
-          state.maxGroup,
-          1,
+        data: [
+          {
+            Nom: state.sessionName,
+            Deadline_Creation_Groupe: state.endDateGroup,
+            Deadline_Choix_Projet: state.endDateSession,
+            Nb_Etudiant_Min: state.minGroup,
+            Nb_Etudiant_Max: state.maxGroup,
+            Etat: "Choosing",
+            FK_Utilisateur: 1,
+          },
         ],
       };
 
       const jsonDataSession = JSON.stringify(formData);
       const session_id = await create_session(jsonDataSession);
 
-      const jsonDataStudent = {
-        session_ID: session_id,
-        data: state.fileContent,
-      };
-      console.log(state.fileContent);
 
-      //create_student(jsonDataStudent)
-      emit("handleValidate");
+      if (session_id) {
+        const dictStudent = {
+          sessionID: session_id,
+          data: state.fileContent.data,
+        };
+        const jsonDataStudent = JSON.stringify(dictStudent);
+        const std_id = await create_student(jsonDataStudent);
+        emit("handleValidate");
+      } else {
+        console.error("Probleme de session id : ", session_id);
+      }
     } else if (props.editMode) {
+      //UPDATE
       const formData = {
-        session: [
-          state.session_ID,
-          state.sessionName,
-          state.endDateGroup,
-          state.endDateSession,
-          state.minGroup,
-          state.maxGroup,
-          1,
+        sessionID: state.sessionID,
+        data: [
+          {
+            Nom: state.sessionName,
+            Deadline_Creation_Groupe: state.endDateGroup,
+            Deadline_Choix_Projet: state.endDateSession,
+            Nb_Etudiant_Min: state.minGroup,
+            Nb_Etudiant_Max: state.maxGroup,
+            Etat: "Choosing",
+            FK_Utilisateur: 1,
+          },
         ],
       };
-
       const jsonDataSession = JSON.stringify(formData);
       const session_id = await update_session(jsonDataSession);
     }
@@ -281,15 +316,11 @@ const handleClick = async () => {
 
 const create_session = async (jsonData) => {
   try {
-    const res = await axios.post(
-      "http://127.0.0.1:5000/api/create_session",
-      jsonData,
-      {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
-    );
+    const res = await axios.post("http://127.0.0.1:5000/api/create_session", jsonData, {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
     return res.data.result[0];
   } catch (err) {
     console.error(err);
@@ -299,7 +330,7 @@ const create_session = async (jsonData) => {
 const create_student = async (jsonData) => {
   try {
     const res = await axios.post(
-      "http://127.0.0.1:5000/api/create_student",
+      "http://127.0.0.1:5000/api/create_students",
       jsonData,
       {
         headers: {
@@ -315,16 +346,13 @@ const create_student = async (jsonData) => {
 
 const update_session = async (jsonData) => {
   try {
-    const res = await axios.post(
-      "http://127.0.0.1:5000/api/update_session",
-      jsonData,
-      {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
-    );
-    return res.data.result[0];
+    const res = await axios.post("http://127.0.0.1:5000/api/update_session", jsonData, {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    console.log(res.data);
+    return res.data;
   } catch (err) {
     console.error(err);
   }

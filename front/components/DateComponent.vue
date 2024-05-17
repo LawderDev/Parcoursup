@@ -2,8 +2,6 @@
   <VueDatePicker
     v-model="state.date"
     :format="format"
-    :disabled-dates="disabledDates"
-    :disabled="endDateGroup !== undefined && !endDateGroup"
   ></VueDatePicker>
 </template>
 
@@ -16,17 +14,12 @@ const state = reactive({
   date: null,
 });
 
-const props = defineProps({
-  endDate: Date,
-  endDateGroup: Date,
-});
-
-const emit = defineEmits(["update:endDate"]);
+const emit = defineEmits(["date"]);
 
 watch(
   () => state.date,
   (newDate) => {
-    emit("update:endDate", newDate);
+    emit("date", newDate);
   }
 );
 
@@ -36,11 +29,5 @@ const format = (date) => {
   const year = date.getFullYear();
 
   return `${day}/${month}/${year}`;
-};
-
-const disabledDates = (date) => {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  return (props.endDateGroup && date < props.endDateGroup) || date < today; // Disable dates before today or endDateGroup
 };
 </script>

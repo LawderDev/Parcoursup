@@ -11,6 +11,76 @@ app = Flask(__name__)
 # Allow all link CORS
 CORS(app, resources={r"/api/*": {"origins": "*"}})
 
+@app.route('/api/get_session_id', methods=['GET'])
+def get_session_id():
+    print('enter')
+    # Il faut utiliser os.path.join pour que ce soit multiplateforme
+    db = os.path.join(os.getcwd(), 'db', 'parcoursup.sqlite')
+    if os.path.exists(db):
+        try:
+            sessionID = request.args.get('sessionID')
+            if not sessionID:
+                return jsonify({'error': 'Session ID parameter is missing'}), 400
+            
+            conn = sqlite3.connect(db)
+            cursor = conn.cursor()
+
+            cursor.execute("SELECT ID from SESSION where ID = " + sessionID)
+
+            response = cursor.fetchall()
+            print(response)
+
+            conn.close()
+
+            # Convert data to JSON format
+            return jsonify(response)
+
+        except sqlite3.Error as e:
+            return jsonify({'error': str(e)}), 500
+
+    else:
+        return jsonify({'error': "nul"}), 50
+
+@app.route('/api/get_session_data', methods=['GET'])
+def get_session_data():
+    print('enter')
+    # Il faut utiliser os.path.join pour que ce soit multiplateforme
+    db = os.path.join(os.getcwd(), 'db', 'parcoursup.sqlite')
+    if os.path.exists(db):
+        try:
+            sessionID = request.args.get('sessionID')
+            if not sessionID:
+                return jsonify({'error': 'Session ID parameter is missing'}), 400
+            
+            conn = sqlite3.connect(db)
+            cursor = conn.cursor()
+
+            cursor.execute("SELECT * from SESSION where ID = " + sessionID)
+
+            response = cursor.fetchall()
+            print(response)
+
+            session_dict = {
+                'id': response[0][0],
+                'name_session': response[0][1],
+                'end_date_group': response[0][2],
+                'end_date_session': response[0][3],
+                'group_min': response[0][4],
+                'group_max': response[0][5],
+                'fk_user': response[0][6],
+            }
+
+            conn.close()
+
+            # Convert data to JSON format
+            return jsonify(session_dict)
+
+        except sqlite3.Error as e:
+            return jsonify({'error': str(e)}), 500
+
+    else:
+        return jsonify({'error': "nul"}), 50
+
 # -----------------------------------------------------------------------------
 
 @app.route('/api/gale_shapley', methods=['POST'])
@@ -203,6 +273,7 @@ def update_session():
             # Commit the insertions
             conn.commit()
             conn.close()
+            print(sessionID)
 
             # Convert data to JSON format
             return jsonify({'result': sessionID}), 200
@@ -315,7 +386,7 @@ def create_students():
 
             # Insert student data (without RETURNING)
             queryParameters = [(data['Nom'], data['Prenom'], data['Email'], sessionID) for data in students]
-
+            
             cursor.executemany(
                 "INSERT INTO ETUDIANT (Nom, Prenom, Email, FK_Session) VALUES (?, ?, ?, ?)",
                 queryParameters
@@ -782,6 +853,76 @@ def create_group():
     else:
         return jsonify({'error': "nul"}), 50
 
+@app.route('/api/get_all_groups_students', methods=['POST'])
+def get_all_groups_students():
+    """
+        Methods that get all the groups and the students within it from single session
+
+        Example of data and post request to call in the front :
+
+            const data = {
+            "sessionID" : 1
+            }
+            const jsonData = JSON.stringify(data);
+
+            const response = await axios.post("http://127.0.0.1:5000/api/get_all_groups_students", jsonData, {
+              headers: {
+                'Content-Type': 'application/json'
+              }}
+            );
+
+        Returns:
+        _type_: _description_
+        """
+    print('Enter get all the groups and the students within it function')
+    # Retrieve parameters from the request body
+    sessionID = request.json.get('sessionID')
+
+    db = os.path.join(os.getcwd(), 'db', 'parcoursup.sqlite')
+    if os.path.exists(db):
+        conn = sqlite3.connect(db)
+        cursor = conn.cursor()
+        try:
+            # Insert SQL query here
+            sql = """
+                    SELECT e.ID as 'StudentID', e.Nom, e.Prenom, e.Email, g.ID as 'GroupID' 
+                    FROM ETUDIANT e
+                    LEFT JOIN ETUDIANT_GROUPE eg ON e.ID = eg.FK_Etudiant
+                    JOIN SESSION s ON e.FK_Session = s.ID
+                    JOIN GROUPE g ON eg.FK_Groupe = g.ID
+                    WHERE s.ID = ?;
+                """
+
+            # Execute the query with the session ID as a parameter
+            cursor.execute(sql, (sessionID,))
+
+            # Build the output data structure
+            groups = {}
+            for row in cursor.fetchall():
+                student_id, name, firstname, email, group_id = row  # Unpack data
+
+                if group_id not in groups:
+                    groups[group_id] = {
+                        'id': group_id,
+                        'students': [],
+                    }
+                student_data = {
+                    'id': student_id,
+                    'firstname': firstname,
+                    'name': name,
+                    'email': email,
+                }
+                groups[group_id]['students'].append(student_data)
+
+            # Convert data to JSON format
+            return jsonify(list(groups.values()))
+
+        except sqlite3.Error as e:
+            print(e)
+            return jsonify({'error': str(e)}), 500
+    else:
+        return jsonify({'error': "nul"}), 500
+
 
 @app.route('/api/reaffect_group', methods=['POST'])
 def reaffect_group():
@@ -916,3 +1057,5 @@ def affect_preference_groupe():
 
 if __name__ == '__main__':
     app.run(debug=True)
+
+

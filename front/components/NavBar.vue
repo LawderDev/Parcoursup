@@ -5,16 +5,15 @@
     >
       <div>
         <div class="avatar">
-          <div class="w-8 rounded">
+          <div class="w-16 rounded-xl">
             <img
-              src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.jpg"
-              alt="Tailwind-CSS-Avatar-component"
+              :src=Logo
             />
           </div>
         </div>
       </div>
       <div>
-        <h1 class="text-xl md:block">Nom du site</h1>
+        <h1 class="text-xl md:block">Smart Choice</h1>
       </div>
       <div class="dropdown dropdown-end">
         <div tabindex="0" role="button" class="btn btn-ghost btn-circle">
@@ -46,6 +45,7 @@
   </div>
 </template>
 <script setup>
+import Logo from "../public/logo.png";
 const props = defineProps(["name"]);
 const letter = computed(() => props.name.charAt(0));
 </script>
