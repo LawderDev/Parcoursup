@@ -328,7 +328,54 @@ def delete_session():
             return jsonify({'error': str(e)}), 500   
     else:
         return jsonify({'error': "nul"}), 50
-    
+
+@app.route('/api/create_students', methods=['POST'])
+def create_students():
+    """
+    Add all the students data from the csv file.
+    Called right after the csv file of student is read.
+    :return:
+    """
+    print('Enter create students function')
+
+    # Retrieve parameters from the request body
+    sessionID = request.json.get('sessionID')  # assuming the parameters are sent in JSON format
+    students = request.json.get('data')
+
+    db = os.path.join(os.getcwd(), 'db', 'parcoursup.sqlite')
+    if os.path.exists(db):
+        conn = sqlite3.connect(db)
+        cursor = conn.cursor()
+
+        try:
+            cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='ETUDIANT';")
+            table_exists = cursor.fetchone() is not None
+
+            if table_exists:
+                cursor.execute(f"DELETE FROM ETUDIANT WHERE FK_Session ='{sessionID}'")
+
+            # Insert student data (without RETURNING)
+            queryParameters = [(data['Nom'], data['Prenom'], data['Email'], sessionID) for data in students]
+
+            cursor.executemany(
+                "INSERT INTO ETUDIANT (Nom, Prenom, Email, FK_Session) VALUES (?, ?, ?, ?)",
+                queryParameters
+            )
+
+            # Commit the insertions
+            conn.commit()
+            conn.close()
+
+            response = {
+                "result": "Done"
+            }
+            return jsonify(response), 200
+
+        except sqlite3.Error as e:
+            return jsonify({'error': str(e)}), 500
+    else:
+        return jsonify({'error': "can't find database"}), 50
+
 @app.route('/api/student_is_in_group', methods=['POST'])
 def is_in_group():
     """
