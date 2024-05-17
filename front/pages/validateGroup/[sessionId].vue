@@ -179,8 +179,9 @@ const handleBack = async() => {
 
 const reafectGroup = async (data) => {
 
-    const jsonData = JSON.stringify(data);
+    const jsonData = JSON.stringify({ data: data})
 
+    console.log(jsonData)
     await axios.post("http://127.0.0.1:5000/api/reaffect_group", jsonData, {
         headers: {
            'Content-Type': 'application/json'
@@ -207,11 +208,13 @@ const handleSave = async () => {
         })
     })
 
+    if(studentsToReassign.length === 0) return
+
     await reafectGroup(studentsToReassign);
 }
 
 const validateGroups = async () => {
-   
+   //TODO CHANGE STATE SESSION TO CHOOSING
 }
 
 const handleValidateGroup = async () => {
