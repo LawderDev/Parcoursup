@@ -54,12 +54,34 @@ const checkStudentIsInGroup = async (studentId) => {
     })
   }
 
-  const validateGroup = async () => {
-    console.log(state.group)
+  const createGroup = async () => {
+    try {
 
-    if(await checkStudentsInGroup()) {
-      console.log("enter", state.group)
-      //await createGroup(state.group)
+      const data = {"data": state.group.map(student => {return {'studentID': student.id}})}
+
+      const jsonData = JSON.stringify(data);
+
+      await axios.post(
+        "http://127.0.0.1:5000/api/create_group",
+        jsonData,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+    } catch (err) {
+      console.error(err);
     }
+  }
+  
+
+  const validateGroup = async () => {
+    if(await checkStudentsInGroup()) {
+      await createGroup(state.group) 
+      await navigateTo('/createGroupConfirmation')
+    }
+
+   
   }
 </script>
