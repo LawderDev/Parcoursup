@@ -70,7 +70,7 @@
         />
       </label>
       <label
-        class="input input-bordered flex items-center gap-4 mx-5 mb-5 rounded-badge"
+        class="input input-bordered flex items-center gap-4 mx-5 my-5 rounded-badge"
       >
         Maximum
         <input

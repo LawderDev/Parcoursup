@@ -49,6 +49,7 @@ const openBtn = ref(null);
 const props = defineProps({
   isOpen: Boolean,
   editMode: Boolean,
+  id: Number,
   name: String,
   summary: String,
 });
@@ -62,15 +63,14 @@ const emit = defineEmits([
 ]);
 
 const handleSubmit = () => {
-  console.log("handleSubmit")
   emit("submit:project", {
     name: props.name,
     summary: props.summary,
   });
 };
 const handleModify = () => {
-  console.log("handleModify")
   emit("modify:project", {
+    id: props.id,
     name: props.name,
     summary: props.summary,
   });
@@ -79,7 +79,6 @@ const handleCreateProject = () => {
   emit("create:project");
 };
 const handleClickValidate = ()=>{
-  console.log("handleClickModal")
   if(props.editMode ){
     handleModify()
   }else{
@@ -89,9 +88,7 @@ const handleClickValidate = ()=>{
 watch(
   () => props.isOpen,
   () => {
-    console.log("watcher", props.isOpen);
     if (props.isOpen) {
-      console.log("props.isOpen", props.isOpen);
       openBtn.value.click();
     }
   }

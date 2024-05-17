@@ -27,11 +27,9 @@ const state = reactive({
 const emit = defineEmits(["modifyProject","deleteProject"]);
 
 const handleClickModify = () => {
-  console.log("modifyProfect");
-  emit("modifyProject", { name: props.name, summary: props.summary });
+  emit("modifyProject", {name: props.name, summary: props.summary });
 };
 const handleClickDelete = () => {
-  console.log("props.id",props.id)
   emit("deleteProject",props.id)
 }
 </script>

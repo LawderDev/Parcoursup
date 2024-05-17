@@ -11,6 +11,7 @@
             :editMode="state.editMode"
             v-model:name="state.name"
             v-model:summary="state.summary"
+            v-model:id="state.id"
             @submit:project="handleNewProject"
             @modify:project="handleModifyProject"
             @create:project="openCreateModal"
@@ -22,7 +23,7 @@
           Quels seront les projets disponibles ?
         </h3>
         <div
-          class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 mb-20 md:mb-0"
+          class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3  mb-20 md:mb-0"
         >
           <div v-for="project in state.projects" :key="project.id">
             <ProjectCard
@@ -42,17 +43,6 @@
 
 <script setup>
 import axios from "axios";
-const handleDeleteProject = async (id) => {
-  console.log("id",id)
-  try {
-    await axios.post("http://127.0.0.1:5000/api/delete_project", {
-      projectID: id,
-    });
-    await api_call_projects();
-  } catch (error) {
-    console.error("Erreur lors de la suppression de la session", error);
-  }
-};
 const state = reactive({
   editMode: false,
   name: null,
@@ -65,6 +55,17 @@ const state = reactive({
     endDate: "test",
   },
 });
+
+const handleDeleteProject = async (id) => {
+  try {
+    await axios.post("http://127.0.0.1:5000/api/delete_project", {
+      projectID: id,
+    });
+    await api_call_projects();
+  } catch (error) {
+    console.error("Erreur lors de la suppression de la session", error);
+  }
+};
 const api_call_projects = async () => {
   try {
     const data = {
@@ -81,7 +82,6 @@ const api_call_projects = async () => {
       }
     );
     state.projects = response.data;
-    console.log(state.projects);
   } catch (error) {
     console.error("Erreur lors de la récupération des project :", error);
   }
@@ -103,39 +103,64 @@ const create_project = async (jsonData) => {
     console.error(err.response);
   }
 };
+const update_project = async (jsonData) => {
+  try {
+    const res = await axios.post(
+      "http://127.0.0.1:5000/api/update_project",
+      jsonData,
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    await api_call_projects();
+    return res;
+  } catch (err) {
+    console.error(err.response);
+  }
+};
 const handleNewProject = async (newProject) => {
-  console.log("handleNewProject", newProject);
   const formData = {
     data: [
       {
-        Nom: "fdsfsdfs",
-        Description: "desc",
+        Nom: newProject.name,
+        Description: newProject.summary,
         Nb_Etudiant_Min: null,
         Nb_Etudiant_Max: null,
-        FK_Session: 1,
+        FK_Session: state.selectedSession.id,
       },
     ],
   };
   const jsonDataSession = JSON.stringify(formData);
   const project_id = await create_project(jsonDataSession);
-
-  console.log(project_id);
 };
-const handleModifyProject = (newProject) => {
-  console.log("handleModifyProject", newProject);
+const handleModifyProject = async (newProject) => {
+  const formData = {
+    data: [
+      {
+        id: newProject.id,
+        nom: newProject.name,
+        description: newProject.summary,
+        min_etu: null,
+        max_etu: null,
+        id_session: state.selectedSession.id,
+      },
+    ],
+  };
+  const jsonDataSession = JSON.stringify(formData);
+  const project_id = await update_project(jsonDataSession);
 };
 const openCreateModal = () => {
-  console.log("openCreateModal");
   state.isOpen = true;
   state.editMode = false;
   state.name = null;
   state.summary = null;
 };
 const openModifyModal = (event) => {
-  console.log("openModifyModal", event.name);
-  console.log("openModifyModal", event.summary);
   state.isOpen = true;
   state.editMode = true;
+  state.id = event.id
   state.name = event.name;
   state.summary = event.summary;
 };

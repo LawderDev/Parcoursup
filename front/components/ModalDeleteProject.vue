@@ -47,7 +47,6 @@ const props = defineProps({
 watch(
   () => props.isOpen,
   () => {
-    console.log("props.isOpen", props.isOpen);
     if (props.isOpen) {
       openBtn.value.click();
     }
