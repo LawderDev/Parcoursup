@@ -12,12 +12,13 @@
         <div class="flex ml-auto gap-4">
           <ButtonSecondary @click="handleBack">Retourner à la session</ButtonSecondary>
 
-          <ButtonPrimary>Valider les groupes</ButtonPrimary>
+          <ButtonPrimary @click="handleValidateGroup">Valider les groupes</ButtonPrimary>
         </div>
       </div>
       <div class="flex gap-4 items-center mb-6">
         <h2 class="text-xl font-semibold">Groupes</h2>
         <ModalCreateGroup @handle-create-group="refreshGroups"></ModalCreateGroup>
+        <ButtonPrimary @click="handleSave">Enregistrer</ButtonPrimary>
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-7">
@@ -50,12 +51,7 @@
               @click="addPerson(group)"
               >Ajouter un membre</ButtonAdd
             >
-            <div class="flex gap-4">
-              <ButtonSecondary>Supprimer</ButtonSecondary>
-              <ButtonPrimary @click="handleEditGroup(group)"
-                >Modifier</ButtonPrimary
-              >
-            </div>
+            <ButtonSecondary>Supprimer</ButtonSecondary>
           </div>
         </Card>
       </div>
@@ -76,14 +72,14 @@ const state = reactive({
 const route = useRoute();
 
 onMounted(async () => {
-  await getAllGroups();
+ state.groups = await getAllGroups();
   await getAllStudents();
   await getAvailableStudents();
   state.loading = true;
 });
 
 const refreshGroups = async () => {
-    await getAllGroups();
+    state.groups = await getAllGroups();
     await getAvailableStudents();
 };
 
@@ -145,8 +141,7 @@ const getAllGroups = async () => {
       }
     );
 
-    console.log(res.data);
-    state.groups = res.data;
+    return res.data;
   } catch (err) {
     console.log("error");
     console.error(err);
@@ -180,5 +175,48 @@ const getAllStudents = async () => {
 
 const handleBack = async() => {
   await navigateTo(`/session/${route.params.sessionId}`);
+}
+
+const reafectGroup = async (data) => {
+
+    const jsonData = JSON.stringify(data);
+
+    await axios.post("http://127.0.0.1:5000/api/reaffect_group", jsonData, {
+        headers: {
+           'Content-Type': 'application/json'
+        }}
+    );
+}
+
+const handleSave = async () => {
+    const oldGroup = await getAllGroups();
+        
+    const studentsToReassign = []
+
+    state.groups.forEach((group) => {
+        oldGroup.forEach((oldGroup) => {
+            if (group.id === oldGroup.id) {
+                let students = group.students.filter((student) => !oldGroup.students.some((oldStudent) => oldStudent.id === student.id));
+                students.forEach((student) => {
+                    studentsToReassign.push({
+                        id_student: student.id,
+                        id_new_group: group.id
+                    })
+                })
+            }
+        })
+    })
+
+    await reafectGroup(studentsToReassign);
+}
+
+const validateGroups = async () => {
+   
+}
+
+const handleValidateGroup = async () => {
+    await handleSave();
+    await validateGroups();
+
 }
 </script>
