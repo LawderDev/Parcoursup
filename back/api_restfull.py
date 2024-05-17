@@ -372,7 +372,6 @@ def is_in_group():
     else:
         return jsonify({'error': "nul"}), 50
     
-
 @app.route('/api/get_all_students', methods=['POST'])
 def get_all_students():
     """
@@ -428,7 +427,6 @@ def get_all_students():
             return jsonify({'error': str(e)}), 500
     else:
         return jsonify({'error': "nul"}), 50
-
 
 ######
 # PROJECT

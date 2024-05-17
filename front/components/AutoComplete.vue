@@ -7,7 +7,7 @@
           >
             <ComboboxInput
               class="w-[250px] rounded-full border-[1px] shadow-md py-2 pl-3 pr-10 text-sm leading-5"
-              :displayValue="(person) => `${person.firstname} ${person.name}`"
+              :displayValue="(person) => `${person.nom} ${person.prénom}`"
               @change="state.query = $event.target.value"
             />
             <ComboboxButton
@@ -50,7 +50,7 @@
                     class="block truncate"
                     :class="{ 'font-medium': selected, 'font-normal': !selected }"
                   >
-                    {{ person.firstname }} {{  person.name }}
+                    {{ person.nom }} {{  person.prénom }}
                   </span>
                 </li>
               </ComboboxOption>
@@ -82,7 +82,7 @@
       defaultValue: Object,
   })
 
-  const emit = defineEmits(['update:selected'])
+  const emit = defineEmits(['update:selected', 'delete'])
 
   const state = reactive({
       query: '',
@@ -102,8 +102,8 @@
     state.query === ''
       ? props.peoples
       : props.peoples.filter((person) =>
-      (person.firstname +
-          person.name)
+      (person.nom +
+          person.prénom)
             .toLowerCase()
             .replace(/\s+/g, '')
             .includes(state.query.toLowerCase().replace(/\s+/g, ''))
