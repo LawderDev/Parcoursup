@@ -682,15 +682,12 @@ def get_group_projects_order_by_preferencies():
     # Retrieve parameters from the request body
     sessionID = request.json.get('sessionID')
     groupID = request.json.get('groupID')
-    print(sessionID, groupID)
 
     db = os.path.join(os.getcwd(), 'db', 'parcoursup.sqlite')
     if os.path.exists(db):
         conn = sqlite3.connect(db)
         cursor = conn.cursor()
-        print("enter")
         try:
-            print("1")
             # Retrieve data from SQLite database
             cursor.execute("""SELECT * from PREFERENCE_GROUPE
                             INNER JOIN PROJET ON  PROJET.ID = PREFERENCE_GROUPE.FK_Projet 
@@ -699,7 +696,6 @@ def get_group_projects_order_by_preferencies():
 
             
            
-            print("2")
             response = cursor.fetchall()
 
             # Prepare data for the front-end

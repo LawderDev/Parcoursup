@@ -12,11 +12,14 @@
 </template>
 
 <script setup>
+import axios from "axios";
 const {stateCreateGroup, validateGroup} = useCreateGroup()
 
 const state = reactive({
   groups: [],
 })
+
+const route = useRoute()
 
 const getAllGroups = async () => {
     try {
@@ -43,7 +46,9 @@ const getAllGroups = async () => {
   }
 
 const handleValidateGroup = async () => {
-  await validateGroup()
+  await validateGroup(stateCreateGroup.group)
   await navigateTo('/createGroupConfirmation')
 }
+
+await getAllGroups();
 </script>

@@ -16,7 +16,7 @@
       </div>
       <div class="flex justify-center">
         <div class="flex justify-start md:w-[580px] mt-5">
-          <ButtonSecondary @click="$emit('handleButtonClick')">{{buttonTitle}}</ButtonSecondary>
+          <ButtonSecondary v-if="buttonTitle" @click="$emit('handleButtonClick')">{{buttonTitle}}</ButtonSecondary>
         </div>
       </div>
     </div>

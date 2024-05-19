@@ -2,7 +2,7 @@
     <div class="flex justify-center">
         <ul class="steps">
             <template v-for="i in nbSteps">
-                <li v-if="i <= nbStepsLock" class="step" :class="{ 'step-primary': i <= nbStepsActive }"></li>
+                <li v-if="i <= nbStepsLock || nbStepsLock === 0" class="step" :class="{ 'step-primary': i <= nbStepsActive }"></li>
                 <li v-else data-content="✕" class="step"></li>
             </template>
            
