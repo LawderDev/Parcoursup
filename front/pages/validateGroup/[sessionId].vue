@@ -61,6 +61,7 @@
 
 <script setup>
 import axios from "axios";
+import { useSessionData } from "~/composables/useSessionData";
 
 const state = reactive({
   sessionName: "Projet TIC 2024",
@@ -69,10 +70,13 @@ const state = reactive({
   groups: [],
 });
 
+const { stateSession, getSessionData, updateSession } = useSessionData(); 
+
 const route = useRoute();
 
 onMounted(async () => {
- state.groups = await getAllGroups();
+  await getSessionData(route.params.sessionId);
+  state.groups = await getAllGroups();
   await getAllStudents();
   await getAvailableStudents();
   state.loading = true;
@@ -84,8 +88,6 @@ const refreshGroups = async () => {
 };
 
 const addPerson = (group) => {
-  console.log(getStudentsInGroup().length);
-  console.log(state.allStudents.length);
   if (getStudentsInGroup().length === state.allStudents.length) return;
   group.students.push(state.availableStudents[0]);
 };
@@ -143,7 +145,6 @@ const getAllGroups = async () => {
 
     return res.data;
   } catch (err) {
-    console.log("error");
     console.error(err);
   }
 };
@@ -168,7 +169,6 @@ const getAllStudents = async () => {
 
     state.allStudents = res.data;
   } catch (err) {
-    console.log("error");
     console.error(err);
   }
 };
@@ -181,7 +181,6 @@ const reafectGroup = async (data) => {
 
     const jsonData = JSON.stringify({ data: data})
 
-    console.log(jsonData)
     await axios.post("http://127.0.0.1:5000/api/reaffect_group", jsonData, {
         headers: {
            'Content-Type': 'application/json'
@@ -215,6 +214,27 @@ const handleSave = async () => {
 
 const validateGroups = async () => {
    //TODO CHANGE STATE SESSION TO CHOOSING
+    if(getStudentsInGroup().length !== state.allStudents.length) return
+
+    const formData = {
+        session_ID: route.params.sessionId,
+        data: [
+          {
+            Nom: stateSession.session.name_session,
+            Deadline_Creation_Groupe: stateSession.session.end_date_group,
+            Deadline_Choix_Projet: stateSession.session.end_date_session,
+            Nb_Etudiant_Min: stateSession.session.group_min,
+            Nb_Etudiant_Max: stateSession.session.group_max,
+            Etat: "Choosing",
+            FK_Utilisateur: 1,
+          },
+        ],
+      };
+
+    const jsonDataSession = JSON.stringify(formData);
+    await updateSession(jsonDataSession);
+
+    await navigateTo(`/session/${route.params.sessionId}`);
 }
 
 const handleValidateGroup = async () => {

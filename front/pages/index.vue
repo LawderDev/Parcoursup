@@ -39,7 +39,6 @@ const openDeleteModal = (session) => {
 };
 
 const openSessionPage = async (sessionID) => {
-  console.log("open session page " + sessionID);
   await navigateTo("/session/" + sessionID);
 };
 

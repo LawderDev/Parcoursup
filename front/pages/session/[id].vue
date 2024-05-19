@@ -2,7 +2,7 @@
   <div>
     <NavBar :name="'fdsf'" />
     <div class="grid justify-center m-8">
-      <FormSession editMode v-if="state.session_data" :session-data="state.session_data"></FormSession>
+      <FormSession editMode v-if="stateSession.session" :session-data="stateSession.session"></FormSession>
       <div>
         <div class="flex items-center mt-5 mb-5">
           <h2 class="text-3xl font-semibold mr-5">Projets</h2>
@@ -44,6 +44,7 @@
 import { useRoute } from "vue-router";
 import axios from "axios";
 import { onMounted } from "vue";
+import { useSessionData } from "~/composables/useSessionData";
 
 const state = reactive({
   editMode: false,
@@ -51,13 +52,14 @@ const state = reactive({
   summary: null,
   isOpen: false,
   projects: [],
-  session_data: null,
   selectedSession: {
     id: 1,
     title: "test",
     endDate: "test",
   },
 });
+
+const { stateSession, getSessionData } = useSessionData(); 
 
 const handleDeleteProject = async (id) => {
   try {
@@ -198,25 +200,8 @@ definePageMeta({
   },
 });
 
-const api_call_session_data = async (sessionID) => {
-  try {
-    const response = await axios.get(
-      "http://127.0.0.1:5000/api/get_session_data?sessionID=" + sessionID
-    );
-    console.log(response.data);
-    if (response.data) {
-      state.session_data = response.data;
-      return true;
-    } else {
-      return false;
-    }
-  } catch (error) {
-    console.error("Erreur lors de la récupération des sessions :", error);
-  }
-};
-
 onMounted( async() => {
-  await api_call_session_data(sessionID)
+  await getSessionData(sessionID)
   await api_call_projects();
 })
 

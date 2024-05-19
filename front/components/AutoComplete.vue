@@ -94,7 +94,6 @@
   })
 
   const updateSelected = (person) => {
-    console.log(person)
     emit('update:selected', person)
   }
 

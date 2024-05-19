@@ -261,6 +261,8 @@ def update_session():
         conn = sqlite3.connect(db)
         cursor = conn.cursor()
         try:
+            print(session[0]['Etat'])
+            
             queryParameters = [(session[0]['Nom'], session[0]['Deadline_Creation_Groupe'],
                                 session[0]['Deadline_Choix_Projet'], session[0]['Nb_Etudiant_Min'],
                                 session[0]['Nb_Etudiant_Max'], session[0]['Etat'], session[0]['FK_Utilisateur'],
@@ -275,6 +277,7 @@ def update_session():
             conn.commit()
             conn.close()
             print(sessionID)
+            print('end')
 
             # Convert data to JSON format
             return jsonify({'result': sessionID}), 200

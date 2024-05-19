@@ -181,11 +181,14 @@ import Delete from "~/public/delete.svg";
 import Edit from "~/public/edit.svg";
 import OkClickable from "~/public/okClickable.svg";
 import Cancel from "~/public/cancel.svg";
+import { useSessionData } from "~/composables/useSessionData";
 
 const props = defineProps({
   editMode: Boolean,
   sessionData: Object,
 });
+
+const { updateSession } = useSessionData();
 
 const emit = defineEmits(["handleValidate"]);
 
@@ -276,7 +279,7 @@ const handleClick = async () => {
             Deadline_Choix_Projet: state.endDateSession,
             Nb_Etudiant_Min: state.minGroup,
             Nb_Etudiant_Max: state.maxGroup,
-            Etat: "Choosing",
+            Etat: state.sessionState,
             FK_Utilisateur: 1,
           },
         ],
@@ -308,13 +311,13 @@ const handleClick = async () => {
             Deadline_Choix_Projet: state.endDateSession,
             Nb_Etudiant_Min: state.minGroup,
             Nb_Etudiant_Max: state.maxGroup,
-            Etat: "Choosing",
+            Etat: state.sessionState,
             FK_Utilisateur: 1,
           },
         ],
       };
       const jsonDataSession = JSON.stringify(formData);
-      const session_id = await update_session(jsonDataSession);
+      const session_id = await updateSession(jsonDataSession);
     }
   } else {
     state.error = true;
@@ -346,20 +349,6 @@ const create_student = async (jsonData) => {
       }
     );
     return res;
-  } catch (err) {
-    console.error(err);
-  }
-};
-
-const update_session = async (jsonData) => {
-  try {
-    const res = await axios.post("http://127.0.0.1:5000/api/update_session", jsonData, {
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-    console.log(res.data);
-    return res.data;
   } catch (err) {
     console.error(err);
   }
