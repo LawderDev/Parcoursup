@@ -17,7 +17,7 @@
       </div>
       <div class="flex gap-4 items-center mb-6">
         <h2 class="text-xl font-semibold">Groupes</h2>
-        <ModalCreateGroup @handle-create-group="refreshGroups"></ModalCreateGroup>
+        <ModalCreateGroup v-if="state.loading" @handle-create-group="refreshGroups" :groups="state.groups" :loadign="state.loading"></ModalCreateGroup>
         <ButtonPrimary @click="handleSave">Enregistrer</ButtonPrimary>
       </div>
 
@@ -68,6 +68,7 @@ const state = reactive({
   allStudents: [],
   availableStudents: [],
   groups: [],
+  loading: false,
 });
 
 const { stateSession, getSessionData, updateSession } = useSessionData(); 
@@ -82,8 +83,11 @@ onMounted(async () => {
   state.loading = true;
 });
 
-const refreshGroups = async () => {
-    state.groups = await getAllGroups();
+const refreshGroups = async (newGroup) => {
+    state.groups.push(newGroup);
+    await handleSave();
+
+    //state.groups = await getAllGroups();
     await getAvailableStudents();
 };
 
@@ -189,12 +193,12 @@ const reafectGroup = async (data) => {
 }
 
 const handleSave = async () => {
-    const oldGroup = await getAllGroups();
-        
+    const oldGroups = await getAllGroups();
+
     const studentsToReassign = []
 
     state.groups.forEach((group) => {
-        oldGroup.forEach((oldGroup) => {
+        oldGroups.forEach((oldGroup) => {
             if (group.id === oldGroup.id) {
                 let students = group.students.filter((student) => !oldGroup.students.some((oldStudent) => oldStudent.id === student.id));
                 students.forEach((student) => {
@@ -206,6 +210,18 @@ const handleSave = async () => {
             }
         })
     })
+
+    const newGroups = state.groups.filter((group) => !oldGroups.some((oldGroup) => oldGroup.id === group.id));
+
+    newGroups.forEach((group) => {
+        group.students.forEach((student) => {
+            studentsToReassign.push({
+                id_student: student.id,
+                id_new_group: group.id
+            })
+        })
+    })
+
 
     if(studentsToReassign.length === 0) return
 

@@ -7,7 +7,7 @@
 
         <template v-slot:form>
             <div>
-                <FormCreateGroup title="Nouveau groupe" subTitle="De qui est composé votre groupe ?" v-model:group="stateCreateGroup.group"></FormCreateGroup>
+                <FormCreateGroup title="Nouveau groupe" subTitle="De qui est composé votre groupe ?" v-model:group="stateCreateGroup.group" :groups="groups"></FormCreateGroup>
             </div>
          
         </template>
@@ -29,23 +29,16 @@
   const emit = defineEmits(["update:isOpen", "handleCreateGroup"]);
 
   const props = defineProps({
-    isOpen: Boolean,
-    sessionTitle: String,
-    sessionId: Number,
+    groups : Array,
   });
 
-  watch(
-    () => props.isOpen,
-    () => {
-      if (props.isOpen) {
-        openBtn.value.click();
-      }
-    })
-
   const handleSubmit = async() => {
-    await validateGroup()
+    console.log(stateCreateGroup.group)
+
+    const res = await validateGroup([])
+    
     nextTick(() => {
-      emit('handleCreateGroup')
+      emit('handleCreateGroup', { id : res.data.result[0], students : stateCreateGroup.group })
     })
   }
   </script>

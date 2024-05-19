@@ -25,10 +25,10 @@ export function useCreateGroup() {
           }
       }
     
-      const checkStudentsInGroup = async () => {
+      const checkStudentsInGroup = async (group) => {
         const promises = []
         
-        stateCreateGroup.group.forEach(student => {
+        group.forEach(student => {
           if(student){
             promises.push(checkStudentIsInGroup(student.id))
           }
@@ -39,14 +39,14 @@ export function useCreateGroup() {
         })
       }
     
-      const createGroup = async () => {
+      const createGroup = async (group) => {
         try {
     
-          const data = {"data": stateCreateGroup.group.map(student => {return {'studentID': student.id}})}
+          const data = {"data": group.map(student => {return {'studentID': student.id}})}
     
           const jsonData = JSON.stringify(data);
     
-          await axios.post(
+          const res = await axios.post(
             "http://127.0.0.1:5000/api/create_group",
             jsonData,
             {
@@ -55,15 +55,17 @@ export function useCreateGroup() {
               },
             }
           );
+          console.log(res)
+          return res;
         } catch (err) {
           console.error(err);
         }
       }
       
     
-      const validateGroup = async () => {
-        if(await checkStudentsInGroup()) {
-          await createGroup(stateCreateGroup.group) 
+      const validateGroup = async (group) => {
+        if(await checkStudentsInGroup(group)) {
+          return await createGroup(group) 
         }
       }
 
