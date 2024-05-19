@@ -22,7 +22,7 @@
                         <div class="flex mt-5 w-full">
                             <div class="flex-auto justify-start btn min-h-2 h-10 rounded-full neumorphism ">
                                 <img alt="rankingIcon" src="@/assets/images/rankingIcon.svg"/>
-                                <span class="text-xs font-bold flex-auto text-neutral">{{ element.name }}</span>
+                                <span class="text-xs font-bold flex-auto text-neutral">{{ element.nom }}</span>
                                 <Tooltip :content="element.description">?</Tooltip>
                             </div>
                         </div>

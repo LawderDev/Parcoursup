@@ -51,7 +51,7 @@
               @click="addPerson(group)"
               >Ajouter un membre</ButtonAdd
             >
-            <ButtonSecondary>Supprimer</ButtonSecondary>
+            <ButtonSecondary @click="handleDeleteGroup(group)">Supprimer</ButtonSecondary>
           </div>
         </Card>
       </div>
@@ -228,8 +228,12 @@ const handleSave = async () => {
     await reafectGroup(studentsToReassign);
 }
 
+const handleDeleteGroup = async (group) => {
+    //TODO delete group from database
+    console.log("delete group", group.id)
+}
+
 const validateGroups = async () => {
-   //TODO CHANGE STATE SESSION TO CHOOSING
     if(getStudentsInGroup().length !== state.allStudents.length) return
 
     const formData = {

@@ -657,6 +657,75 @@ def get_all_projects():
             return jsonify({'error': str(e)}), 500
     else:
         return jsonify({'error': "nul"}), 50
+    
+@app.route('/api/get_group_projects_order_by_preferencies', methods=['POST'])
+def get_group_projects_order_by_preferencies():
+    """
+    _summary_
+    Method that retrieve the projects from a session order by the group preferencies 
+        const data = {
+            "sessionID" : 1,
+            "groupID" : 1,
+        };
+        const jsonData = JSON.stringify(data);
+
+        const response = await axios.post("http://127.0.0.1:5000/api/get_group_projects_order_by_preferencies, jsonData, {
+          headers: {
+            'Content-Type': 'application/json'
+          }}
+        );
+    Returns:
+    Json with all the projects from a session order by the group preferencies
+"""
+    print('Enter group projects order by preferencies function')
+
+    # Retrieve parameters from the request body
+    sessionID = request.json.get('sessionID')
+    groupID = request.json.get('groupID')
+    print(sessionID, groupID)
+
+    db = os.path.join(os.getcwd(), 'db', 'parcoursup.sqlite')
+    if os.path.exists(db):
+        conn = sqlite3.connect(db)
+        cursor = conn.cursor()
+        print("enter")
+        try:
+            print("1")
+            # Retrieve data from SQLite database
+            cursor.execute("""SELECT * from PREFERENCE_GROUPE
+                            INNER JOIN PROJET ON  PROJET.ID = PREFERENCE_GROUPE.FK_Projet 
+                            WHERE FK_GROUPE = ? AND FK_Session = ?
+                            ORDER BY PREFERENCE_GROUPE.Ordre_Preference;""", (groupID, sessionID))
+
+            
+           
+            print("2")
+            response = cursor.fetchall()
+
+            # Prepare data for the front-end
+            projects = []
+            for idx, project in enumerate(response):
+                project_dict = {
+                    'id': response[idx][3],
+                    'nom': response[idx][4],
+                    'description': response[idx][5],
+                    'min_etu': response[idx][6],
+                    'max_etu': response[idx][7],
+                    'id_session': response[idx][8]
+                }
+                projects.append(project_dict)
+
+            print(projects)
+
+            conn.close()
+
+            # Convert data to JSON format
+            return jsonify(projects)
+
+        except sqlite3.Error as e:
+            return jsonify({'error': str(e)}), 500
+    else:
+        return jsonify({'error': "nul"}), 50
 
 
 @app.route('/api/update_project', methods=['POST'])
@@ -996,8 +1065,8 @@ def reaffect_group():
         return jsonify({'error': "can't find database"}), 50
 
 
-@app.route('/api/affect_preference_groupe', methods=['POST'])
-def affect_preference_groupe():
+@app.route('/api/affect_preference_group', methods=['POST'])
+def affect_preference_group():
     """
     Methods that insert a group project's preference
     Example of data and post request to call in the front : 
