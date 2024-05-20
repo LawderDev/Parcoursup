@@ -39,7 +39,6 @@ const openDeleteModal = (session) => {
 };
 
 const openSessionPage = async (sessionID) => {
-  console.log("open session page " + sessionID);
   await navigateTo("/session/" + sessionID);
 };
 
@@ -50,6 +49,7 @@ const api_call_sessions = async () => {
   } catch (error) {
     console.error("Erreur lors de la récupération des sessions :", error);
   }
+  state.isOpen = false
 };
 
 await api_call_sessions();

@@ -33,8 +33,8 @@
         ></EditTitle>
         <div class="ml-auto flex gap-4">
           <ButtonPrimary v-if="state.sessionState === 'Grouping'" class="ml-auto" @click="handleGrouping">Vérifier les groupes</ButtonPrimary>
-          <ButtonPrimary v-else-if="state.sessionState === 'Choosing'" class="ml-auto">Terminer la session</ButtonPrimary>
-          <ButtonPrimary v-else-if="state.sessionState === 'Attributing'" class="ml-auto">Assigner les projets</ButtonPrimary>
+          <ButtonPrimary v-else-if="state.sessionState === 'Choosing'" class="ml-auto" @click="handleEndSession">Terminer la session</ButtonPrimary>
+          <ButtonPrimary v-else-if="state.sessionState === 'Attributing'" class="ml-auto" @click="handleAssignProjects">Assigner les projets</ButtonPrimary>
           <ImageButton class="ml-auto mr-5" :src="Delete"></ImageButton>
         </div>
       </div>
@@ -181,11 +181,16 @@ import Delete from "~/public/delete.svg";
 import Edit from "~/public/edit.svg";
 import OkClickable from "~/public/okClickable.svg";
 import Cancel from "~/public/cancel.svg";
+import { useSessionData } from "~/composables/useSessionData";
 
 const props = defineProps({
   editMode: Boolean,
   sessionData: Object,
 });
+
+const route = useRoute();
+
+const { updateSession } = useSessionData();
 
 const emit = defineEmits(["handleValidate"]);
 
@@ -276,7 +281,7 @@ const handleClick = async () => {
             Deadline_Choix_Projet: state.endDateSession,
             Nb_Etudiant_Min: state.minGroup,
             Nb_Etudiant_Max: state.maxGroup,
-            Etat: "Choosing",
+            Etat: state.sessionState,
             FK_Utilisateur: 1,
           },
         ],
@@ -308,13 +313,13 @@ const handleClick = async () => {
             Deadline_Choix_Projet: state.endDateSession,
             Nb_Etudiant_Min: state.minGroup,
             Nb_Etudiant_Max: state.maxGroup,
-            Etat: "Choosing",
+            Etat: state.sessionState,
             FK_Utilisateur: 1,
           },
         ],
       };
       const jsonDataSession = JSON.stringify(formData);
-      const session_id = await update_session(jsonDataSession);
+      const session_id = await updateSession(jsonDataSession);
     }
   } else {
     state.error = true;
@@ -351,21 +356,33 @@ const create_student = async (jsonData) => {
   }
 };
 
-const update_session = async (jsonData) => {
-  try {
-    const res = await axios.post("http://127.0.0.1:5000/api/update_session", jsonData, {
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-    console.log(res.data);
-    return res.data;
-  } catch (err) {
-    console.error(err);
-  }
-};
+const handleEndSession = async () => {
+      const formData = {
+        session_ID: state.sessionID,
+        data: [
+          {
+            Nom: props.sessionData.name_session,
+            Deadline_Creation_Groupe: props.sessionData.end_date_group,
+            Deadline_Choix_Projet: props.sessionData.end_date_session,
+            Nb_Etudiant_Min: props.sessionData.group_min,
+            Nb_Etudiant_Max: props.sessionData.group_max,
+            Etat: "Attributing",
+            FK_Utilisateur: 1,
+          },
+        ],
+      };
+
+    const jsonDataSession = JSON.stringify(formData);
+    console.log(jsonDataSession);
+    await updateSession(jsonDataSession);
+    state.sessionState = "Attributing";
+}
 
 const handleGrouping = async () => {
   await navigateTo(`/validateGroup/${state.sessionID}`);
+}
+
+const handleAssignProjects = async () => {
+  await navigateTo(`/result/${state.sessionID}`);
 }
 </script>

@@ -21,6 +21,7 @@ const props = defineProps({
     title: String,
     subTitle: String,
     group: Array,
+    groups: Array,
   });
 
 const emit = defineEmits(['update:group']);
@@ -28,7 +29,6 @@ const emit = defineEmits(['update:group']);
 const route = useRoute();
 
 onMounted(async () => {
-    await getAllGroups();
     await getAllStudents();
     await getAvailableStudents();
     state.loading = true;
@@ -38,7 +38,6 @@ const state = reactive({
     sessionName: "Projet TIC 2024",
     allStudents: [],
     availableStudents: [],
-    groups: [],
     loading:false,
   })
 
@@ -53,7 +52,7 @@ const state = reactive({
     getAvailableStudents();
   }
 
-  const getStudentsInGroup = () => state.groups.map(group => group.students).flat().concat(props.group).filter(s => s)
+  const getStudentsInGroup = () => props.groups.map(group => group.students).flat().concat(props.group).filter(s => s)
 
   const getAvailableStudents = () => {
     const studentsInGroup = getStudentsInGroup();
@@ -67,32 +66,6 @@ const state = reactive({
   const handleSelected = (student, index) => {
     emit("update:group", props.group.map((s, i) => i === index ? student : s))
     nextTick(() => getAvailableStudents());
-  }
-
-  const getAllGroups = async () => {
-    try {
-      const data = {
-        sessionID: route.params.sessionId
-      }
-
-      const jsonData = JSON.stringify(data);
-
-      const res = await axios.post(
-        "http://127.0.0.1:5000/api/get_all_groups_students",
-        jsonData,
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
-      
-      console.log(res.data)
-      state.groups = res.data
-    } catch (err) {
-      console.log("error")
-      console.error(err);
-    }
   }
 
   const getAllStudents = async () => {
@@ -115,7 +88,6 @@ const state = reactive({
       
       state.allStudents = res.data
     } catch (err) {
-      console.log("error")
       console.error(err);
     }
   }

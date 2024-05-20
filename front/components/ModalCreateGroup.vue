@@ -1,13 +1,13 @@
 <template>
     <div>
-      <Modal @close="$emit('update:isOpen', false)">
+      <Modal>
         <template v-slot:open-btn>
-            <ButtonAdd ref="openBtn">Ajouter un groupe</ButtonAdd> 
+            <ButtonAdd>Ajouter un groupe</ButtonAdd> 
         </template>
 
         <template v-slot:form>
             <div>
-                <FormCreateGroup title="Nouveau groupe" subTitle="De qui est composé votre groupe ?" v-model:group="stateCreateGroup.group"></FormCreateGroup>
+                <FormCreateGroup title="Nouveau groupe" subTitle="De qui est composé votre groupe ?" v-model:group="stateCreateGroup.group" :groups="groups"></FormCreateGroup>
             </div>
          
         </template>
@@ -24,28 +24,17 @@
   <script setup>
   const {stateCreateGroup, validateGroup} = useCreateGroup()
 
-  const openBtn = ref(null);
-
-  const emit = defineEmits(["update:isOpen", "handleCreateGroup"]);
+  const emit = defineEmits(["handleCreateGroup"]);
 
   const props = defineProps({
-    isOpen: Boolean,
-    sessionTitle: String,
-    sessionId: Number,
+    groups : Array,
   });
 
-  watch(
-    () => props.isOpen,
-    () => {
-      if (props.isOpen) {
-        openBtn.value.click();
-      }
-    })
-
   const handleSubmit = async() => {
-    await validateGroup()
+    const res = await validateGroup([])
+    
     nextTick(() => {
-      emit('handleCreateGroup')
+      emit('handleCreateGroup', { id : res.data.result[0], students : stateCreateGroup.group })
     })
   }
   </script>

@@ -1,14 +1,14 @@
 import axios from 'axios';
 
-export function useCreateGroup() {
-    const stateCreateGroup = reactive({
-      group: [],
+export function useGroups() {
+    const stateGroups = reactive({
+      groups: [],
     })
     
-    const getAllGroups = async () => {
+    const getAllGroups = async (sessionId) => {
         try {
           const data = {
-            sessionID: route.params.sessionId
+            sessionID: sessionId
           }
     
           const jsonData = JSON.stringify(data);
@@ -23,14 +23,14 @@ export function useCreateGroup() {
             }
           );
           
-          state.groups = res.data
+          stateGroups.groups = res.data
         } catch (err) {
           console.error(err);
         }
       }
 
       return {
-          stateCreateGroup,
+          stateGroups,
           getAllGroups,
       }
 }

@@ -17,7 +17,7 @@
       </div>
       <div class="flex gap-4 items-center mb-6">
         <h2 class="text-xl font-semibold">Groupes</h2>
-        <ModalCreateGroup @handle-create-group="refreshGroups"></ModalCreateGroup>
+        <ModalCreateGroup v-if="state.loading" @handle-create-group="refreshGroups" :groups="state.groups" :loadign="state.loading"></ModalCreateGroup>
         <ButtonPrimary @click="handleSave">Enregistrer</ButtonPrimary>
       </div>
 
@@ -51,7 +51,7 @@
               @click="addPerson(group)"
               >Ajouter un membre</ButtonAdd
             >
-            <ButtonSecondary>Supprimer</ButtonSecondary>
+            <ButtonSecondary @click="handleDeleteGroup(group)">Supprimer</ButtonSecondary>
           </div>
         </Card>
       </div>
@@ -61,31 +61,37 @@
 
 <script setup>
 import axios from "axios";
+import { useSessionData } from "~/composables/useSessionData";
 
 const state = reactive({
   sessionName: "Projet TIC 2024",
   allStudents: [],
   availableStudents: [],
   groups: [],
+  loading: false,
 });
+
+const { stateSession, getSessionData, updateSession } = useSessionData(); 
 
 const route = useRoute();
 
 onMounted(async () => {
- state.groups = await getAllGroups();
+  await getSessionData(route.params.sessionId);
+  state.groups = await getAllGroups();
   await getAllStudents();
   await getAvailableStudents();
   state.loading = true;
 });
 
-const refreshGroups = async () => {
-    state.groups = await getAllGroups();
+const refreshGroups = async (newGroup) => {
+    state.groups.push(newGroup);
+    await handleSave();
+
+    //state.groups = await getAllGroups();
     await getAvailableStudents();
 };
 
 const addPerson = (group) => {
-  console.log(getStudentsInGroup().length);
-  console.log(state.allStudents.length);
   if (getStudentsInGroup().length === state.allStudents.length) return;
   group.students.push(state.availableStudents[0]);
 };
@@ -143,7 +149,6 @@ const getAllGroups = async () => {
 
     return res.data;
   } catch (err) {
-    console.log("error");
     console.error(err);
   }
 };
@@ -168,7 +173,6 @@ const getAllStudents = async () => {
 
     state.allStudents = res.data;
   } catch (err) {
-    console.log("error");
     console.error(err);
   }
 };
@@ -181,7 +185,6 @@ const reafectGroup = async (data) => {
 
     const jsonData = JSON.stringify({ data: data})
 
-    console.log(jsonData)
     await axios.post("http://127.0.0.1:5000/api/reaffect_group", jsonData, {
         headers: {
            'Content-Type': 'application/json'
@@ -190,12 +193,12 @@ const reafectGroup = async (data) => {
 }
 
 const handleSave = async () => {
-    const oldGroup = await getAllGroups();
-        
+    const oldGroups = await getAllGroups();
+
     const studentsToReassign = []
 
     state.groups.forEach((group) => {
-        oldGroup.forEach((oldGroup) => {
+        oldGroups.forEach((oldGroup) => {
             if (group.id === oldGroup.id) {
                 let students = group.students.filter((student) => !oldGroup.students.some((oldStudent) => oldStudent.id === student.id));
                 students.forEach((student) => {
@@ -208,13 +211,64 @@ const handleSave = async () => {
         })
     })
 
+    const newGroups = state.groups.filter((group) => !oldGroups.some((oldGroup) => oldGroup.id === group.id));
+
+    newGroups.forEach((group) => {
+        group.students.forEach((student) => {
+            studentsToReassign.push({
+                id_student: student.id,
+                id_new_group: group.id
+            })
+        })
+    })
+
+
     if(studentsToReassign.length === 0) return
 
     await reafectGroup(studentsToReassign);
 }
 
+const handleDeleteGroup = async (group) => {
+    //TODO delete group from database
+    console.log("delete group", group.id)
+}
+
+const setDefaultPreferences = () => {
+    const data ={
+        "data": route.params.sessionId
+    }
+    const jsonData = JSON.stringify(data);
+
+    axios.post("http://127.0.0.1:5000/api/affect_default_preferencies_projects", jsonData, {
+        headers: {
+           'Content-Type': 'application/json'
+        }}
+    );
+}
+
 const validateGroups = async () => {
-   //TODO CHANGE STATE SESSION TO CHOOSING
+    if(getStudentsInGroup().length !== state.allStudents.length) return
+
+    const formData = {
+        session_ID: route.params.sessionId,
+        data: [
+          {
+            Nom: stateSession.session.name_session,
+            Deadline_Creation_Groupe: stateSession.session.end_date_group,
+            Deadline_Choix_Projet: stateSession.session.end_date_session,
+            Nb_Etudiant_Min: stateSession.session.group_min,
+            Nb_Etudiant_Max: stateSession.session.group_max,
+            Etat: "Choosing",
+            FK_Utilisateur: 1,
+          },
+        ],
+      };
+
+    const jsonDataSession = JSON.stringify(formData);
+    await updateSession(jsonDataSession);
+    await setDefaultPreferences();
+
+    await navigateTo(`/session/${route.params.sessionId}`);
 }
 
 const handleValidateGroup = async () => {

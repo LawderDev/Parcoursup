@@ -1,11 +1,10 @@
 <template>
-   <Modal>
+   <Modal @close="$emit('update:isOpen', false)">
         <template v-slot:open-btn>
-            <ButtonPrimary>Vos préférences</ButtonPrimary>
+           <div class="hidden" ref="openBtn"></div>
         </template>
         <template v-slot:form>
             <h2 class="font-semibold text-primary text-center mb-5 text-xl">Supprimer une session</h2>
-          
             <Ranking :items="state.groups" description="Classez les groupes de projets en fonction de vos préférences"></Ranking>
         </template>
         <template v-slot:action>
@@ -15,29 +14,100 @@
         </template>
    </Modal>
   </template>
+<script setup>
+import axios from "axios";
 
+const openBtn = ref(null);
 
-  <script setup>
-    const state = reactive({
-        groups : [{
-        name: "Groupe 1",
-        description: "LOREM IPSUM LOREM IPSUM LOREM IPSUM V VLOREM IPSUMLOREM IPSUMLOREM IPSUMLOREM IPSUMLOREM IPSUMLOREM IPSUMLOREM IPSUMLOREM IPSUMLOREM IPSUMLOREM IPSUMLOREM IPSUMLOREM IPSUM"},
-        {
-        name: "Groupe 2",
-        description: "test"
-        },
-        {
-        name: "Groupe 3",
-        description: "test"
-        },
-        {
-        name: "Groupe 4",
-        description: "test"
-    }],
+const props = defineProps({
+  isOpen: Boolean,
+  projectId: Number,
+  sessionId: Number,
+})
+
+const emit = defineEmits(["update:isOpen"]);
+
+const state = reactive({
+        groups : [],
   })
 
+  const getGroups = async () => {
+    try {
+      const data = {
+            "sessionID" : props.sessionId,
+            "projectID" : props.projectId,
+        };
+      const jsonData = JSON.stringify(data);
+
+      const response = await axios.post("http://127.0.0.1:5000/api/get_project_groups_order_by_preferencies", jsonData, {
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+
+      let sortedData = [...response.data];
+
+      sortedData.sort((a, b) => a.id - b.id);
+
+      sortedData.forEach((item, index) => {
+          item.nom = `Groupe ${index + 1}`;
+      });
+
+      console.log(response.data)
+      state.groups =  response.data.map(group => {
+          return {
+            id : group.id,
+            nom : sortedData.find(element => element.id === group.id).nom,
+            description: group.students.map(student => `${student.name} ${student.firstname}`).join(",\n ")
+          }
+      });
+
+      // Afficher le tableau modifié
+      console.log(state.groups);
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  watch(
+    () => props.projectId,
+    async () => {
+      await getGroups();
+  })
+
+  watch(
+    () => props.isOpen,
+    () => {
+      if (props.isOpen) {
+        openBtn.value.click();
+      }
+    })
+
   const handleSubmit = async () => {
-    console.log(state.groups)
+    const data = {
+        "data": state.groups.map((group, index) => {
+          return {
+            "projectID": props.projectId,
+            "groupID": group.id,
+            "order": index + 1
+          }
+        })
+    }
+    
+    const jsonData = JSON.stringify(data);
+
+    await axios.post(
+      "http://127.0.0.1:5000/api/affect_preference_projet",
+      jsonData,
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    )
+
+    emit("update:isOpen", false);
   }
   </script>
   
