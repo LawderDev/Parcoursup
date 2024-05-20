@@ -1,32 +1,56 @@
 <template>
   <div>
-    <button class="btn btn-primary w-64 rounded-full">Button</button>
-  <h1 class="text-3xl font-bold w-[100vw] h-[100vh] flex items-center justify-center">{{ state.helloWorld }}</h1>
-</div>
+    <NavBar name="M"></NavBar>
+    <div class="flex justify-end mr-10">
+      <ModalCreateSession @handle-validate="api_call_sessions"></ModalCreateSession>
+    </div>
+    <div class="mt-6">
+      <SessionItem
+        v-for="session in state.sessions"
+        :title="session.nom"
+        :endDate="'Fin le ' + session.end_date"
+        @delete="openDeleteModal(session)"
+        @handleClick="openSessionPage(session.id)"
+      ></SessionItem>
+    </div>
+    <ModalDeleteSession v-model:isOpen="state.isOpen" :session-title="state.selectedSession.title" :session-id="state.selectedSession.id" @handle-delete="api_call_sessions"></ModalDeleteSession>
+  </div>
 </template>
 
 <script setup>
-import axios from "axios";
 import { reactive } from "vue";
+import axios from "axios";
 
-// Petite subtilité , c'est mieux de faire ça que ref,
-// ça évite de créer une variable à chaque fois
-// quand les gens débutent ils utilisent toujours ref 
-// mais en réalité ref est plus utilisé pour autre chose :D
-
-// Tout ce qui sera dans l'objet state du coup sera reactif !
 const state = reactive({
   helloWorld: "",
-})
+  isOpen: false,
+  selectedSession: {
+    id: 1,
+    title: "test",
+    endDate: "test",
+  },
+});
 
-const fetchHelloWorld = async () => {
-  try {
-    const response = await axios.get("http://127.0.0.1:5000/api/hello_world");
-    state.helloWorld = response.data;
-  } catch (error) {
-    console.error("Error fetching hello world:", error);
-  }
+const openDeleteModal = (session) => {
+  state.selectedSession.id = session.id;
+  state.selectedSession.title = session.nom;
+  state.selectedSession.endDate = session.end_date;
+  state.isOpen = true;
 };
 
-fetchHelloWorld();
+const openSessionPage = async (sessionID) => {
+  await navigateTo("/session/" + sessionID);
+};
+
+const api_call_sessions = async () => {
+  try {
+    const response = await axios.get("http://127.0.0.1:5000/api/get_sessions");
+    state.sessions = response.data
+  } catch (error) {
+    console.error("Erreur lors de la récupération des sessions :", error);
+  }
+  state.isOpen = false
+};
+
+await api_call_sessions();
 </script>
