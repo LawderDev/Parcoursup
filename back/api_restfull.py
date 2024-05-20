@@ -253,7 +253,7 @@ def update_session():
     # Retrieve parameters from the request body
     sessionID = request.json.get('session_ID')
     session = request.json.get('data')
-    
+
     # Il faut utiliser os.path.join pour que ce soit multiplateforme
     db = os.path.join(os.getcwd(), 'db', 'parcoursup.sqlite')
     if os.path.exists(db):
@@ -872,6 +872,61 @@ def update_project():
             return jsonify({'error': str(e)}), 500
     else:
         return jsonify({'error': "can't find database"}), 50
+    
+
+@app.route('/api/affect_default_preferencies_projects', methods=['POST'])
+def affect_default_preferencies_projects():
+    """
+    Methods that insert a group project's preference
+    Example of data and post request to call in the front :
+    const data = {
+        "data": "sessionID" : 1
+    }
+    const jsonData = JSON.stringify(data);
+
+    Returns:
+    _type_: _description_
+"""
+    print('Enter affect default preferencies projects function')
+
+    # Retrieve parameters from the request body
+    sessionId = request.json.get('data')  # assuming the parameters are sent in JSON format
+
+    # Il faut utiliser os.path.join pour que ce soit multiplateforme
+    db = os.path.join(os.getcwd(), 'db', 'parcoursup.sqlite')
+    if os.path.exists(db):
+        conn = sqlite3.connect(db)
+        cursor = conn.cursor()
+
+        try:
+            cursor.execute("""SELECT DISTINCT FK_Groupe FROM ETUDIANT e
+                    LEFT JOIN ETUDIANT_GROUPE eg ON e.ID = eg.FK_Etudiant
+                    WHERE e.FK_Session = ?;""", (sessionId,))
+            
+            groups = cursor.fetchall()
+
+            cursor.execute("""SELECT id FROM Projet
+                            WHERE FK_Session = ?;""", (sessionId,))
+            
+            projects = cursor.fetchall();
+
+            for projects in projects:
+                for idx, group in enumerate(groups):
+                    project_id, group_id = projects[0], group[0]
+                    cursor.execute(
+                        "INSERT INTO PREFERENCE_PROJET (FK_Projet, FK_Groupe, Ordre_Preference) VALUES (?, ?, ?)",
+                        (project_id, group_id, idx+1))
+                    conn.commit()
+            conn.close()
+
+            # Convert data to JSON format
+            return jsonify({'result': "done"}), 200
+
+        except sqlite3.Error as e:
+            print(e)
+            return jsonify({'error': str(e)}), 500
+    else:
+        return jsonify({'error': "nul"}), 50
 
 @app.route('/api/affect_preference_projet', methods=['POST'])
 def affect_preference_projet():

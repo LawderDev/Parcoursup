@@ -14,8 +14,10 @@
 </template>
 
 <script setup>
+const route = useRoute();
+
 const previousStep = async () => {
-    await navigateTo('/rankingProjects')
+    await navigateTo(`/session/${route.params.sessionId}`)
 }
 
 </script>

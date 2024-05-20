@@ -233,6 +233,19 @@ const handleDeleteGroup = async (group) => {
     console.log("delete group", group.id)
 }
 
+const setDefaultPreferences = () => {
+    const data ={
+        "data": route.params.sessionId
+    }
+    const jsonData = JSON.stringify(data);
+
+    axios.post("http://127.0.0.1:5000/api/affect_default_preferencies_projects", jsonData, {
+        headers: {
+           'Content-Type': 'application/json'
+        }}
+    );
+}
+
 const validateGroups = async () => {
     if(getStudentsInGroup().length !== state.allStudents.length) return
 
@@ -253,6 +266,7 @@ const validateGroups = async () => {
 
     const jsonDataSession = JSON.stringify(formData);
     await updateSession(jsonDataSession);
+    await setDefaultPreferences();
 
     await navigateTo(`/session/${route.params.sessionId}`);
 }

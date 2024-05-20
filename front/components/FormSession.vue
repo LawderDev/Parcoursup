@@ -34,7 +34,7 @@
         <div class="ml-auto flex gap-4">
           <ButtonPrimary v-if="state.sessionState === 'Grouping'" class="ml-auto" @click="handleGrouping">Vérifier les groupes</ButtonPrimary>
           <ButtonPrimary v-else-if="state.sessionState === 'Choosing'" class="ml-auto" @click="handleEndSession">Terminer la session</ButtonPrimary>
-          <ButtonPrimary v-else-if="state.sessionState === 'Attributing'" class="ml-auto">Assigner les projets</ButtonPrimary>
+          <ButtonPrimary v-else-if="state.sessionState === 'Attributing'" class="ml-auto" @click="handleAssignProjects">Assigner les projets</ButtonPrimary>
           <ImageButton class="ml-auto mr-5" :src="Delete"></ImageButton>
         </div>
       </div>
@@ -380,5 +380,9 @@ const handleEndSession = async () => {
 
 const handleGrouping = async () => {
   await navigateTo(`/validateGroup/${state.sessionID}`);
+}
+
+const handleAssignProjects = async () => {
+  await navigateTo(`/result/${state.sessionID}`);
 }
 </script>
