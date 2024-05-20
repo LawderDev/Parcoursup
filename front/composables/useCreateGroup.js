@@ -5,16 +5,13 @@ export function useCreateGroup() {
       group: [],
     })
     
-    const getAllGroups = async () => {
+      const validateGroup = async (group) => {
         try {
-          const data = {
-            sessionID: route.params.sessionId
-          }
-    
+          const data = {data: group.map(student => ({'studentID': student.id}))}
+          console.log(data)
           const jsonData = JSON.stringify(data);
-    
           const res = await axios.post(
-            "http://127.0.0.1:5000/api/get_all_groups_students",
+            "http://127.0.0.1:5000/api/create_group",
             jsonData,
             {
               headers: {
@@ -22,8 +19,7 @@ export function useCreateGroup() {
               },
             }
           );
-          
-          state.groups = res.data
+          return res
         } catch (err) {
           console.error(err);
         }
@@ -31,6 +27,6 @@ export function useCreateGroup() {
 
       return {
           stateCreateGroup,
-          getAllGroups,
+          validateGroup,
       }
 }

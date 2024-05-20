@@ -17,7 +17,7 @@
       </div>
       <div class="flex gap-4 items-center mb-6">
         <h2 class="text-xl font-semibold">Groupes</h2>
-        <ModalCreateGroup v-if="state.loading" @handle-create-group="refreshGroups" :groups="state.groups" :loadign="state.loading"></ModalCreateGroup>
+        <ModalCreateGroup :key="'refreshModalCreateGroup' + state.groups.length" v-if="state.loading" @handle-create-group="refreshGroups" :groups="state.groups"></ModalCreateGroup>
         <ButtonPrimary @click="handleSave">Enregistrer</ButtonPrimary>
       </div>
 
@@ -46,6 +46,8 @@
                 ></AutoComplete>
               </div>
             </div>
+            {{  getStudentsInGroup().length }}
+            {{ state.allStudents.length }}
             <ButtonAdd
               v-if="getStudentsInGroup().length !== state.allStudents.length"
               @click="addPerson(group)"
@@ -213,6 +215,7 @@ const handleSave = async () => {
 
     const newGroups = state.groups.filter((group) => !oldGroups.some((oldGroup) => oldGroup.id === group.id));
 
+    console.log(newGroups)
     newGroups.forEach((group) => {
         group.students.forEach((student) => {
             studentsToReassign.push({
@@ -221,6 +224,7 @@ const handleSave = async () => {
             })
         })
     })
+    console.log(studentsToReassign)
 
 
     if(studentsToReassign.length === 0) return
@@ -239,7 +243,7 @@ const setDefaultPreferences = () => {
     }
     const jsonData = JSON.stringify(data);
 
-    axios.post("http://127.0.0.1:5000/api/affect_default_preferencies_projects", jsonData, {
+    axios.post("http://127.0.0.1:5000/api/affect_default_preferencies", jsonData, {
         headers: {
            'Content-Type': 'application/json'
         }}
