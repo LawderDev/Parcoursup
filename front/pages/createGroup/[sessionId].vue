@@ -13,12 +13,14 @@
 
 <script setup>
 import axios from "axios";
+import {useGroups} from "~/composables/useGroups";
 const {stateCreateGroup, validateGroup} = useCreateGroup()
 const {stateGroups, getAllGroups} = useGroups()
 
 const route = useRoute()
 
 const handleValidateGroup = async () => {
+  console.log(stateCreateGroup.group)
   await validateGroup(stateCreateGroup.group)
   await navigateTo('/createGroupConfirmation')
 }

@@ -928,8 +928,8 @@ def update_project():
         return jsonify({'error': "can't find database"}), 50
     
 
-@app.route('/api/affect_default_preferencies_projects', methods=['POST'])
-def affect_default_preferencies_projects():
+@app.route('/api/affect_default_preferencies', methods=['POST'])
+def affect_default_preferencies():
     """
     Methods that insert a group project's preference
     Example of data and post request to call in the front :
@@ -941,7 +941,7 @@ def affect_default_preferencies_projects():
     Returns:
     _type_: _description_
 """
-    print('Enter affect default preferencies projects function')
+    print('Enter affect default preferencies function')
 
     # Retrieve parameters from the request body
     sessionId = request.json.get('data')  # assuming the parameters are sent in JSON format
@@ -964,13 +964,27 @@ def affect_default_preferencies_projects():
             
             projects = cursor.fetchall();
 
-            for projects in projects:
+            for project in projects:
                 for idx, group in enumerate(groups):
-                    project_id, group_id = projects[0], group[0]
+                    project_id, group_id = project[0], group[0]
                     cursor.execute(
                         "INSERT INTO PREFERENCE_PROJET (FK_Projet, FK_Groupe, Ordre_Preference) VALUES (?, ?, ?)",
                         (project_id, group_id, idx+1))
                     conn.commit()
+
+            for group in groups:
+                for idx, project in enumerate(projects):
+                    print("enter!!")
+                    print(group)
+                    print(project)
+                    group_id, project_id = group[0], project[0]
+                    print(group_id, project_id)
+                    cursor.execute(
+                        "INSERT INTO PREFERENCE_GROUPE (FK_Groupe, FK_Projet, Ordre_Preference) VALUES (?, ?, ?)",
+                        (group_id, project_id, idx+1))
+                    conn.commit()
+
+            
             conn.close()
 
             # Convert data to JSON format
@@ -1225,14 +1239,20 @@ def reaffect_group():
         cursor = conn.cursor()
 
         try:
-            cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='ETUDIANT-GROUPE';")
+            cursor.execute("SELECT FK_Etudiant FROM ETUDIANT_GROUPE")
+            students = cursor.fetchall()
 
-            queryParameters = [(student['id_new_group'], student['id_student']) for student in group]
+            print(students)
 
-            cursor.executemany(
-                "UPDATE ETUDIANT_GROUPE SET FK_Groupe=? WHERE FK_ETUDIANT=?",
-                queryParameters
-            )
+            for student in group:
+                print(student['id_student'], student['id_new_group'])
+                print(students)
+                print(any(student['id_student'] not in t for t in students))
+                if(any(student['id_student'] in t for t in students)):
+                    cursor.execute("UPDATE ETUDIANT_GROUPE SET FK_Groupe=? WHERE FK_Etudiant=?", (student['id_new_group'], student['id_student']))
+                else :
+                    cursor.execute("INSERT INTO ETUDIANT_GROUPE VALUES (?, ?)", (student['id_student'], student['id_new_group']))
+                  
 
             # Commit the insertions
             conn.commit()

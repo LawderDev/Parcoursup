@@ -281,7 +281,7 @@ const handleClick = async () => {
             Deadline_Choix_Projet: state.endDateSession,
             Nb_Etudiant_Min: state.minGroup,
             Nb_Etudiant_Max: state.maxGroup,
-            Etat: state.sessionState,
+            Etat: "Grouping",
             FK_Utilisateur: 1,
           },
         ],
