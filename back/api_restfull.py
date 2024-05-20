@@ -105,37 +105,48 @@ def gale_shapley_route():
         conn = sqlite3.connect(db)
         cursor = conn.cursor()
         try:
-            //TODO GET GROUPS PREFERENCIES
             cursor.execute("""SELECT FK_Projet, FK_Groupe, Ordre_Preference FROM PREFERENCE_PROJET
                                         INNER JOIN PROJET ON PREFERENCE_PROJET.FK_Projet = PROJET.ID 
                                         WHERE PROJET.FK_Session = ?
                                         ORDER BY PREFERENCE_PROJET.FK_Projet, PREFERENCE_PROJET.Ordre_Preference;""", (sessionId,))
             projectsData = cursor.fetchall()
-
-            projectsPreferencies = {}
-
-            for x, y, z in projectsData:
-                if str(x) not in projectsPreferencies:
-                    projectsPreferencies[str(x)] = [None, None, None]
-                projectsPreferencies[str(x)][z-1] = str(y)
-
+            def formatData(data):
+                formatedData = {}
+                for x, y, z in data:
+                    if str(x) not in formatedData:
+                        formatedData[str(x)] = [None, None, None]
+                    formatedData[str(x)][z-1] = str(y)
+                return formatedData
             
+            projectsPreferencies = formatData(projectsData)
+
+            cursor.execute("""SELECT FK_GROUPE, FK_Projet, Ordre_Preference FROM PREFERENCE_GROUPE
+                            INNER JOIN GROUPE ON PREFERENCE_GROUPE.FK_Groupe = GROUPE.ID 
+                            INNER JOIN PROJET ON PREFERENCE_GROUPE.FK_Projet = PROJET.ID
+                            WHERE PROJET.FK_Session = ?
+                            ORDER BY PREFERENCE_GROUPE.FK_Groupe, PREFERENCE_GROUPE.Ordre_Preference;""", (sessionId,))
+            
+            groupsData = cursor.fetchall()
+
+            groupsPreferencies = formatData(groupsData)
 
             conn.close()
 
-            # Convert data to JSON format
-            return jsonify({'result': sessionId}), 200
+            data = {
+                "men_preferences": groupsPreferencies,
+                "women_preferences": projectsPreferencies,
+            }
+
+            if 'men_preferences' in data and 'women_preferences' in data:
+                men_preferences = data['men_preferences']
+                women_preferences = data['women_preferences']
+                res = gale_shapley(women_preferences, men_preferences)
+                return jsonify(result=res)
+            else:
+                return jsonify({'error': 'Invalid request'}), 400
 
         except sqlite3.Error as e:
             return jsonify({'error': str(e)}), 500
-
-    """if 'men_preferences' in data and 'women_preferences' in data:
-        men_preferences = data['men_preferences']
-        women_preferences = data['women_preferences']
-        res = gale_shapley(women_preferences, men_preferences)
-        return jsonify(result=res)
-    else:
-        return jsonify({'error': 'Invalid request'}), 400"""
 
 
 def gale_shapley(women_preferences, men_preferences):
