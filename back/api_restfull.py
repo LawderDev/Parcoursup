@@ -84,16 +84,58 @@ def get_session_data():
 
 # -----------------------------------------------------------------------------
 
+"""
+data = {
+    "men_preferences": {
+        "man1": ["woman1", "woman2", "woman3"],
+    },
+    "women_preferences": {
+        "woman1": ["man1", "man2", "man3"],
+    }
+}
+"""
 @app.route('/api/gale_shapley', methods=['POST'])
 def gale_shapley_route():
-    data = request.json
-    if 'men_preferences' in data and 'women_preferences' in data:
+    print(request.json)
+    sessionId = request.json.get('sessionID')
+    print("enter gale")
+    db = os.path.join(os.getcwd(), 'db', 'parcoursup.sqlite')
+    print(db)
+    if os.path.exists(db):
+        conn = sqlite3.connect(db)
+        cursor = conn.cursor()
+        try:
+            //TODO GET GROUPS PREFERENCIES
+            cursor.execute("""SELECT FK_Projet, FK_Groupe, Ordre_Preference FROM PREFERENCE_PROJET
+                                        INNER JOIN PROJET ON PREFERENCE_PROJET.FK_Projet = PROJET.ID 
+                                        WHERE PROJET.FK_Session = ?
+                                        ORDER BY PREFERENCE_PROJET.FK_Projet, PREFERENCE_PROJET.Ordre_Preference;""", (sessionId,))
+            projectsData = cursor.fetchall()
+
+            projectsPreferencies = {}
+
+            for x, y, z in projectsData:
+                if str(x) not in projectsPreferencies:
+                    projectsPreferencies[str(x)] = [None, None, None]
+                projectsPreferencies[str(x)][z-1] = str(y)
+
+            
+
+            conn.close()
+
+            # Convert data to JSON format
+            return jsonify({'result': sessionId}), 200
+
+        except sqlite3.Error as e:
+            return jsonify({'error': str(e)}), 500
+
+    """if 'men_preferences' in data and 'women_preferences' in data:
         men_preferences = data['men_preferences']
         women_preferences = data['women_preferences']
         res = gale_shapley(women_preferences, men_preferences)
         return jsonify(result=res)
     else:
-        return jsonify({'error': 'Invalid request'}), 400
+        return jsonify({'error': 'Invalid request'}), 400"""
 
 
 def gale_shapley(women_preferences, men_preferences):
