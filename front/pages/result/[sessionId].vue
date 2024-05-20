@@ -41,18 +41,14 @@ const getAssignations = async () => {
                 },
             }
         );
-        console.log(res.data)
         await api_call_projects(route.params.sessionId);
-        console.log(stateProject.projects);
         await getAllGroups(route.params.sessionId);
-        console.log(stateGroups.groups);
         const assignations = res.data.matched_pairs.map(assignation => {
             return {
                 group: stateGroups.groups.find(group => group.id === Number(assignation.man)),
                 project: stateProject.projects.find(project => project.id === Number(assignation.woman))
             }
         })
-        console.log(state.assignations)
 
         assignations.sort((a, b) => a.group.id - b.group.id);
 
@@ -66,9 +62,6 @@ const getAssignations = async () => {
                 project: assignation.project,
             }
         })
-
-        console.log(state.assignations)
-        //state.assignations = res.data
     } catch (err) {
         console.error(err);
     }
