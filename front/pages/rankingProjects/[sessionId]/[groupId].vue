@@ -53,13 +53,13 @@ const setGroupPreferencies = async () => {
       data.data.push({
         "groupID": route.params.groupId,
         "projectID": project.id,
-        "order": index,
+        "order": index + 1,
       })
     })
 
     const jsonData = JSON.stringify(data);
 
-    const response = await axios.post(
+    await axios.post(
       "http://127.0.0.1:5000/api/affect_preference_group",
       jsonData,
       {

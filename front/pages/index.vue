@@ -49,6 +49,7 @@ const api_call_sessions = async () => {
   } catch (error) {
     console.error("Erreur lors de la récupération des sessions :", error);
   }
+  state.isOpen = false
 };
 
 await api_call_sessions();

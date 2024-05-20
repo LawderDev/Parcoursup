@@ -33,7 +33,7 @@
         ></EditTitle>
         <div class="ml-auto flex gap-4">
           <ButtonPrimary v-if="state.sessionState === 'Grouping'" class="ml-auto" @click="handleGrouping">Vérifier les groupes</ButtonPrimary>
-          <ButtonPrimary v-else-if="state.sessionState === 'Choosing'" class="ml-auto">Terminer la session</ButtonPrimary>
+          <ButtonPrimary v-else-if="state.sessionState === 'Choosing'" class="ml-auto" @click="handleEndSession">Terminer la session</ButtonPrimary>
           <ButtonPrimary v-else-if="state.sessionState === 'Attributing'" class="ml-auto">Assigner les projets</ButtonPrimary>
           <ImageButton class="ml-auto mr-5" :src="Delete"></ImageButton>
         </div>
@@ -187,6 +187,8 @@ const props = defineProps({
   editMode: Boolean,
   sessionData: Object,
 });
+
+const route = useRoute();
 
 const { updateSession } = useSessionData();
 
@@ -353,6 +355,28 @@ const create_student = async (jsonData) => {
     console.error(err);
   }
 };
+
+const handleEndSession = async () => {
+      const formData = {
+        session_ID: state.sessionID,
+        data: [
+          {
+            Nom: props.sessionData.name_session,
+            Deadline_Creation_Groupe: props.sessionData.end_date_group,
+            Deadline_Choix_Projet: props.sessionData.end_date_session,
+            Nb_Etudiant_Min: props.sessionData.group_min,
+            Nb_Etudiant_Max: props.sessionData.group_max,
+            Etat: "Attributing",
+            FK_Utilisateur: 1,
+          },
+        ],
+      };
+
+    const jsonDataSession = JSON.stringify(formData);
+    console.log(jsonDataSession);
+    await updateSession(jsonDataSession);
+    state.sessionState = "Attributing";
+}
 
 const handleGrouping = async () => {
   await navigateTo(`/validateGroup/${state.sessionID}`);

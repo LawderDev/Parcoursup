@@ -35,7 +35,7 @@ onMounted(() => {
   border-radius: 22px;
   padding: 8px;
   z-index: 999;
-  white-space: normal; /* Allow text to wrap */
+  white-space: pre-wrap; /* Allow text to wrap */
   text-align: center;  /* Center align the text */
   line-height: 1.4;    /* Adjust line height for better readability */
 }

@@ -12,23 +12,30 @@
         <ButtonSecondary @click="handleClickModify" class="mr-2 my-2"
           >Modifier</ButtonSecondary
         >
-        <ButtonPrimary>Vos préférences</ButtonPrimary>
+        <ButtonPrimary @click="handleClickPreferencies">Vos préférences</ButtonPrimary>
       </div>
     </Card>
   </div>
 </template>
 <script setup>
 import { reactive } from "vue";
-const props = defineProps(["id","name", "summary"]);
+
+const props = defineProps(["id", "name", "summary"]);
+
 const state = reactive({
   isOpen: false,
 });
 
-const emit = defineEmits(["modifyProject","deleteProject"]);
+const emit = defineEmits(["modifyProject","deleteProject", "handleClickPreferencies"]);
 
 const handleClickModify = () => {
   emit("modifyProject", {name: props.name, summary: props.summary });
 };
+
+const handleClickPreferencies = () => {
+  emit("handleClickPreferencies", props.id);
+};
+
 const handleClickDelete = () => {
   emit("deleteProject",props.id)
 }

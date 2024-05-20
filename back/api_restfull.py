@@ -209,7 +209,6 @@ def create_session():
             sqlRequest = cursor.execute("INSERT INTO SESSION VALUES (NULL, ?, ?, ?, ?, ?, ?, ?) RETURNING ID",
                                         queryParameters)
             sessionID = sqlRequest.fetchone()
-
             # Commit the insertions
             conn.commit()
             conn.close()
@@ -254,7 +253,7 @@ def update_session():
     # Retrieve parameters from the request body
     sessionID = request.json.get('session_ID')
     session = request.json.get('data')
-
+    
     # Il faut utiliser os.path.join pour que ce soit multiplateforme
     db = os.path.join(os.getcwd(), 'db', 'parcoursup.sqlite')
     if os.path.exists(db):
@@ -389,6 +388,7 @@ def create_students():
             if table_exists:
                 cursor.execute(f"DELETE FROM ETUDIANT WHERE FK_Session ='{sessionID}'")
 
+            print(students)
             # Insert student data (without RETURNING)
             queryParameters = [(data['Nom'], data['Prenom'], data['Email'], sessionID) for data in students]
             
@@ -693,8 +693,6 @@ def get_group_projects_order_by_preferencies():
                             INNER JOIN PROJET ON  PROJET.ID = PREFERENCE_GROUPE.FK_Projet 
                             WHERE FK_GROUPE = ? AND FK_Session = ?
                             ORDER BY PREFERENCE_GROUPE.Ordre_Preference;""", (groupID, sessionID))
-
-            
            
             response = cursor.fetchall()
 
@@ -717,6 +715,89 @@ def get_group_projects_order_by_preferencies():
 
             # Convert data to JSON format
             return jsonify(projects)
+
+        except sqlite3.Error as e:
+            return jsonify({'error': str(e)}), 500
+    else:
+        return jsonify({'error': "nul"}), 50
+    
+@app.route('/api/get_project_groups_order_by_preferencies', methods=['POST'])
+def get_project_groups_order_by_preferencies():
+    """
+    _summary_
+    Method that retrieve the groups order by the project preferencies 
+        const data = {
+            "sessionID" : 1,
+            "projectID" : 1,
+        };
+        const jsonData = JSON.stringify(data);
+
+        const response = await axios.post("http://127.0.0.1:5000/api/get_project_groups_order_by_preferencies, jsonData, {
+          headers: {
+            'Content-Type': 'application/json'
+          }}
+        );
+    Returns:
+    Json with all the groups order by the project preferencies
+"""
+    print('Enter project groups order by preferencies function')
+
+    # Retrieve parameters from the request body
+    sessionID = request.json.get('sessionID')
+    projectID = request.json.get('projectID')
+
+    db = os.path.join(os.getcwd(), 'db', 'parcoursup.sqlite')
+    if os.path.exists(db):
+        conn = sqlite3.connect(db)
+        cursor = conn.cursor()
+        try:
+            # Retrieve data from SQLite database
+            cursor.execute("""SELECT * from PREFERENCE_PROJET
+                            INNER JOIN GROUPE ON GROUPE.ID = PREFERENCE_PROJET.FK_Groupe 
+                            WHERE FK_PROJET = ?
+                            ORDER BY PREFERENCE_PROJET.Ordre_Preference;""", (projectID,))
+           
+            response = cursor.fetchall()
+
+            cursor.execute("""
+                    SELECT e.ID as 'StudentID', e.Nom, e.Prenom, e.Email, g.ID as 'GroupID' 
+                    FROM ETUDIANT e
+                    LEFT JOIN ETUDIANT_GROUPE eg ON e.ID = eg.FK_Etudiant
+                    JOIN SESSION s ON e.FK_Session = s.ID
+                    JOIN GROUPE g ON eg.FK_Groupe = g.ID
+                    WHERE s.ID = ?;
+                    """, (sessionID,))
+            
+            groups_response = cursor.fetchall()
+            groups = []
+            print(response)
+            for row in response:
+                print(row)
+                groups_dict = {
+                    'id': row[1],
+                    'students': [],
+                }
+
+                for student in groups_response:
+                     print(student)
+                     student_id, name, firstname, email, group_id = student  # Unpack data
+                     if group_id == groups_dict['id']:
+                        student_data = {
+                            'id': student_id,
+                            'firstname': firstname,
+                            'name': name,
+                            'email': email,
+                        }
+                        groups_dict['students'].append(student_data) 
+
+                groups.append(groups_dict)
+
+            print(groups)
+
+            conn.close()
+
+            # Convert data to JSON format
+            return jsonify(groups)
 
         except sqlite3.Error as e:
             return jsonify({'error': str(e)}), 500
@@ -791,7 +872,6 @@ def update_project():
             return jsonify({'error': str(e)}), 500
     else:
         return jsonify({'error': "can't find database"}), 50
-
 
 @app.route('/api/affect_preference_projet', methods=['POST'])
 def affect_preference_projet():

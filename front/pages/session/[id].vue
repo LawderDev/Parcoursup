@@ -28,6 +28,7 @@
             <ProjectCard
               @modifyProject="openModifyModal"
               @deleteProject="handleDeleteProject"
+              @handleClickPreferencies="handleClickPreferencies"
               :id="project.id"
               :name="project.nom"
               :summary="project.description"
@@ -36,6 +37,7 @@
         </div>
       </div>
     </div>
+    <RankingGroupModal v-model:isOpen="state.isRankingGroupModalOpen" :project-id="state.selectedProjectId" :session-id="Number(route.params.id)"></RankingGroupModal>
     <!-- Boutons en bas de l'écran -->
   </div>
 </template>
@@ -51,12 +53,9 @@ const state = reactive({
   name: null,
   summary: null,
   isOpen: false,
+  isRankingGroupModalOpen: false,
   projects: [],
-  selectedSession: {
-    id: 1,
-    title: "test",
-    endDate: "test",
-  },
+  selectedProjectId: 0,
 });
 
 const { stateSession, getSessionData } = useSessionData(); 
@@ -74,7 +73,7 @@ const handleDeleteProject = async (id) => {
 const api_call_projects = async () => {
   try {
     const data = {
-      sessionID: state.selectedSession.id,
+      sessionID: route.params.id,
     };
     const jsonData = JSON.stringify(data);
     const response = await axios.post(
@@ -134,7 +133,7 @@ const handleNewProject = async (newProject) => {
         Description: newProject.summary,
         Nb_Etudiant_Min: null,
         Nb_Etudiant_Max: null,
-        FK_Session: state.selectedSession.id,
+        FK_Session: route.params.id,
       },
     ],
   };
@@ -150,13 +149,19 @@ const handleModifyProject = async (newProject) => {
         description: newProject.summary,
         min_etu: null,
         max_etu: null,
-        id_session: state.selectedSession.id,
+        id_session: route.params.id,
       },
     ],
   };
   const jsonDataSession = JSON.stringify(formData);
   const project_id = await update_project(jsonDataSession);
 };
+
+const handleClickPreferencies = (projectId) => {
+  state.selectedProjectId = Number(projectId);
+  state.isRankingGroupModalOpen = true;
+}
+
 const openCreateModal = () => {
   state.isOpen = true;
   state.editMode = false;

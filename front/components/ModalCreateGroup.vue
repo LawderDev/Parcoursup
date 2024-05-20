@@ -1,8 +1,8 @@
 <template>
     <div>
-      <Modal @close="$emit('update:isOpen', false)">
+      <Modal>
         <template v-slot:open-btn>
-            <ButtonAdd ref="openBtn">Ajouter un groupe</ButtonAdd> 
+            <ButtonAdd>Ajouter un groupe</ButtonAdd> 
         </template>
 
         <template v-slot:form>
@@ -24,17 +24,13 @@
   <script setup>
   const {stateCreateGroup, validateGroup} = useCreateGroup()
 
-  const openBtn = ref(null);
-
-  const emit = defineEmits(["update:isOpen", "handleCreateGroup"]);
+  const emit = defineEmits(["handleCreateGroup"]);
 
   const props = defineProps({
     groups : Array,
   });
 
   const handleSubmit = async() => {
-    console.log(stateCreateGroup.group)
-
     const res = await validateGroup([])
     
     nextTick(() => {
