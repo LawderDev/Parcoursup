@@ -5,7 +5,8 @@
         subTitle="Visualiser et télécharger l'assignation des projets"
         cardTitle="Les projets ont bien été assignés" 
         downloadButton="Télécharger le résultat"
-        buttonTitle="Retour" 
+        buttonTitle="Retour"
+        :assignations="state.assignations"
         :nb-steps="2"
         :nb-steps-active="2"
         :nb-steps-lock="0"
@@ -45,6 +46,28 @@ const getAssignations = async () => {
         console.log(stateProject.projects);
         await getAllGroups(route.params.sessionId);
         console.log(stateGroups.groups);
+        const assignations = res.data.matched_pairs.map(assignation => {
+            return {
+                group: stateGroups.groups.find(group => group.id === Number(assignation.man)),
+                project: stateProject.projects.find(project => project.id === Number(assignation.woman))
+            }
+        })
+        console.log(state.assignations)
+
+        assignations.sort((a, b) => a.group.id - b.group.id);
+
+        state.assignations = assignations.map((assignation, index) => {
+            return {
+                group: {
+                    id: assignation.group.id,
+                    nom: `Groupe ${index + 1}`,
+                    description: assignation.group.students.map(student => `${student.name} ${student.firstname}`).join(",\n ")
+                },
+                project: assignation.project,
+            }
+        })
+
+        console.log(state.assignations)
         //state.assignations = res.data
     } catch (err) {
         console.error(err);

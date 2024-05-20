@@ -142,7 +142,7 @@ def gale_shapley_route():
                 women_preferences = data['women_preferences']
                 res = gale_shapley(women_preferences, men_preferences)
 
-                return jsonify(result=res)
+                return jsonify(res)
             else:
                 return jsonify({'error': 'Invalid request'}), 400
 
