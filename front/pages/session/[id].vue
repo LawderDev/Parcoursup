@@ -24,7 +24,7 @@
         <div
           class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3  mb-20 md:mb-0"
         >
-          <div v-for="project in state.projects" :key="project.id">
+          <div v-for="project in stateProject.projects" :key="project.id">
             <ProjectCard
               @modifyProject="openModifyModal"
               @deleteProject="handleDeleteProject"
@@ -47,6 +47,7 @@ import { useRoute } from "vue-router";
 import axios from "axios";
 import { onMounted } from "vue";
 import { useSessionData } from "~/composables/useSessionData";
+import { useProject } from "~/composables/useProject";
 
 const state = reactive({
   editMode: false,
@@ -54,10 +55,10 @@ const state = reactive({
   summary: null,
   isOpen: false,
   isRankingGroupModalOpen: false,
-  projects: [],
   selectedProjectId: 0,
 });
 
+const {stateProject, api_call_projects} = useProject();
 const { stateSession, getSessionData } = useSessionData(); 
 
 const handleDeleteProject = async (id) => {
@@ -65,29 +66,9 @@ const handleDeleteProject = async (id) => {
     await axios.post("http://127.0.0.1:5000/api/delete_project", {
       projectID: id,
     });
-    await api_call_projects();
+    await api_call_projects(sessionIDd);
   } catch (error) {
     console.error("Erreur lors de la suppression de la session", error);
-  }
-};
-const api_call_projects = async () => {
-  try {
-    const data = {
-      sessionID: route.params.id,
-    };
-    const jsonData = JSON.stringify(data);
-    const response = await axios.post(
-      "http://127.0.0.1:5000/api/get_all_projects",
-      jsonData,
-      {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
-    );
-    state.projects = response.data;
-  } catch (error) {
-    console.error("Erreur lors de la récupération des project :", error);
   }
 };
 
@@ -102,7 +83,7 @@ const create_project = async (jsonData) => {
         },
       }
     );
-    await api_call_projects();
+    await api_call_projects(sessionID);
     return res;
   } catch (err) {
     console.error(err.response);
@@ -119,7 +100,7 @@ const update_project = async (jsonData) => {
         },
       }
     );
-    await api_call_projects();
+    await api_call_projects(sessionID);
     return res;
   } catch (err) {
     console.error(err.response);
@@ -206,7 +187,7 @@ definePageMeta({
 
 onMounted( async() => {
   await getSessionData(sessionID)
-  await api_call_projects();
+  await api_call_projects(sessionID);
 })
 
 

@@ -16,23 +16,17 @@
 <script setup>
 import axios from "axios";
 const route = useRoute();
+import { useGroups } from "../../composables/useGroups";
 
 const state = reactive({
     assignations: [],
 })
 
+const {stateProject, api_call_projects} = useProject();
+const {stateGroups, getAllGroups} = useGroups()
+
 const getAssignations = async () => {
     try {
-        /**data = {
-            "men_preferences": {
-                "man1": ["woman1", "woman2", "woman3"],
-            },
-            "women_preferences": {
-                "woman1": ["man1", "man2", "man3"],
-            }
-        }*/
-
-
         const data = {
             sessionID: route.params.sessionId
         }
@@ -47,6 +41,10 @@ const getAssignations = async () => {
             }
         );
         console.log(res.data)
+        await api_call_projects(route.params.sessionId);
+        console.log(stateProject.projects);
+        await getAllGroups(route.params.sessionId);
+        console.log(stateGroups.groups);
         //state.assignations = res.data
     } catch (err) {
         console.error(err);

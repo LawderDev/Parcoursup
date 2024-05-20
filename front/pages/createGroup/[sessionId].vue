@@ -7,48 +7,21 @@
     sub-title="Renseignez les informations ci-dessous afin de créer votre demande de projet"
     button-title="Valider le groupe"
     @handle-button-click="handleValidateGroup">
-      <FormCreateGroup title="Votre groupe" subTitle="De qui est composé votre groupe ?" v-model:group="stateCreateGroup.group" :groups="state.groups"></FormCreateGroup>
+      <FormCreateGroup title="Votre groupe" subTitle="De qui est composé votre groupe ?" v-model:group="stateCreateGroup.group" :groups="stateGroups.groups"></FormCreateGroup>
   </StudentsActions>
 </template>
 
 <script setup>
 import axios from "axios";
 const {stateCreateGroup, validateGroup} = useCreateGroup()
-
-const state = reactive({
-  groups: [],
-})
+const {stateGroups, getAllGroups} = useGroups()
 
 const route = useRoute()
-
-const getAllGroups = async () => {
-    try {
-      const data = {
-        sessionID: route.params.sessionId
-      }
-
-      const jsonData = JSON.stringify(data);
-
-      const res = await axios.post(
-        "http://127.0.0.1:5000/api/get_all_groups_students",
-        jsonData,
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
-      
-      state.groups = res.data
-    } catch (err) {
-      console.error(err);
-    }
-  }
 
 const handleValidateGroup = async () => {
   await validateGroup(stateCreateGroup.group)
   await navigateTo('/createGroupConfirmation')
 }
 
-await getAllGroups();
+await getAllGroups(route.params.sessionId);
 </script>
