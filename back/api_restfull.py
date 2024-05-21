@@ -303,7 +303,7 @@ def update_session():
     Returns:
         _type_: _description_
     """
-    print('Enter create session function')
+    print('Enter update session function')
     # Retrieve parameters from the request body
     sessionID = request.json.get('session_ID')
     session = request.json.get('data')
@@ -314,7 +314,6 @@ def update_session():
         conn = sqlite3.connect(db)
         cursor = conn.cursor()
         try:
-            print(session[0]['Etat'])
             
             queryParameters = [(session[0]['Nom'], session[0]['Deadline_Creation_Groupe'],
                                 session[0]['Deadline_Choix_Projet'], session[0]['Nb_Etudiant_Min'],
@@ -329,8 +328,6 @@ def update_session():
             # Commit the insertions
             conn.commit()
             conn.close()
-            print(sessionID)
-            print('end')
 
             # Convert data to JSON format
             return jsonify({'result': sessionID}), 200

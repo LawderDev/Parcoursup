@@ -305,7 +305,7 @@ const handleClick = async () => {
     } else if (props.editMode) {
       //UPDATE
       const formData = {
-        sessionID: state.sessionID,
+        session_ID: state.sessionID,
         data: [
           {
             Nom: state.sessionName,
