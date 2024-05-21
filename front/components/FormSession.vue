@@ -32,10 +32,30 @@
           @click="handleEditCancel"
         ></EditTitle>
         <div class="ml-auto flex gap-4">
-          <ButtonPrimary v-if="state.sessionState === 'Grouping'" class="ml-auto" @click="handleGrouping">Vérifier les groupes</ButtonPrimary>
-          <ButtonPrimary v-else-if="state.sessionState === 'Choosing'" class="ml-auto" @click="handleEndSession">Terminer la session</ButtonPrimary>
-          <ButtonPrimary v-else-if="state.sessionState === 'Attributing'" class="ml-auto" @click="handleAssignProjects">Assigner les projets</ButtonPrimary>
-          <ImageButton class="ml-auto mr-5" :src="Delete"></ImageButton>
+          <ButtonPrimary
+            v-if="state.sessionState === 'Grouping'"
+            class="ml-auto"
+            @click="handleGrouping"
+            >Vérifier les groupes</ButtonPrimary
+          >
+          <ButtonPrimary
+            v-else-if="state.sessionState === 'Choosing'"
+            class="ml-auto"
+            @click="handleEndSession"
+            >Terminer la session</ButtonPrimary
+          >
+          <ButtonPrimary
+            v-else-if="state.sessionState === 'Attributing'"
+            class="ml-auto"
+            @click="handleAssignProjects"
+            >Assigner les projets</ButtonPrimary
+          >
+          <ModalDeleteSession
+            v-model:isOpen="state.isOpen"
+            :session-title="state.sessionName"
+            :session-id="state.sessionID"
+            @handle-delete="handleDelete"
+          ></ModalDeleteSession>
         </div>
       </div>
     </div>
@@ -71,9 +91,7 @@
           :max="state.maxGroup"
         />
       </label>
-      <label
-        class="input input-bordered flex items-center gap-4 mx-5 my-5 rounded-badge"
-      >
+      <label class="input input-bordered flex items-center gap-4 mx-5 my-5 rounded-badge">
         Maximum
         <input
           v-model="state.maxGroup"
@@ -206,6 +224,7 @@ const state = reactive({
   endDateGroup: null,
   endDateSession: null,
   error: false,
+  isOpen: false,
 });
 
 watch(
@@ -228,6 +247,10 @@ onMounted(() => {
     state.sessionID = props.sessionData.id;
   }
 });
+
+const handleDelete = async () => {
+  await navigateTo("/");
+};
 
 const handleEditOk = () => {
   state.sessionName = state.newTitle;
@@ -290,7 +313,6 @@ const handleClick = async () => {
       const jsonDataSession = JSON.stringify(formData);
       const session_id = await create_session(jsonDataSession);
 
-
       if (session_id) {
         const dictStudent = {
           sessionID: session_id,
@@ -305,7 +327,7 @@ const handleClick = async () => {
     } else if (props.editMode) {
       //UPDATE
       const formData = {
-        sessionID: state.sessionID,
+        session_ID: state.sessionID,
         data: [
           {
             Nom: state.sessionName,
@@ -341,15 +363,11 @@ const create_session = async (jsonData) => {
 
 const create_student = async (jsonData) => {
   try {
-    const res = await axios.post(
-      "http://127.0.0.1:5000/api/create_students",
-      jsonData,
-      {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
-    );
+    const res = await axios.post("http://127.0.0.1:5000/api/create_students", jsonData, {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
     return res;
   } catch (err) {
     console.error(err);
@@ -357,32 +375,32 @@ const create_student = async (jsonData) => {
 };
 
 const handleEndSession = async () => {
-      const formData = {
-        session_ID: state.sessionID,
-        data: [
-          {
-            Nom: props.sessionData.name_session,
-            Deadline_Creation_Groupe: props.sessionData.end_date_group,
-            Deadline_Choix_Projet: props.sessionData.end_date_session,
-            Nb_Etudiant_Min: props.sessionData.group_min,
-            Nb_Etudiant_Max: props.sessionData.group_max,
-            Etat: "Attributing",
-            FK_Utilisateur: 1,
-          },
-        ],
-      };
+  const formData = {
+    session_ID: state.sessionID,
+    data: [
+      {
+        Nom: props.sessionData.name_session,
+        Deadline_Creation_Groupe: props.sessionData.end_date_group,
+        Deadline_Choix_Projet: props.sessionData.end_date_session,
+        Nb_Etudiant_Min: props.sessionData.group_min,
+        Nb_Etudiant_Max: props.sessionData.group_max,
+        Etat: "Attributing",
+        FK_Utilisateur: 1,
+      },
+    ],
+  };
 
-    const jsonDataSession = JSON.stringify(formData);
-    console.log(jsonDataSession);
-    await updateSession(jsonDataSession);
-    state.sessionState = "Attributing";
-}
+  const jsonDataSession = JSON.stringify(formData);
+  console.log(jsonDataSession);
+  await updateSession(jsonDataSession);
+  state.sessionState = "Attributing";
+};
 
 const handleGrouping = async () => {
   await navigateTo(`/validateGroup/${state.sessionID}`);
-}
+};
 
 const handleAssignProjects = async () => {
   await navigateTo(`/result/${state.sessionID}`);
-}
+};
 </script>
