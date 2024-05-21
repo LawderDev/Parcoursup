@@ -44,8 +44,41 @@ const openSessionPage = async (sessionID) => {
 
 const api_call_sessions = async () => {
   try {
-    const response = await axios.get("http://127.0.0.1:5000/api/get_sessions");
-    state.sessions = response.data
+     // Axios instance configuration to include credentials (cookies)
+     const axiosInstance = axios.create({
+        baseURL: 'http://localhost:5000',
+        withCredentials: true
+      });
+
+      // User registration
+      axiosInstance.post('/api/register', {
+        Nom: 'Test',
+        Email: 'test@test10.com',
+        Password: 'monMDP'
+      }).then(response => {
+        console.log(response.data);
+      }).catch(error => {
+        console.error(error.response.data);
+      });
+
+      // User login
+      axiosInstance.post('/api/login', {
+        Email: 'test@test10.com',
+        Password: 'monMDP'
+      }).then(response => {
+        console.log(response.data);
+        
+        // Access protected route after login
+        axiosInstance.get('/api/current_user')
+          .then(response => {
+            console.log(response.data);
+          })
+          .catch(error => {
+            console.error(error.response.data);
+          });
+      }).catch(error => {
+        console.error(error.response.data);
+      });
   } catch (error) {
     console.error("Erreur lors de la récupération des sessions :", error);
   }
