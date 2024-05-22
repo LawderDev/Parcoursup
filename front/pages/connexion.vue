@@ -28,6 +28,7 @@
                 type="text"
                 class="input input-bordered input-error w-full max-w-xs"
               />
+              <span class="label label-text-alt text-error">Adresse mail incorrect</span>
             </div>
             <div>
               <div v-if="!state.passwordError">
@@ -45,6 +46,7 @@
                   type="text"
                   class="input input-bordered input-error w-full max-w-xs"
                 />
+                <span class="label label-text-alt text-error">Mot de passe incorrect</span>
               </div>
             </div>
           </div>
@@ -65,7 +67,7 @@
 const state = reactive({
   login: null,
   password: null,
-  loginError: false,
-  passwordError: false,
+  loginError: true,
+  passwordError: true,
 });
 </script>
