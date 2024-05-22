@@ -1,10 +1,17 @@
 <template>
-  <NuxtPage />
+  <div class="app">
+    <NuxtPage />
+  </div>
 </template>
 
 <style>
 .neumorphism {
-  box-shadow:  5px 5px 10px #bebebe,
-             -5px -5px 10px #ffffff;
+  box-shadow: 5px 5px 10px #bebebe, -5px -5px 10px #ffffff;
+}
+.app {
+  font-family: "DM-Sans", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
 }
 </style>
