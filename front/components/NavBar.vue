@@ -6,15 +6,16 @@
       <div>
         <div class="avatar">
           <div class="w-16 rounded-xl">
-            <img
-              src="../public/logo.png"
-              alt="logo"
-            />
+            <button @click="redirectToIndex">
+              <img src="../public/logo.png" alt="logo" />
+            </button>
           </div>
         </div>
       </div>
       <div>
-        <h1 class="text-xl md:block">Smart Choice</h1>
+        <button @click="redirectToIndex">
+          <h1 class="text-xl md:block">Smart Choice</h1>
+        </button>
       </div>
       <div class="dropdown dropdown-end">
         <div tabindex="0" role="button" class="btn btn-ghost btn-circle">
@@ -31,7 +32,7 @@
           <li class="pl-1">
             <div class="flex items-center">
               <img src="../public/settings.svg" class="w-5" />
-              <a  class="md:text-lg">Profil</a>
+              <a class="md:text-lg">Profil</a>
             </div>
           </li>
           <li class="pl-1">
@@ -48,4 +49,8 @@
 <script setup>
 const props = defineProps(["name"]);
 const letter = computed(() => props.name.charAt(0));
+
+const redirectToIndex = async () => {
+  await navigateTo(`/`);
+};
 </script>
