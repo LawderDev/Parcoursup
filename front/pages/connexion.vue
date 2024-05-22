@@ -13,13 +13,39 @@
         </div>
         <div class="flex justify-center">
           <div>
-            <div>
+            <div v-if="!state.loginError">
               <h2 class="m-3">Email</h2>
-              <input type="text" class="input input-bordered w-full max-w-xs" />
+              <input
+                v-model="state.login"
+                type="text"
+                class="input input-bordered w-full max-w-xs"
+              />
+            </div>
+            <div v-else>
+              <h2 class="m-3 text-error">Email</h2>
+              <input
+                v-model="state.login"
+                type="text"
+                class="input input-bordered input-error w-full max-w-xs"
+              />
             </div>
             <div>
-              <h2 class="m-3">Mot de passe</h2>
-              <input type="text" class="input input-bordered w-full max-w-xs" />
+              <div v-if="!state.passwordError">
+                <h2 class="m-3">Mot de passe</h2>
+                <input
+                  v-model="state.password"
+                  type="text"
+                  class="input input-bordered w-full max-w-xs"
+                />
+              </div>
+              <div v-else>
+                <h2 class="m-3 text-error">Mot de passe</h2>
+                <input
+                  v-model="state.password"
+                  type="text"
+                  class="input input-bordered input-error w-full max-w-xs"
+                />
+              </div>
             </div>
           </div>
         </div>
@@ -35,4 +61,11 @@
     <img class="hidden md:block w-[350px]" src="../public/maths.svg" alt="" />
   </div>
 </template>
-<script setup></script>
+<script setup>
+const state = reactive({
+  login: null,
+  password: null,
+  loginError: false,
+  passwordError: false,
+});
+</script>
