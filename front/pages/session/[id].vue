@@ -1,43 +1,56 @@
 <template>
   <div>
-    <NavBar :name="'fdsf'" />
-    <div class="grid justify-center m-8">
-      <FormSession editMode v-if="stateSession.session" :session-data="stateSession.session"></FormSession>
-      <div>
-        <div class="flex items-center mt-5 mb-5">
-          <h2 class="text-3xl font-semibold mr-5">Projets</h2>
-          <ModalProjectForm
-            v-model:isOpen="state.isOpen"
-            :editMode="state.editMode"
-            v-model:name="state.name"
-            v-model:summary="state.summary"
-            v-model:id="state.id"
-            @submit:project="handleNewProject"
-            @modify:project="handleModifyProject"
-            @create:project="openCreateModal"
+    <div>
+      <NavBar :name="'fdsf'" />
+      <div v-if="getSessionData" class="grid justify-center" >
+        <Skeleton />
+      </div>
+      <div v-else class="grid justify-center m-8">
+        <FormSession
+          editMode
+          v-if="stateSession.session"
+          :session-data="stateSession.session"
+        ></FormSession>
+        <div>
+          <div class="flex items-center mt-5 mb-5">
+            <h2 class="text-3xl font-semibold mr-5">Projets</h2>
+            <ModalProjectForm
+              v-model:isOpen="state.isOpen"
+              :editMode="state.editMode"
+              v-model:name="state.name"
+              v-model:summary="state.summary"
+              v-model:id="state.id"
+              @submit:project="handleNewProject"
+              @modify:project="handleModifyProject"
+              @create:project="openCreateModal"
+            >
+            </ModalProjectForm>
+          </div>
+          <h3 class="ml-5 text-gray-500">
+            Quels seront les projets disponibles ?
+          </h3>
+          <div
+            class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 mb-20 md:mb-0"
           >
-        </ModalProjectForm>
-        </div>
-        <h3 class="ml-5 text-gray-500">
-          Quels seront les projets disponibles ?
-        </h3>
-        <div
-          class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3  mb-20 md:mb-0"
-        >
-          <div v-for="project in stateProject.projects" :key="project.id">
-            <ProjectCard
-              @modifyProject="openModifyModal"
-              @deleteProject="handleDeleteProject"
-              @handleClickPreferencies="handleClickPreferencies"
-              :id="project.id"
-              :name="project.nom"
-              :summary="project.description"
-            />
+            <div v-for="project in stateProject.projects" :key="project.id">
+              <ProjectCard
+                @modifyProject="openModifyModal"
+                @deleteProject="handleDeleteProject"
+                @handleClickPreferencies="handleClickPreferencies"
+                :id="project.id"
+                :name="project.nom"
+                :summary="project.description"
+              />
+            </div>
           </div>
         </div>
       </div>
+      <RankingGroupModal
+        v-model:isOpen="state.isRankingGroupModalOpen"
+        :project-id="state.selectedProjectId"
+        :session-id="Number(route.params.id)"
+      ></RankingGroupModal>
     </div>
-    <RankingGroupModal v-model:isOpen="state.isRankingGroupModalOpen" :project-id="state.selectedProjectId" :session-id="Number(route.params.id)"></RankingGroupModal>
     <!-- Boutons en bas de l'écran -->
   </div>
 </template>
@@ -56,10 +69,11 @@ const state = reactive({
   isOpen: false,
   isRankingGroupModalOpen: false,
   selectedProjectId: 0,
+  loading: false,
 });
 
-const {stateProject, api_call_projects} = useProject();
-const { stateSession, getSessionData } = useSessionData(); 
+const { stateProject, api_call_projects } = useProject();
+const { stateSession, getSessionData } = useSessionData();
 
 const handleDeleteProject = async (id) => {
   try {
@@ -141,7 +155,7 @@ const handleModifyProject = async (newProject) => {
 const handleClickPreferencies = (projectId) => {
   state.selectedProjectId = Number(projectId);
   state.isRankingGroupModalOpen = true;
-}
+};
 
 const openCreateModal = () => {
   state.isOpen = true;
@@ -152,7 +166,7 @@ const openCreateModal = () => {
 const openModifyModal = (event) => {
   state.isOpen = true;
   state.editMode = true;
-  state.id = event.id
+  state.id = event.id;
   state.name = event.name;
   state.summary = event.summary;
 };
@@ -185,11 +199,10 @@ definePageMeta({
   },
 });
 
-onMounted( async() => {
-  await getSessionData(sessionID)
+onMounted(async () => {
+  await getSessionData(sessionID);
   await api_call_projects(sessionID);
-})
-
+});
 
 const liste = [
   {
