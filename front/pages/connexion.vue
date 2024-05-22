@@ -3,15 +3,15 @@
     <img class="w-[50%] md:w-[300px]" src="../public/learning.svg" alt="" />
     <div class="m-3 md:m-9">
       <Card>
-        <div>
-          <h2 class="text-3xl my-4 font-bold text-center text-primary">
+        <div class="m-4">
+          <h2 class="text-3xl m-4 font-bold text-center text-primary">
             Connexion
           </h2>
-          <h3 class="m-1 my-5 text-secondary text-center">
+          <h3 class="m-4 text-secondary text-center">
             Connectez-vous pour accéder à votre espace
           </h3>
         </div>
-        <div class="flex justify-center">
+        <div class="flex justify-center ">
           <div>
             <div>
               <h2 class="m-3">Email</h2>
@@ -23,7 +23,7 @@
             </div>
           </div>
         </div>
-        <div class="flex flex-col justify-center m-4">
+        <div class="flex flex-col justify-center m-8">
           <h3 class="text-center m-1">Vous n'avez pas de compte?</h3>
           <a class="link text-center w-full" href="">Créer un compte</a>
         </div>
