@@ -7,11 +7,13 @@
         <div class="flex items-center mt-5 mb-5">
           <h2 class="text-3xl font-semibold mr-5">Projets</h2>
           <ModalProjectForm
+            v-if="stateSession.session"
             v-model:isOpen="state.isOpen"
             :editMode="state.editMode"
             v-model:name="state.name"
             v-model:summary="state.summary"
             v-model:id="state.id"
+            :session-state="stateSession.session.state"
             @submit:project="handleNewProject"
             @modify:project="handleModifyProject"
             @create:project="openCreateModal"
@@ -32,6 +34,7 @@
               :id="project.id"
               :name="project.nom"
               :summary="project.description"
+              :session-state="stateSession.session.state"
             />
           </div>
         </div>
