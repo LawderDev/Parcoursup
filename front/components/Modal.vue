@@ -5,6 +5,7 @@
     </div>
 
     <dialog ref="dialog" class="modal">
+      <Toaster :message="toaster.message" :type="toaster.type" :duration="toaster.duration" :is-open="toaster.isOpen"></Toaster>
       <div
         class="modal-box max-w-fit md:w-auto md:h-auto md:rounded-xl md:drop-shadow-md"
         :class="{'w-[100vw] h-[100vh] max-h-[100vh] rounded-none': isFullOnMobile }"
@@ -27,6 +28,7 @@
 </template>
 
 <script setup>
+import { useToasterStore } from '@/stores/toaster';
 import { ref } from "vue";
 
 const dialog = ref(null);
@@ -36,4 +38,6 @@ const props = defineProps({
 });
 
 defineEmits(["handleSubmit", "close"]);
+
+const toaster = useToasterStore();
 </script>

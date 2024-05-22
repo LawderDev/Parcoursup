@@ -30,6 +30,9 @@
 
 <script setup>
 import axios from "axios";
+import { useToasterStore } from '@/stores/toaster';
+
+const toaster = useToasterStore();
 
 const openBtn = ref(null);
 
@@ -57,8 +60,12 @@ const handleSubmit = async () => {
       sessionID: props.sessionId,
     });
     emit("handleDelete");
+    toaster.showMessage("La session a bien été supprimée", "success");
+
   } catch (error) {
+    emit("handleDelete");
     console.error("Erreur lors de la suppression de la session", error);
+    toaster.showMessage("Erreur lors de la suppression de la session", "error");
   }
 };
 </script>
