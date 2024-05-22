@@ -11,7 +11,7 @@
 .app {
   font-family: "DM-Sans", sans-serif;
   font-optical-sizing: auto;
-  font-weight: 400;
+  font-weight: 200;
   font-style: normal;
 }
 </style>
