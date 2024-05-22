@@ -1,7 +1,66 @@
 <template>
   <div class="flex flex-col md:flex-row justify-center items-center h-[100vh]">
-    <img class="w-[50%] md:w-[300px]" src="../public/learning.svg" alt="" />
-    <div class="m-3 md:m-9">
+    <img class="w-[25%] md:block w-[50%] md:w-[300px]" src="../public/learning.svg" alt="" />
+    <div class="md:m-9">
+      <Card class="">
+        <div class="m-0">
+          <h2 class="text-3xl my-4 font-bold text-center text-primary">
+            Connexion
+          </h2>
+          <h3 class="my-4 text-secondary text-center">
+            Connectez-vous pour accéder à votre espace
+          </h3>
+        </div>
+        <div class="flex justify-center">
+          <div>
+            <div v-if="!state.loginError">
+              <h2 class="m-3">Email</h2>
+              <input
+                v-model="state.login"
+                type="text"
+                class="input input-bordered w-full max-w-xs"
+              />
+            </div>
+            <div v-else>
+              <h2 class="m-3 text-error">Email</h2>
+              <input
+                v-model="state.login"
+                type="text"
+                class="input input-bordered input-error w-full max-w-xs"
+              />
+              <span class="label label-text-alt text-error">Adresse mail incorrect</span>
+            </div>
+            <div>
+              <div v-if="!state.passwordError">
+                <h2 class="m-3">Mot de passe</h2>
+                <input
+                  v-model="state.password"
+                  type="text"
+                  class="input input-bordered w-full max-w-xs"
+                />
+              </div>
+              <div v-else>
+                <h2 class="m-3 text-error">Mot de passe</h2>
+                <input
+                  v-model="state.password"
+                  type="text"
+                  class="input input-bordered input-error w-full max-w-xs"
+                />
+                <span class="label label-text-alt text-error">Mot de passe incorrect</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="flex flex-col justify-center m-8">
+          <h3 class="text-center m-1">Vous n'avez pas de compte?</h3>
+          <a class="link text-center w-full" href="">Créer un compte</a>
+        </div>
+      </Card>
+      <div class="flex justify-center mt-5">
+        <ButtonPrimary>Connexion</ButtonPrimary>
+      </div>
+    </div>
+    <div class="hidden md:m-9">
       <Card>
         <div class="m-4">
           <h2 class="text-3xl m-4 font-bold text-center text-primary">
@@ -70,4 +129,12 @@ const state = reactive({
   loginError: true,
   passwordError: true,
 });
+watch(
+  () => state.password,
+  () => {
+    if (state.password.length) {
+      console.log("state.password",state.password)
+    }
+  }
+);
 </script>
