@@ -1,17 +1,11 @@
 from flask import Flask, jsonify, request
+from flask_sqlalchemy import SQLAlchemy
+from flask_login import LoginManager, login_user, login_required, logout_user, current_user
+from werkzeug.security import generate_password_hash, check_password_hash
 from flask_cors import CORS
 from collections import Counter
 import sqlite3
 import os
-
-from flask import Flask, request, jsonify, redirect, url_for, flash
-from flask_sqlalchemy import SQLAlchemy
-from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField
-from wtforms.validators import DataRequired, Email, EqualTo, Length
-from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
-from werkzeug.security import generate_password_hash, check_password_hash
-from flask_cors import CORS
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'your_secret_key'
@@ -21,7 +15,7 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
-CORS(app)  # Allow CORS for all routes
+CORS(app, supports_credentials=True, resources={r"/api/*": {"origins": "*"}})  # Allow CORS for all routes
 
 class Utilisateur(db.Model):
     ID = db.Column(db.Integer, primary_key=True)
@@ -34,83 +28,148 @@ class Utilisateur(db.Model):
         return f"Utilisateur('{self.Nom}', '{self.Email}')"
 
     def is_active(self):
-        # Return True if the user is active, else False
         return True
 
     def is_authenticated(self):
-        # Return True if the user is authenticated, else False
         return True
 
     def is_anonymous(self):
-        # Return True if the user is anonymous, else False
         return False
 
     def get_id(self):
-        # Return the user ID as a unicode string
         return str(self.ID)
 
-
-    
 @login_manager.user_loader
 def load_user(user_id):
-    return Utilisateur.query.get(int(user_id))
+    try:
+        return db.session.get(Utilisateur, int(user_id))
+    except Exception as e:
+        print(e)
+        return None
 
 @app.route('/api/register', methods=['POST'])
 def register():
+    """_summary_
+        const data = { 
+                "data" : [
+                    {'Nom': "Test",
+                    'Prenom': "test",
+                    'Email':'test@test16.com', 
+                    'Password':'monMDP'
+                    }
+                ]     
+                };
+            const jsonData = JSON.stringify(data);
+            
+        // User registration
+        axiosInstance.post('/api/register',jsonData, {
+          headers: {
+            'Content-Type': 'application/json'
+          }}
+    Returns:
+        _type_: _description_
+    """
     try:
-        
+        print("enter register function")
         data = request.json.get('data')
 
         existing_user = Utilisateur.query.filter_by(Email=data[0]['Email']).first()
         if existing_user:
             return jsonify({'message': 'Email already exists'}), 400
-        # Extract password and hash it
+        
         password = data[0]['Password']
         hashed_password = generate_password_hash(password, method='pbkdf2:sha256', salt_length=16)
 
-        # Create a new user object
-        new_user = Utilisateur(Nom=data[0]['Nom'], Email=data[0]['Email'], Password=hashed_password)
+        new_user = Utilisateur(Nom=data[0]['Nom'], Prenom=data[0]['Prenom'], Email=data[0]['Email'], Password=hashed_password)
 
-        # Add the new user to the database
         db.session.add(new_user)
         db.session.commit()
-
         return jsonify({'message': 'User created successfully'}), 201
 
     except Exception as e:
-        # Handle any potential errors
         print(e)
         db.session.rollback()
         return jsonify({'error': str(e)}), 500
 
-
 @app.route('/api/login', methods=['POST'])
 def login():
-    data = request.json.get('data')
-    user = Utilisateur.query.filter_by(Email=data[0]['Email']).first()
-    
-    if user and check_password_hash(user.Password, data[0]['Password']):
-        login_user(user)
-        print(jsonify({'message': 'Logged in successfully'}))
-        return jsonify({'message': 'Logged in successfully'}), 200
-    return jsonify({'message': 'Invalid credentials'}), 401
+    """_summary_
+        const data = { 
+            "data" : [
+                {
+                'Email':'test@test16.com', 
+                'Password':'monMDP'
+                }
+            ]     
+            };
+        const jsonData = JSON.stringify(data);
 
-@app.route('/logout', methods=['POST'])
+      // User login
+      axiosInstance.post('/api/login',jsonData, {
+          headers: {
+            'Content-Type': 'application/json'
+          }}).then(response => {
+        console.log(response.data);
+        
+    Returns:
+        _type_: _description_
+    """
+    try:
+        print("enter login function")
+        data = request.json.get('data')
+        user = Utilisateur.query.filter_by(Email=data[0]['Email']).first()
+        
+        if user and check_password_hash(user.Password, data[0]['Password']):
+            login_user(user)
+            return jsonify({'message': 'Logged in successfully'}), 200
+        
+        return jsonify({'message': 'Invalid credentials'}), 401
+    except Exception as e:
+        print(e)
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/logout', methods=['POST'])
 @login_required
 def logout():
-    logout_user()
-    return jsonify({'message': 'Logged out successfully'}), 200
+    try:
+        logout_user()
+        return jsonify({'message': 'Logged out successfully'}), 200
+    except Exception as e:
+        print(e)
+        return jsonify({'error': str(e)}), 500
 
 @app.route('/api/current_user', methods=['GET'])
 @login_required
 def get_current_user():
-    print("enter")
-    user = {
-        'Nom': current_user.Nom,
-        'Email': current_user.Email
-    }
-    return jsonify(user), 200
+    """
+    const data = { 
+            "data" : [
+                {
+                'Email':'test@test16.com', 
+                'Password':'monMDP'
+                }
+            ]     
+            };
+        const jsonData = JSON.stringify(data);
+    // Access protected route after login
+        axiosInstance.get('/api/current_user')
+      
+    Returns:
+        _type_: _description_
+    """
+    try:
+        print("enter current user function")
+        user = {
+            'Nom': current_user.Nom,
+            'Email': current_user.Email
+        }
+        return jsonify(user), 200
+    except Exception as e:
+        print(e)
+        return jsonify({'error': str(e)}), 500
 
+if __name__ == "__main__":
+    app.run(debug=True)
 
 
 # Initialize the database (run once to create the database)

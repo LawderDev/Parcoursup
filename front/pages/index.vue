@@ -49,36 +49,6 @@ const api_call_sessions = async () => {
         baseURL: 'http://localhost:5000',
         withCredentials: true
       });
-
-      // User registration
-      axiosInstance.post('/api/register', {
-        Nom: 'Test',
-        Email: 'test@test10.com',
-        Password: 'monMDP'
-      }).then(response => {
-        console.log(response.data);
-      }).catch(error => {
-        console.error(error.response.data);
-      });
-
-      // User login
-      axiosInstance.post('/api/login', {
-        Email: 'test@test10.com',
-        Password: 'monMDP'
-      }).then(response => {
-        console.log(response.data);
-        
-        // Access protected route after login
-        axiosInstance.get('/api/current_user')
-          .then(response => {
-            console.log(response.data);
-          })
-          .catch(error => {
-            console.error(error.response.data);
-          });
-      }).catch(error => {
-        console.error(error.response.data);
-      });
   } catch (error) {
     console.error("Erreur lors de la récupération des sessions :", error);
   }
