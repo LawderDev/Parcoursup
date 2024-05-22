@@ -11,7 +11,7 @@
             Connectez-vous pour accéder à votre espace
           </h3>
         </div>
-        <div class="flex justify-center ">
+        <div class="flex justify-center">
           <div>
             <div>
               <h2 class="m-3">Email</h2>
@@ -28,10 +28,8 @@
           <a class="link text-center w-full" href="">Créer un compte</a>
         </div>
       </Card>
-      <div class="flex justify-center">
-        <div class="flex justify-center mt-5">
-          <ButtonPrimary>Connexion</ButtonPrimary>
-        </div>
+      <div class="flex justify-center mt-5">
+        <ButtonPrimary>Connexion</ButtonPrimary>
       </div>
     </div>
     <img class="hidden md:block w-[350px]" src="../public/maths.svg" alt="" />
