@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="app">
     <Toaster :message="toaster.message" :type="toaster.type" :duration="toaster.duration" :is-open="toaster.isOpen"></Toaster>
     <NuxtPage />
   </div>
@@ -14,6 +14,13 @@ const toaster = useToasterStore();
 
 <style>
 .neumorphism {
-  box-shadow:  5px 5px 10px #bebebe,
+  box-shadow: 5px 5px 10px #bebebe, -5px -5px 10px #ffffff;
 }        
+
+.app {
+  font-family: "DM-Sans", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 200;
+  font-style: normal;
+}
 </style>
