@@ -1,11 +1,11 @@
 <template>
-  <div class="flex flex-col md:flex-row justify-center items-center h-[100vh]">
+  <div class="flex flex-col lg:flex-row justify-center items-center h-[100vh]">
     <img
-      class="w-[25%] md:block w-[50%] md:w-[300px]"
+      class="w-[25%] lg:block lg:w-[300px]"
       src="../public/learning.svg"
       alt=""
     />
-    <div class="md:m-9">
+    <div class="lg:m-9">
       <Card class="">
         <div class="m-0">
           <h2 class="text-3xl my-4 font-bold text-center text-primary">
@@ -68,7 +68,7 @@
         <ButtonPrimary @click="openIndexPage">Connexion</ButtonPrimary>
       </div>
     </div>
-    <div class="hidden md:m-9">
+    <div class="hidden lg:m-9">
       <Card>
         <div class="m-4">
           <h2 class="text-3xl m-4 font-bold text-center text-primary">
@@ -131,11 +131,13 @@
         <ButtonPrimary @click="openIndexPage">Connexion</ButtonPrimary>
       </div>
     </div>
-    <img class="hidden md:block w-[350px]" src="../public/maths.svg" alt="" />
+    <img class="hidden lg:block w-[350px]" src="../public/maths.svg" alt="" />
   </div>
 </template>
 <script setup>
+import { useToasterStore } from "~/stores/toaster";
 import axios from "axios";
+const toaster = useToasterStore();
 const state = reactive({
   login: null,
   password: null,
@@ -146,13 +148,13 @@ const openIndexPage = async () => {
   state.loginError =false
   state.passwordError =false
   const res = await callLogin()
-  console.log(res)
   if (res.status===200) {
+    toaster.showMessage("Connexion réussie", "success");
     await navigateTo("/");
   } else if (res.status===401){
     handleError(res.data.message)
   }else{
-    console.log("erreur inconnnue")
+    showErrorUnknown()
   }
 };
 const handleError = (message) => {
@@ -161,8 +163,11 @@ const handleError = (message) => {
   }else if (message.includes('password')){
     state.passwordError = true
   } else{
-    console.log("erreur inconnnue")
+    showErrorUnknown()
   }
+}
+const showErrorUnknown = () => {
+  toaster.showMessage("Erreur inconnue de lors de l'authentification", "error");
 }
 const callLogin = async () => {
   try {
@@ -172,7 +177,6 @@ const callLogin = async () => {
         "Content-Type": "application/json",
       },
     });
-    console.log(res)
     return res;
   } catch (err) {
     return err.response
