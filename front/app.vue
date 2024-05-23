@@ -1,8 +1,16 @@
 <template>
   <div class="app">
+    <Toaster :message="toaster.message" :type="toaster.type" :is-open="toaster.isOpen"></Toaster>
     <NuxtPage />
   </div>
+
 </template>
+
+<script setup>
+import { useToasterStore } from './stores/toaster';
+
+const toaster = useToasterStore();
+</script>
 
 <style>
 .neumorphism {

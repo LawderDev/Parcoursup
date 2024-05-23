@@ -25,6 +25,7 @@ const state = reactive({
   helloWorld: "",
   isOpen: false,
   selectedSession: {},
+  sessions: [],
 });
 
 const openDeleteModal = (session) => {
@@ -49,7 +50,6 @@ const api_call_sessions = async () => {
 };
 
 const format_date = (dateString) => {
-  console.log("enter")
   const date = new Date(dateString);
 
   const day = String(date.getDate()).padStart(2, '0');
