@@ -25,6 +25,7 @@ const state = reactive({
   helloWorld: "",
   isOpen: false,
   selectedSession: {},
+  sessions: [],
 });
 
 const openDeleteModal = (session) => {
@@ -40,11 +41,8 @@ const openSessionPage = async (sessionID) => {
 
 const api_call_sessions = async () => {
   try {
-     // Axios instance configuration to include credentials (cookies)
-     const axiosInstance = axios.create({
-        baseURL: 'http://localhost:5000',
-        withCredentials: true
-      });
+    const response = await axios.get("http://127.0.0.1:5000/api/get_sessions");
+    state.sessions = response.data
   } catch (error) {
     console.error("Erreur lors de la récupération des sessions :", error);
   }

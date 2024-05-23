@@ -282,7 +282,7 @@ const handleClick = async () => {
 
       const jsonDataSession = JSON.stringify(formData);
       const session_id = await create_session(jsonDataSession);
-
+      
       if (session_id) {
         const dictStudent = {
           sessionID: session_id,

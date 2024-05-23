@@ -25,7 +25,6 @@ const props =defineProps({
     message: String,
     isOpen: Boolean,
     type: String,
-    duration: Number,
 })
 
 const getType = () => {

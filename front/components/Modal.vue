@@ -1,6 +1,6 @@
 <template>
-  <div>
-    <div @click="dialog.showModal">
+  <div :disabled="props.disabled">
+    <div @click="handleClickOpen">
       <slot name="open-btn"></slot>
     </div>
 
@@ -35,9 +35,14 @@ const dialog = ref(null);
 
 const props = defineProps({
   isFullOnMobile: Boolean,
+  disabled: Boolean,
 });
 
 defineEmits(["handleSubmit", "close"]);
+
+const handleClickOpen = () => {
+  if(!props.disabled) dialog.value.showModal();
+}
 
 const toaster = useToasterStore();
 </script>

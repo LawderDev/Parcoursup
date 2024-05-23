@@ -12,7 +12,8 @@
         <ButtonSecondary @click="handleClickModify" class="mr-2 my-2"
           >Modifier</ButtonSecondary
         >
-        <ButtonPrimary @click="handleClickPreferencies">Vos préférences</ButtonPrimary>
+        <ButtonPrimary v-if ="props.sessionState === 'Choosing'" @click="handleClickPreferencies">Vos préférences</ButtonPrimary>
+        <ButtonPrimary v-else @click="handleClickPreferencies" disabled>Vos préférences</ButtonPrimary>
       </div>
     </Card>
   </div>
@@ -20,7 +21,12 @@
 <script setup>
 import { reactive } from "vue";
 
-const props = defineProps(["id", "name", "summary"]);
+const props = defineProps({
+  id: Number,
+  name: String,
+  summary: String,
+  sessionState: String,
+});
 
 const state = reactive({
   isOpen: false,

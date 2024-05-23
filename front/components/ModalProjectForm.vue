@@ -1,8 +1,8 @@
 <template>
   <div>
-    <Modal @close="emit('update:isOpen', false)">
+    <Modal @close="emit('update:isOpen', false)" :disabled="props.sessionState !== 'Grouping'">
       <template v-slot:open-btn>
-        <ButtonPlus @click="handleCreateProject" class="neumorphism" />
+        <ButtonPlus @click="handleCreateProject" class="neumorphism" :disabled="props.sessionState !== 'Grouping'"/>
         <div id="hidden" class="hidden" ref="openBtn"></div>
       </template>
       <template v-slot:form>
@@ -46,13 +46,16 @@
 <script setup>
 import { defineEmits } from "vue";
 const openBtn = ref(null);
+
 const props = defineProps({
   isOpen: Boolean,
   editMode: Boolean,
   id: Number,
   name: String,
   summary: String,
+  sessionState: String,
 });
+
 const emit = defineEmits([
   "submit:project",
   "update:isOpen",

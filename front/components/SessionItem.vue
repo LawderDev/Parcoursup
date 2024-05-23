@@ -7,7 +7,7 @@
       <ImagePlaceHolder>{{ title[0] }}</ImagePlaceHolder>
 
       <div class="text-left">
-        <div class="w-[170px]">
+        <div class="w-[190px]">
           <div
             class="text-lg w-[40vw] md:w-[70vw] overflow-hidden text-ellipsis whitespace-nowrap"
           >
