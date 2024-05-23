@@ -115,40 +115,6 @@
       </div>
     </div>
 
-    <div class="m-5">
-      <div
-        role="alert"
-        class="flex alert alert-error max-w-50 justify-center items-center rounded-badge"
-        id="alert"
-        v-if="state.error && !formCorrect"
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          class="stroke-current shrink-0 h-6 w-6"
-          fill="none"
-          viewBox="0 0 24 24"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
-          />
-        </svg>
-        <span v-if="!nameCorrect" class="">
-          Veuillez respecter les contraintes de nom
-        </span>
-        <span v-else-if="!dateCorrect" class="">
-          Veuillez respecter les contraintes de dates
-        </span>
-        <span v-else-if="!groupCorrect" class="">
-          Veuillez respecter les contraintes de groupes
-        </span>
-
-        <span v-else>Erreur inconnue.</span>
-      </div>
-    </div>
-
     <!-- VERSION PAGE -->
     <div class="" v-if="props.editMode">
       <div class="hidden md:flex justify-center p-4">
@@ -200,6 +166,8 @@ import Edit from "~/public/edit.svg";
 import OkClickable from "~/public/okClickable.svg";
 import Cancel from "~/public/cancel.svg";
 import { useSessionData } from "~/composables/useSessionData";
+import { useToasterStore } from "~/stores/toaster";
+
 
 const props = defineProps({
   editMode: Boolean,
@@ -207,6 +175,8 @@ const props = defineProps({
 });
 
 const route = useRoute();
+
+const toaster = useToasterStore();
 
 const { updateSession } = useSessionData();
 
@@ -318,10 +288,13 @@ const handleClick = async () => {
           sessionID: session_id,
           data: state.fileContent.data,
         };
+
         const jsonDataStudent = JSON.stringify(dictStudent);
         const std_id = await create_student(jsonDataStudent);
+        toaster.showMessage("La session a bien été crée", "success");
         emit("handleValidate");
       } else {
+        toaster.showMessage("Erreur lors de la création de la session", "error");
         console.error("Probleme de session id : ", session_id);
       }
     } else if (props.editMode) {
@@ -342,9 +315,23 @@ const handleClick = async () => {
       };
       const jsonDataSession = JSON.stringify(formData);
       const session_id = await updateSession(jsonDataSession);
+
+      session_id ? toaster.showMessage("La session a bien été modifiée", "success") : toaster.showMessage("Erreur lors de la modification de la session", "error");
+      emit("handleValidate");
     }
   } else {
     state.error = true;
+    if(!nameCorrect.value){
+      toaster.showMessage("Veuillez respecter les contraintes de nom", "error");
+    }
+    else if(!dateCorrect.value){
+      toaster.showMessage("Veuillez respecter les contraintes de dates", "error");
+    }
+    else if(!groupCorrect.value){
+      toaster.showMessage("Veuillez respecter les contraintes de groupes", "error");
+    }else {
+      toaster.showMessage("Erreur lors de la création de la session", "error");
+    }
   }
 };
 
