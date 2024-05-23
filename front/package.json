@@ -21,9 +21,11 @@
     "sqlite3": "^5.1.7",
     "vue": "^3.4.21",
     "vue-router": "^4.3.0",
+    "vue-toasted": "^1.1.28",
     "vuedraggable": "^4.1.0"
   },
   "devDependencies": {
+    "@cssninja/nuxt-toaster": "^0.3.12",
     "@nuxtjs/tailwindcss": "^6.11.4",
     "autoprefixer": "^10.4.19",
     "daisyui": "^4.10.5",
