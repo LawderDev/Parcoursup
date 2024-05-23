@@ -11,13 +11,12 @@
         </h1>
         <div class="flex ml-auto gap-4">
           <ButtonSecondary @click="handleBack">Retourner à la session</ButtonSecondary>
-
           <ButtonPrimary @click="handleValidateGroup">Valider les groupes</ButtonPrimary>
         </div>
       </div>
       <div class="flex gap-4 items-center mb-6">
         <h2 class="text-xl font-semibold">Groupes</h2>
-        <ModalCreateGroup :key="'refreshModalCreateGroup' + state.groups.length" v-if="state.loading" @handle-create-group="refreshGroups" :groups="state.groups"></ModalCreateGroup>
+        <ModalCreateGroup :key="'refreshModalCreateGroup' + state.groups.length" v-if="state.loading" @handle-create-group="refreshGroups" :groups="state.groups" :group-min="stateSession.session.groupMin" :group-max="stateSession.session.groupMax"></ModalCreateGroup>
         <ButtonPrimary @click="handleSave">Enregistrer</ButtonPrimary>
       </div>
 
@@ -64,6 +63,8 @@
 <script setup>
 import axios from "axios";
 import { useSessionData } from "~/composables/useSessionData";
+import { useToasterStore } from '@/stores/toaster';
+import { useProject } from "~/composables/useProject";
 
 const state = reactive({
   sessionName: "Projet TIC 2024",
@@ -72,6 +73,10 @@ const state = reactive({
   groups: [],
   loading: false,
 });
+
+const toaster = useToasterStore();
+
+const { stateProject, api_call_projects } = useProject();
 
 const { stateSession, getSessionData, updateSession } = useSessionData(); 
 
@@ -83,13 +88,11 @@ onMounted(async () => {
   await getAllStudents();
   await getAvailableStudents();
   state.loading = true;
+  await api_call_projects(route.params.sessionId);
 });
 
 const refreshGroups = async (newGroup) => {
     state.groups.push(newGroup);
-    await handleSave();
-
-    //state.groups = await getAllGroups();
     await getAvailableStudents();
 };
 
@@ -105,17 +108,6 @@ const deletePerson = (index, group) => {
 
 const getStudentsInGroup = () =>
   state.groups.map((group) => group.students).flat();
-
-/*const getStudentsInGroup = () => state.groups.map(group => group.students).flat().concat(props.group).filter(s => s)
-
-  const getAvailableStudents = () => {
-    const studentsInGroup = getStudentsInGroup();
-    const availableStudents = state.allStudents.filter(stud => {
-        return !studentsInGroup.some(s => s && s.id === stud.id);
-    });
-
-    state.availableStudents = availableStudents
-  }*/
 
 const getAvailableStudents = () => {
   const studentsInGroup = getStudentsInGroup();
@@ -227,9 +219,11 @@ const handleSave = async () => {
     console.log(studentsToReassign)
 
 
-    if(studentsToReassign.length === 0) return
+    if(studentsToReassign.length !== 0) {
+      await reafectGroup(studentsToReassign);
+    }
 
-    await reafectGroup(studentsToReassign);
+    toaster.showMessage("Groupes reaffectés avec succès", "success");
 }
 
 const handleDeleteGroup = async (group) => {
@@ -243,6 +237,7 @@ const setDefaultPreferences = () => {
     }
     const jsonData = JSON.stringify(data);
 
+    console.log(jsonData)
     axios.post("http://127.0.0.1:5000/api/affect_default_preferencies", jsonData, {
         headers: {
            'Content-Type': 'application/json'
@@ -251,7 +246,15 @@ const setDefaultPreferences = () => {
 }
 
 const validateGroups = async () => {
-    if(getStudentsInGroup().length !== state.allStudents.length) return
+    if(getStudentsInGroup().length !== state.allStudents.length) {
+      toaster.showMessage("Tout les étudiants doivent être affecter dans un groupe", "error");
+      return
+    }
+
+    if(state.groups.length > stateProject.projects.length) {
+      toaster.showMessage("Il ne peut pas y avoir plus de groupes que de projets", "error");
+      return
+    }
 
     const formData = {
         session_ID: route.params.sessionId,
@@ -271,6 +274,8 @@ const validateGroups = async () => {
     const jsonDataSession = JSON.stringify(formData);
     await updateSession(jsonDataSession);
     await setDefaultPreferences();
+
+    toaster.showMessage("Groupes attribués avec succès", "success");
 
     await navigateTo(`/session/${route.params.sessionId}`);
 }

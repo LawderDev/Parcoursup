@@ -1,8 +1,8 @@
 <template>
   <div>
     <NavBar :name="'fdsf'" />
-    <div class="grid justify-center m-8">
-      <FormSession editMode v-if="stateSession.session" :session-data="stateSession.session"></FormSession>
+    <div class="my-8 mx-32">
+      <FormSession editMode v-if="stateSession.session" :session-data="stateSession.session" @handle-end-session="handleEndSession"></FormSession>
       <div>
         <div class="flex items-center mt-5 mb-5">
           <h2 class="text-3xl font-semibold mr-5">Projets</h2>
@@ -24,7 +24,7 @@
           Quels seront les projets disponibles ?
         </h3>
         <div
-          class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3  mb-20 md:mb-0"
+          class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 mb-20 md:mb-0"
         >
           <div v-for="project in stateProject.projects" :key="project.id">
             <ProjectCard
@@ -74,7 +74,7 @@ const handleDeleteProject = async (id) => {
     await axios.post("http://127.0.0.1:5000/api/delete_project", {
       projectID: id,
     });
-    await api_call_projects(sessionIDd);
+    await api_call_projects(sessionID);
   } catch (error) {
     console.error("Erreur lors de la suppression de la session", error);
   }
@@ -142,6 +142,7 @@ const handleModifyProject = async (newProject) => {
       },
     ],
   };
+  console.log(formData);
   const jsonDataSession = JSON.stringify(formData);
   const project_id = await update_project(jsonDataSession);
 };
@@ -192,6 +193,10 @@ definePageMeta({
     );
   },
 });
+
+const handleEndSession = async () => {
+  stateSession.session.state = "Attributing";
+};
 
 onMounted(async () => {
   await getSessionData(sessionID);

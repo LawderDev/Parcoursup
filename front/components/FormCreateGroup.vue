@@ -4,12 +4,12 @@
   <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
     <div v-for="(_, index) in group" class="w-fit" :key="'student-' + index + '-'  + group.length">
       <h3 class="ml-2 mb-2 font-bold">{{ "Personne " + (index + 1) }}</h3>
-      <AutoComplete v-if="state.loading" :selected="group[index]" :peoples="state.availableStudents" :default-value="group[index] ? group[index] : state.availableStudents[0]" @update:selected="handleSelected($event, index)" @delete="deletePerson(index)"></AutoComplete>
+      <AutoComplete v-if="state.loading" :selected="group[index]" :peoples="state.availableStudents" :default-value="group[index] ? group[index] : state.availableStudents[0]" :can-delete="canDelete" @update:selected="handleSelected($event, index)" @delete="deletePerson(index)"></AutoComplete>
     </div>
 
     <div class="mt-8">
-      <ImageButton v-if="getStudentsInGroup().length !== state.allStudents.length " :src="ButtonPlus" class="shadow-md min-h-[2.5rem] h-[2.5rem]" @click="addPerson">Ajouter un membre</ImageButton>
-    </div>
+      <ImageButton v-if="canAddPerson" :src="ButtonPlus" class="shadow-md min-h-[2.5rem] h-[2.5rem]" @click="addPerson">Ajouter un membre</ImageButton>
+     </div>
   </div>
 </template>
 
@@ -20,6 +20,8 @@ import axios from "axios";
 const props = defineProps({
     title: String,
     subTitle: String,
+    groupMin: Number,
+    groupMax: Number,
     group: Array,
     groups: Array,
   });
@@ -31,6 +33,9 @@ const route = useRoute();
 onMounted(async () => {
     await getAllStudents();
     await getAvailableStudents();
+    for(let i = 0; i < props.groupMin; i++) {  
+      addPerson();
+    }
     state.loading = true;
 })
 
@@ -41,13 +46,18 @@ const state = reactive({
     loading:false,
   })
 
+  const canAddPerson = computed(() => getStudentsInGroup().length !== state.allStudents.length && props.group.length < props.groupMax);
+
   const addPerson = () => {
     if(getStudentsInGroup().length === state.allStudents.length) return;
     emit("update:group", props.group.concat(state.availableStudents[0]))
     getAvailableStudents();
   }
 
+  const canDelete = computed(() => props.group.length !== props.groupMin);
+
   const deletePerson = (index) => {
+    if(!canDelete) return;
     emit("update:group", props.group.filter((_, i) => i !== index))
     getAvailableStudents();
   }
