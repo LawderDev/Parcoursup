@@ -65,7 +65,7 @@
         </div>
       </Card>
       <div class="flex justify-center mt-5">
-        <ButtonPrimary  @click="openIndexPage">Connexion</ButtonPrimary>
+        <ButtonPrimary @click="openIndexPage">Connexion</ButtonPrimary>
       </div>
     </div>
     <div class="hidden md:m-9">
@@ -135,6 +135,7 @@
   </div>
 </template>
 <script setup>
+import axios from "axios";
 const state = reactive({
   login: null,
   password: null,
@@ -142,13 +143,56 @@ const state = reactive({
   passwordError: false,
 });
 const openIndexPage = async () => {
-  await navigateTo("/");
+  state.loginError =false
+  state.passwordError =false
+  const res = await callLogin()
+  console.log(res)
+  if (res.status===200) {
+    await navigateTo("/");
+  } else if (res.status===401){
+    handleError(res.data.message)
+  }else{
+    console.log("erreur inconnnue")
+  }
+};
+const handleError = (message) => {
+  if(message.includes('login')){
+    state.loginError = true
+  }else if (message.includes('password')){
+    state.passwordError = true
+  } else{
+    console.log("erreur inconnnue")
+  }
+}
+const callLogin = async () => {
+  try {
+    const jsonData = getJsonData(state.login, state.password);
+    const res = await axios.post("http://127.0.0.1:5000/api/login", jsonData, {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    console.log(res)
+    return res;
+  } catch (err) {
+    return err.response
+  }
+};
+const getJsonData = (login, password) => {
+  const data = {
+    data: [
+      {
+        Email: state.login,
+        Password: state.password,
+      },
+    ],
+  };
+  return JSON.stringify(data);
 };
 watch(
   () => state.password,
   () => {
     if (state.password.length) {
-      console.log("state.password", state.password);
     }
   }
 );

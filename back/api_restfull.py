@@ -119,11 +119,22 @@ def login():
         data = request.json.get('data')
         user = Utilisateur.query.filter_by(Email=data[0]['Email']).first()
         
-        if user and check_password_hash(user.Password, data[0]['Password']):
+        if not data or 'Email' not in data[0] or 'Password' not in data[0]:
+            return jsonify({'message': 'Invalid request data'}), 400
+
+        user = Utilisateur.query.filter_by(Email=data[0]['Email']).first()
+        
+        if user is None:
+            return jsonify({'message': 'Invalid login'}), 401
+
+        if user.Password is None or data[0]['Password'] is None:
+            return jsonify({'message': 'Invalid password'}), 401
+
+        if check_password_hash(user.Password, data[0]['Password']):
             login_user(user)
             return jsonify({'message': 'Logged in successfully'}), 200
-        
-        return jsonify({'message': 'Invalid credentials'}), 401
+        else:
+            return jsonify({'message': 'Invalid password'}), 401
     except Exception as e:
         print(e)
         return jsonify({'error': str(e)}), 500
