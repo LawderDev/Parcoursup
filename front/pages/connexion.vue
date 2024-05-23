@@ -1,6 +1,10 @@
 <template>
   <div class="flex flex-col md:flex-row justify-center items-center h-[100vh]">
-    <img class="w-[25%] md:block w-[50%] md:w-[300px]" src="../public/learning.svg" alt="" />
+    <img
+      class="w-[25%] md:block w-[50%] md:w-[300px]"
+      src="../public/learning.svg"
+      alt=""
+    />
     <div class="md:m-9">
       <Card class="">
         <div class="m-0">
@@ -28,7 +32,9 @@
                 type="text"
                 class="input input-bordered input-error w-full max-w-xs"
               />
-              <span class="label label-text-alt text-error">Adresse mail incorrect</span>
+              <span class="label label-text-alt text-error"
+                >Adresse mail incorrect</span
+              >
             </div>
             <div>
               <div v-if="!state.passwordError">
@@ -46,7 +52,9 @@
                   type="text"
                   class="input input-bordered input-error w-full max-w-xs"
                 />
-                <span class="label label-text-alt text-error">Mot de passe incorrect</span>
+                <span class="label label-text-alt text-error"
+                  >Mot de passe incorrect</span
+                >
               </div>
             </div>
           </div>
@@ -57,7 +65,7 @@
         </div>
       </Card>
       <div class="flex justify-center mt-5">
-        <ButtonPrimary>Connexion</ButtonPrimary>
+        <ButtonPrimary  @click="openIndexPage">Connexion</ButtonPrimary>
       </div>
     </div>
     <div class="hidden md:m-9">
@@ -87,7 +95,9 @@
                 type="text"
                 class="input input-bordered input-error w-full max-w-xs"
               />
-              <span class="label label-text-alt text-error">Adresse mail incorrect</span>
+              <span class="label label-text-alt text-error"
+                >Adresse mail incorrect</span
+              >
             </div>
             <div>
               <div v-if="!state.passwordError">
@@ -105,7 +115,9 @@
                   type="text"
                   class="input input-bordered input-error w-full max-w-xs"
                 />
-                <span class="label label-text-alt text-error">Mot de passe incorrect</span>
+                <span class="label label-text-alt text-error"
+                  >Mot de passe incorrect</span
+                >
               </div>
             </div>
           </div>
@@ -116,7 +128,7 @@
         </div>
       </Card>
       <div class="flex justify-center mt-5">
-        <ButtonPrimary>Connexion</ButtonPrimary>
+        <ButtonPrimary @click="openIndexPage">Connexion</ButtonPrimary>
       </div>
     </div>
     <img class="hidden md:block w-[350px]" src="../public/maths.svg" alt="" />
@@ -126,14 +138,17 @@
 const state = reactive({
   login: null,
   password: null,
-  loginError: true,
-  passwordError: true,
+  loginError: false,
+  passwordError: false,
 });
+const openIndexPage = async () => {
+  await navigateTo("/");
+};
 watch(
   () => state.password,
   () => {
     if (state.password.length) {
-      console.log("state.password",state.password)
+      console.log("state.password", state.password);
     }
   }
 );
