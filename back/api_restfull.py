@@ -179,6 +179,41 @@ def get_current_user():
         print(e)
         return jsonify({'error': str(e)}), 500
 
+@app.route('/api/update_password', methods=['POST'])
+@login_required
+def update_password():
+    """_summary_
+    const data = { 
+            "data" : [
+                {
+                'current_password':'monMDP', 
+                'new_password':'monMDP2'
+                }
+            ]     
+            };
+        const jsonData = JSON.stringify(data);
+    Returns:
+        _type_: _description_
+    """
+    try:
+        data = request.json.get('data')
+        current_password = data['current_password']
+        new_password = data['new_password']
+        
+        # Verify the current password
+        if not check_password_hash(current_user.Password, current_password):
+            return jsonify({'message': 'Current password is incorrect'}), 400
+        
+        # Update to the new password
+        hashed_new_password = generate_password_hash(new_password, method='pbkdf2:sha256', salt_length=16)
+        current_user.Password = hashed_new_password
+        db.session.commit()
+        return jsonify({'message': 'Password updated successfully'}), 200
+    except Exception as e:
+        print(e)
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500
+
 # Initialize the database (run once to create the database)
 # with app.app_context():
 #     db.create_all()
