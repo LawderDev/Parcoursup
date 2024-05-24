@@ -29,9 +29,8 @@
           tabindex="0"
           class="shadow menu menu-sm dropdown-content bg-base-100 rounded-box w-40 md:w-60"
         >
-          <li class="pl-1">
-            <ModalProfile> </ModalProfile>
-          </li>
+        <ModalProfile> </ModalProfile>
+
           <li class="pl-1">
             <div class="flex items-center">
               <img src="../public/logout.svg" class="w-5" />
