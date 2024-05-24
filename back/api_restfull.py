@@ -1189,7 +1189,7 @@ def affect_preference_projet():
             {
               "projectID": 1,
               "groupID": 2,
-              "order": 2
+              "order": 2,
             }
         ]
     }
@@ -1458,12 +1458,14 @@ def affect_preference_group():
             {
               "groupID": 1,
               "projectID": 1,
-              "order": 1
+              "order": 1,
+              "Date_Derniere_Modif": "12/02/2024"
             },
             {
               "groupID": 1,
               "projectID": 2,
-              "order": 2
+              "order": 2,
+              "Date_Derniere_Modif": "12/02/2024"
             }
         ]
     }
@@ -1485,7 +1487,7 @@ def affect_preference_group():
 
         try:
             for preference in preferences:
-                group_id, project_id, order = preference['groupID'], preference['projectID'], preference['order']
+                group_id, project_id, order, date_derniere_modif = preference['groupID'], preference['projectID'], preference['order'], preference['Date_Derniere_Modif']
 
                 # Check for existing entry with projectID and groupID
                 existing_row = cursor.execute("SELECT * FROM PREFERENCE_GROUPE WHERE FK_Projet = ? AND FK_Groupe = ?",
@@ -1494,13 +1496,13 @@ def affect_preference_group():
                 if existing_row:
                     # Update existing order
                     cursor.execute(
-                        "UPDATE PREFERENCE_GROUPE SET Ordre_Preference = ? WHERE FK_Projet = ? AND FK_Groupe = ?",
-                        (order, project_id, group_id))
+                        "UPDATE PREFERENCE_GROUPE SET Ordre_Preference = ?, Date_Derniere_Modif = ? WHERE FK_Projet = ? AND FK_Groupe = ?",
+                        (order, date_derniere_modif ,project_id, group_id))
                 else:
                     # Insert new preference
                     cursor.execute(
-                        "INSERT INTO PREFERENCE_GROUPE (FK_Groupe, FK_Projet, Ordre_Preference) VALUES (?, ?, ?)",
-                        (group_id, project_id, order))
+                        "INSERT INTO PREFERENCE_GROUPE (FK_Groupe, FK_Projet, Ordre_Preference, Date_Derniere_Modif) VALUES (?, ?, ?, ?)",
+                        (group_id, project_id, order, date_derniere_modif))
 
                 conn.commit()
             conn.close()
