@@ -124,7 +124,6 @@
 <script setup>
 import { reactive } from "vue";
 import { defineEmits } from "vue";
-
 import OkClickable from "~/public/okClickable.svg";
 import Cancel from "~/public/cancel.svg";
 
