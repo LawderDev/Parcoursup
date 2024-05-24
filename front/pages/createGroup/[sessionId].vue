@@ -19,6 +19,10 @@ const {stateGroups, getAllGroups} = useGroups()
 
 const route = useRoute()
 
+definePageMeta({
+  middleware: ['check-end-date-group'] // Pass parameters here
+})
+
 const handleValidateGroup = async () => {
   console.log(stateCreateGroup.group)
   await validateGroup(stateCreateGroup.group)

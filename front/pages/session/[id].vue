@@ -173,7 +173,7 @@ definePageMeta({
     const api_check_id = async (sessionID) => {
       try {
         const response = await axios.get(
-          "http://127.0.0.1:5000/api/get_session_id?sessionID=" + sessionID
+            "http://127.0.0.1:5000/api/get_session_id?sessionID=" + sessionID
         );
 
         if (!response.data || response.data.length == 0) {
