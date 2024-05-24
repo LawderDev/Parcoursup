@@ -93,16 +93,16 @@
             </div>
             <div class="flex justify-center">
               <div>
-                <EditTitle
+                <EditInput
                   v-show="state.editPassword && state.newPassword.length"
                   :src="OkClickable"
                   @click="handleSubmitNewPassword"
-                ></EditTitle>
-                <EditTitle
+                ></EditInput>
+                <EditInput
                   v-show="state.editPassword"
                   :src="Cancel"
                   @click="handleEditCancel"
-                ></EditTitle>
+                ></EditInput>
               </div>
             </div>
           </div>

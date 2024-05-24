@@ -15,22 +15,22 @@
         class="input input-bordered my-8 font-bold max-w-40 md:max-w-48"
       />
       <div class="ml-3 flex items-center grow">
-        <EditTitle
+        <EditInput
           v-show="!state.editTitle"
           class="m-3"
           :src="Edit"
           @click="state.editTitle = true"
-        ></EditTitle>
-        <EditTitle
+        ></EditInput>
+        <EditInput
           v-show="state.editTitle && state.newTitle.length"
           :src="OkClickable"
           @click="handleEditOk"
-        ></EditTitle>
-        <EditTitle
+        ></EditInput>
+        <EditInput
           v-show="state.editTitle"
           :src="Cancel"
           @click="handleEditCancel"
-        ></EditTitle>
+        ></EditInput>
         <div class="ml-auto flex gap-4">
           <ButtonPrimary
             v-if="state.sessionState === 'Grouping'"
