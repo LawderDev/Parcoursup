@@ -21,7 +21,7 @@
               <h2 class="m-3">Email</h2>
               <input
                 v-model="state.login"
-                type="text"
+                type="email"
                 class="input input-bordered w-full max-w-xs"
               />
             </div>
@@ -29,7 +29,7 @@
               <h2 class="m-3 text-error">Email</h2>
               <input
                 v-model="state.login"
-                type="text"
+                type="email"
                 class="input input-bordered input-error w-full max-w-xs"
               />
               <span class="label label-text-alt text-error"
@@ -41,7 +41,7 @@
                 <h2 class="m-3">Mot de passe</h2>
                 <input
                   v-model="state.password"
-                  type="text"
+                  type="password"
                   class="input input-bordered w-full max-w-xs"
                 />
               </div>
@@ -49,7 +49,7 @@
                 <h2 class="m-3 text-error">Mot de passe</h2>
                 <input
                   v-model="state.password"
-                  type="text"
+                  type="password"
                   class="input input-bordered input-error w-full max-w-xs"
                 />
                 <span class="label label-text-alt text-error"
@@ -84,7 +84,7 @@
               <h2 class="m-3">Email</h2>
               <input
                 v-model="state.login"
-                type="text"
+                type="email"
                 class="input input-bordered w-full max-w-xs"
               />
             </div>
@@ -92,7 +92,7 @@
               <h2 class="m-3 text-error">Email</h2>
               <input
                 v-model="state.login"
-                type="text"
+                type="email"
                 class="input input-bordered input-error w-full max-w-xs"
               />
               <span class="label label-text-alt text-error"
@@ -104,7 +104,7 @@
                 <h2 class="m-3">Mot de passe</h2>
                 <input
                   v-model="state.password"
-                  type="text"
+                  type="password"
                   class="input input-bordered w-full max-w-xs"
                 />
               </div>
@@ -112,7 +112,7 @@
                 <h2 class="m-3 text-error">Mot de passe</h2>
                 <input
                   v-model="state.password"
-                  type="text"
+                  type="password"
                   class="input input-bordered input-error w-full max-w-xs"
                 />
                 <span class="label label-text-alt text-error"

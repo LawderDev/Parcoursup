@@ -35,42 +35,76 @@
               <h2 class="m-3">Email</h2>
               <input
                 v-model="state.email"
-                type="text"
+                type="email"
                 class="input input-bordered w-full max-w-xs"
               />
             </div>
             <div>
-              <h2 v-if="!state.editPassword" class="m-3">Mot de passe</h2>
-              <h2 v-else class="m-3">Ancien mot de passe</h2>
-              <input
-                v-model="state.password"
-                type="password"
-                class="input input-bordered w-full max-w-xs"
-              />
+              <div v-if="!state.errorPassword">
+                <div v-if="!state.editPassword">
+                  <h2 class="m-3">Mot de passe</h2>
+                  <input
+                    v-model="state.password"
+                    type="password"
+                    class="input input-bordered w-full max-w-xs"
+                  />
+                </div>
+                <div v-else>
+                  <h2 class="m-3">Ancien mot de passe</h2>
+                  <input
+                    v-model="state.password"
+                    type="password"
+                    class="input input-bordered w-full max-w-xs"
+                  />
+                </div>
+              </div>
+              <div v-else-if="state.editPassword">
+                <h2 class="m-3 text-error">Ancien mot de passe</h2>
+                <input
+                  v-model="state.password"
+                  type="password"
+                  class="input input-bordered input-error w-full max-w-xs"
+                />
+              </div>
             </div>
             <div v-if="state.editPassword">
-              <h2 class="m-3">Nouveau mot de passe</h2>
-              <input
-                v-model="state.newPassword"
-                type="password"
-                class="input input-bordered w-full max-w-xs"
-              />
+              <div v-if="!state.errorPassword">
+                <h2 class="m-3">Nouveau mot de passe</h2>
+                <input
+                  v-model="state.newPassword"
+                  type="password"
+                  class="input input-bordered w-full max-w-xs"
+                />
+              </div>
+              <div v-else>
+                <h2 class="m-3 text-error">Nouveau mot de passe</h2>
+                <input
+                  v-model="state.newPassword"
+                  type="password"
+                  class="input input-bordered input-error w-full max-w-xs"
+                />
+              </div>
             </div>
             <div class="label" v-if="state.editPassword">
-              <span class="label-text-alt">Le mot de passe doit etre différent du précedent et contenir au moins 8 caractères</span>
+              <span class="label-text-alt"
+                >Le mot de passe doit etre différent du précedent et contenir au
+                moins 8 caractères</span
+              >
             </div>
-          </div>
-          <div class="flex justify-center mt-2">
-            <EditTitle
-              v-show="state.editPassword && state.newPassword.length"
-              :src="OkClickable"
-              @click="handleSubmitNewPassword"
-            ></EditTitle>
-            <EditTitle
-              v-show="state.editPassword"
-              :src="Cancel"
-              @click="handleEditCancel"
-            ></EditTitle>
+            <div class="flex justify-center">
+              <div>
+                <EditTitle
+                  v-show="state.editPassword && state.newPassword.length"
+                  :src="OkClickable"
+                  @click="handleSubmitNewPassword"
+                ></EditTitle>
+                <EditTitle
+                  v-show="state.editPassword"
+                  :src="Cancel"
+                  @click="handleEditCancel"
+                ></EditTitle>
+              </div>
+            </div>
           </div>
           <div class="mt-4" v-if="!state.editPassword">
             <h3 class="text-center m-1">
@@ -101,12 +135,16 @@ const state = reactive({
   password: "monMDP",
   newPassword: "",
   editPassword: false,
+  errorPassword: false,
 });
 const emit = defineEmits(["update:isOpen"]);
 const handleSubmitNewPassword = () => {
   if (passwordCorrect.value) {
     state.password = state.newPassword;
     state.newPassword = "";
+    state.editPassword = false;
+  } else {
+    state.errorPassword = true;
   }
 };
 const handleEditPassword = () => {
@@ -119,4 +157,10 @@ const handleEditCancel = () => {
 const passwordCorrect = computed(() => {
   return state.password !== state.newPassword && state.newPassword.length >= 8;
 });
+watch(
+  () => state.editPassword,
+  () => {
+    state.errorPassword = false;
+  }
+);
 </script>
