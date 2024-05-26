@@ -5,7 +5,6 @@ export function useSessionData() {
       session: null,
     })
 
-
     const getSessionData = async (sessionID) => {
         try {
         const response = await axios.get(

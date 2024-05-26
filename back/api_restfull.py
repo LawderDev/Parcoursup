@@ -1340,6 +1340,41 @@ def create_group():
             return jsonify({'error': str(e)}), 500
     else:
         return jsonify({'error': "nul"}), 50
+    
+
+@app.route('/api/delete_groups', methods=['POST'])
+def delete_groups():
+    """
+    _summary_
+        Method that delete a list of groups, take in parameter the ids.
+    Returns:
+        _type_: _description_
+    """
+    print('Enter delete groups function')
+    # Retrieve parameters from the request body
+    groups = request.json.get('groups')  # json item
+
+    # Il faut utiliser os.path.join pour que ce soit multiplateforme
+    db = os.path.join(os.getcwd(), 'db', 'parcoursup.sqlite')
+    if os.path.exists(db):
+        conn = sqlite3.connect(db)
+        cursor = conn.cursor()
+        try:
+            for groupID in groups:
+                sqlRequest = cursor.execute("DELETE FROM GROUPE WHERE ID = ?;", (groupID,))
+                res = sqlRequest.fetchone()
+
+            # Commit the delete
+            conn.commit()
+            conn.close()
+
+            # Convert data to JSON format
+            return jsonify({'result': res}), 200
+
+        except sqlite3.Error as e:
+            return jsonify({'error': str(e)}), 500
+    else:
+        return jsonify({'error': "nul"}), 50
 
 @app.route('/api/get_all_groups_students', methods=['POST'])
 def get_all_groups_students():
@@ -1457,11 +1492,11 @@ def reaffect_group():
 
             print(students)
 
+            
             for student in group:
-                print(student['id_student'], student['id_new_group'])
-                print(students)
-                print(any(student['id_student'] not in t for t in students))
-                if(any(student['id_student'] in t for t in students)):
+                if(student['id_new_group'] == 0):
+                    cursor.execute("DELETE FROM ETUDIANT_GROUPE WHERE FK_Etudiant=?", (student['id_student'],))
+                elif(any(student['id_student'] in t for t in students)):
                     cursor.execute("UPDATE ETUDIANT_GROUPE SET FK_Groupe=? WHERE FK_Etudiant=?", (student['id_new_group'], student['id_student']))
                 else :
                     cursor.execute("INSERT INTO ETUDIANT_GROUPE VALUES (?, ?)", (student['id_student'], student['id_new_group']))

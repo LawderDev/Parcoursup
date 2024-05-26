@@ -14,7 +14,8 @@
       </div>
       <div class="flex justify-center">
         <div class="flex justify-center md:justify-end md:w-[580px] mt-5">
-          <ButtonPrimary @click="$emit('handleButtonClick')">{{buttonTitle}}</ButtonPrimary>
+          <ButtonPrimary v-if="buttonDisabled" @click="$emit('handleButtonClick')" disabled>{{buttonTitle}}</ButtonPrimary>
+          <ButtonPrimary v-else @click="$emit('handleButtonClick')">{{buttonTitle}}</ButtonPrimary>
         </div>
       </div>
     </div>
@@ -29,6 +30,7 @@ defineProps({
   nbStepsLock: Number,
   stepLock: Number,
   buttonTitle: String,
+  buttonDisabled: Boolean,
   timestamp: String,
 });
 

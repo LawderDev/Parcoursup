@@ -11,7 +11,6 @@
         </h1>
         <div class="flex ml-auto gap-4">
           <ButtonSecondary @click="handleBack">Retourner à la session</ButtonSecondary>
-
           <ButtonPrimary @click="handleValidateGroup">Valider les groupes</ButtonPrimary>
         </div>
       </div>
@@ -41,6 +40,7 @@
                   v-model:selected="group.students[index]"
                   :peoples="state.availableStudents"
                   :default-value="student"
+                  :can-delete="true"
                   @update:selected="getAvailableStudents"
                   @delete="deletePerson(index, group)"
                 ></AutoComplete>
@@ -64,6 +64,9 @@
 <script setup>
 import axios from "axios";
 import { useSessionData } from "~/composables/useSessionData";
+import { useToasterStore } from '@/stores/toaster';
+import { useProject } from "~/composables/useProject";
+import { useCreateGroup } from "~/composables/useCreateGroup";
 
 const state = reactive({
   sessionName: "Projet TIC 2024",
@@ -73,7 +76,13 @@ const state = reactive({
   loading: false,
 });
 
+const toaster = useToasterStore();
+
+const { stateProject, api_call_projects } = useProject();
+
 const { stateSession, getSessionData, updateSession } = useSessionData(); 
+
+const {stateCreateGroup, validateGroup} = useCreateGroup()
 
 const route = useRoute();
 
@@ -83,13 +92,11 @@ onMounted(async () => {
   await getAllStudents();
   await getAvailableStudents();
   state.loading = true;
+  await api_call_projects(route.params.sessionId);
 });
 
 const refreshGroups = async (newGroup) => {
     state.groups.push(newGroup);
-    await handleSave();
-
-    //state.groups = await getAllGroups();
     await getAvailableStudents();
 };
 
@@ -106,17 +113,6 @@ const deletePerson = (index, group) => {
 const getStudentsInGroup = () =>
   state.groups.map((group) => group.students).flat();
 
-/*const getStudentsInGroup = () => state.groups.map(group => group.students).flat().concat(props.group).filter(s => s)
-
-  const getAvailableStudents = () => {
-    const studentsInGroup = getStudentsInGroup();
-    const availableStudents = state.allStudents.filter(stud => {
-        return !studentsInGroup.some(s => s && s.id === stud.id);
-    });
-
-    state.availableStudents = availableStudents
-  }*/
-
 const getAvailableStudents = () => {
   const studentsInGroup = getStudentsInGroup();
 
@@ -125,10 +121,6 @@ const getAvailableStudents = () => {
   });
 
   state.availableStudents = availableStudents;
-};
-
-const handleEditGroup = (group) => {
-  console.log(group);
 };
 
 const getAllGroups = async () => {
@@ -194,11 +186,38 @@ const reafectGroup = async (data) => {
     );
 }
 
+const checkIfOneStudentInEachGroup = () => {
+    const isOneStudent = state.groups.every((group) => group.students.length >= 1);
+    if (!isOneStudent){
+      toaster.showMessage("Veuillez renseigner au moins un etudiants dans chaque groupes", "error");
+      return;
+    } 
+    return isOneStudent;
+}
+
+const deleteGroups = async (groups) => {
+    try {
+        await axios.post("http://127.0.0.1:5000/api/delete_groups", {
+            groups: groups
+        });
+    } catch (error) {
+        console.error("Erreur lors de la suppression du groupe", error);
+    }
+}
+
 const handleSave = async () => {
+    // Vérifie qu'il y a au moins un étudiants dans chaque groupe
+    if(!checkIfOneStudentInEachGroup()) return;
+
     const oldGroups = await getAllGroups();
+
+    // Supprime les groupes qui n'existent plus
+    const groupsToDelete = oldGroups.filter((group) => !state.groups.some((oldGroup) => oldGroup.id === group.id));
+    if(groupsToDelete.length > 0) await deleteGroups(groupsToDelete.map((group) => group.id));
 
     const studentsToReassign = []
 
+    // Récupère les étudiants dont le groupe a changer
     state.groups.forEach((group) => {
         oldGroups.forEach((oldGroup) => {
             if (group.id === oldGroup.id) {
@@ -213,9 +232,30 @@ const handleSave = async () => {
         })
     })
 
-    const newGroups = state.groups.filter((group) => !oldGroups.some((oldGroup) => oldGroup.id === group.id));
+    // Récupère les étudiants qui n'ont pas dans un groupe de base
+    let newGroups = state.groups.map( async(group) => {
+      if(group.id === null){
+        return {
+          id: (await validateGroup(group.students)).data.result[0],
+          students: group.students
+        }
+      }
+    })
 
-    console.log(newGroups)
+    newGroups = (await Promise.all(newGroups)).filter((group) => group)
+
+    let idx = 0;
+
+    state.groups = state.groups.map((group) => {
+      if(group.id === null){
+        group.id = newGroups[idx].id
+        group.students = newGroups[idx].students
+        idx++
+      }
+      return group;
+    })
+
+    //Ajouter les groupes qui n'éxistaient pas dans la base de donnée
     newGroups.forEach((group) => {
         group.students.forEach((student) => {
             studentsToReassign.push({
@@ -224,17 +264,29 @@ const handleSave = async () => {
             })
         })
     })
-    console.log(studentsToReassign)
 
+    // Récupère les étudiants qui ne sont plus dans aucun groupe
+    const oldGroupStudents = oldGroups.map((group) => group.students).flat();
+    const newGroupStudents = state.groups.map((group) => group.students).flat();
 
-    if(studentsToReassign.length === 0) return
+    const studentsToDelete = oldGroupStudents.filter((student) => !newGroupStudents.some((newStudent) => newStudent.id === student.id));
 
-    await reafectGroup(studentsToReassign);
+    studentsToDelete.forEach((student) => {
+        studentsToReassign.push({
+            id_student: student.id,
+            id_new_group: 0,
+        })
+    })
+
+    if(studentsToReassign.length !== 0) {
+      await reafectGroup(studentsToReassign);
+    }
+
+    toaster.showMessage("Groupes reaffectés avec succès", "success");
 }
 
 const handleDeleteGroup = async (group) => {
-    //TODO delete group from database
-    console.log("delete group", group.id)
+    state.groups = state.groups.filter((g) => g !== group);
 }
 
 const setDefaultPreferences = () => {
@@ -251,7 +303,15 @@ const setDefaultPreferences = () => {
 }
 
 const validateGroups = async () => {
-    if(getStudentsInGroup().length !== state.allStudents.length) return
+    if(getStudentsInGroup().length !== state.allStudents.length) {
+      toaster.showMessage("Tout les étudiants doivent être affecter dans un groupe", "error");
+      return
+    }
+
+    if(state.groups.length > stateProject.projects.length) {
+      toaster.showMessage("Il ne peut pas y avoir plus de groupes que de projets", "error");
+      return
+    }
 
     const formData = {
         session_ID: route.params.sessionId,
@@ -272,10 +332,13 @@ const validateGroups = async () => {
     await updateSession(jsonDataSession);
     await setDefaultPreferences();
 
+    toaster.showMessage("Groupes attribués avec succès", "success");
+
     await navigateTo(`/session/${route.params.sessionId}`);
 }
 
 const handleValidateGroup = async () => {
+    if(!checkIfOneStudentInEachGroup()) return;
     await handleSave();
     await validateGroups();
 
