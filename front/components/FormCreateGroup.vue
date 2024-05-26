@@ -10,6 +10,7 @@
     <div class="mt-8">
       <ImageButton v-if="canAddPerson" :src="ButtonPlus" class="shadow-md min-h-[2.5rem] h-[2.5rem]" @click="addPerson">Ajouter un membre</ImageButton>
      </div>
+    
   </div>
 </template>
 
@@ -47,10 +48,7 @@ const state = reactive({
   })
 
   const canAddPerson = computed(() => {
-    console.log(props.groupMax)
-    console.log(state.allStudents)
-    console.log(state.availableStudents)
-    const canAdd = state.allStudents.length > 0 && state.availableStudents > 0 && getStudentsInGroup().length !== state.allStudents.length ;
+    const canAdd = state.allStudents.length > 0 && state.availableStudents.length > 0 && getStudentsInGroup().length !== state.allStudents.length;
     if(props.groupMax) return canAdd && props.group.length < props.groupMax;
     return canAdd
   })
