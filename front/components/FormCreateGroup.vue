@@ -34,9 +34,14 @@ const route = useRoute();
 onMounted(async () => {
     await getAllStudents();
     await getAvailableStudents();
-    for(let i = 0; i < props.groupMin; i++) { 
-        addPerson();
-    }
+    
+    nextTick(async() => {
+      for(let i = 0; i < props.groupMin; i++) { 
+        await addPerson();
+      }
+    })
+   
+
     state.loading = true;
 })
 
@@ -53,14 +58,16 @@ const state = reactive({
     return canAdd
   })
 
-  const addPerson = () => {
+  const addPerson = async () => {
     if(getStudentsInGroup().length === state.allStudents.length) return;
     emit("update:group", props.group.concat(state.availableStudents[0]));
-    getAvailableStudents();
+    await getAvailableStudents();
+    return true
   }
 
   const canDelete = computed(() => {
-    if(props.groupMin) props.group.length !== props.groupMin;
+    console.log(props.groupMin)
+    if(props.groupMin) return props.group.length !== props.groupMin;
     else return true;
   })
 
@@ -72,13 +79,15 @@ const state = reactive({
 
   const getStudentsInGroup = () => props.groups.map(group => group.students).flat().concat(props.group).filter(s => s)
 
-  const getAvailableStudents = () => {
+  const getAvailableStudents = async () => {
     const studentsInGroup = getStudentsInGroup();
     const availableStudents = state.allStudents.filter(stud => {
         return !studentsInGroup.some(s => s && s.id === stud.id);
     });
 
     state.availableStudents = availableStudents
+
+    return true
   }
 
   const handleSelected = (student, index) => {
