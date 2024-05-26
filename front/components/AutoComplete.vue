@@ -61,7 +61,6 @@
       <button @click.prevent="$emit('delete')" v-if="canDelete">
            <img src="@/public/minus.svg" alt="Image" class="w-6 h-6 mr-2">
         </button>
-        {{ canDelete }}
     </div>
   </template>
   
