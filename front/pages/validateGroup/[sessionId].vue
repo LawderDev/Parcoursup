@@ -16,7 +16,7 @@
       </div>
       <div class="flex gap-4 items-center mb-6">
         <h2 class="text-xl font-semibold">Groupes</h2>
-        <ModalCreateGroup :key="'refreshModalCreateGroup' + state.groups.length" v-if="state.loading" @handle-create-group="refreshGroups" :groups="state.groups" :group-min="stateSession.session.groupMin" :group-max="stateSession.session.groupMax"></ModalCreateGroup>
+        <ModalCreateGroup :key="'refreshModalCreateGroup' + state.groups.length" v-if="state.loading" @handle-create-group="refreshGroups" :groups="state.groups"></ModalCreateGroup>
         <ButtonPrimary @click="handleSave">Enregistrer</ButtonPrimary>
       </div>
 
@@ -40,6 +40,7 @@
                   v-model:selected="group.students[index]"
                   :peoples="state.availableStudents"
                   :default-value="student"
+                  :can-delete="true"
                   @update:selected="getAvailableStudents"
                   @delete="deletePerson(index, group)"
                 ></AutoComplete>
@@ -191,6 +192,7 @@ const handleSave = async () => {
 
     const studentsToReassign = []
 
+    // Récupère les étudiants dont le groupe a changer
     state.groups.forEach((group) => {
         oldGroups.forEach((oldGroup) => {
             if (group.id === oldGroup.id) {
@@ -205,6 +207,9 @@ const handleSave = async () => {
         })
     })
 
+
+
+    // Récupère les étudiants qui n'ont pas dans un groupe de base
     const newGroups = state.groups.filter((group) => !oldGroups.some((oldGroup) => oldGroup.id === group.id));
 
     console.log(newGroups)
@@ -216,8 +221,20 @@ const handleSave = async () => {
             })
         })
     })
-    console.log(studentsToReassign)
 
+    // Récupère les étudiants qui ne sont plus dans aucun groupe
+    const oldGroupStudents = oldGroups.map((group) => group.students).flat();
+    const newGroupStudents = state.groups.map((group) => group.students).flat();
+    const studentsToDelete = oldGroupStudents.filter((student) => !newGroupStudents.some((newStudent) => newStudent.id === student.id));
+
+    studentsToDelete.forEach((student) => {
+        studentsToReassign.push({
+            id_student: student.id,
+            id_new_group: 0,
+        })
+    })
+    
+    console.log(studentsToReassign)
 
     if(studentsToReassign.length !== 0) {
       await reafectGroup(studentsToReassign);

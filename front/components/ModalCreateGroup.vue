@@ -7,7 +7,7 @@
 
         <template v-slot:form>
             <div>
-                <FormCreateGroup title="Nouveau groupe" subTitle="De qui est composé votre groupe ?" v-model:group="stateCreateGroup.group" :groups="groups" :groupMin="groupMin" :groupMax="groupMax"></FormCreateGroup>
+                <FormCreateGroup title="Nouveau groupe" subTitle="De qui est composé votre groupe ?" v-model:group="stateCreateGroup.group" :groups="groups"></FormCreateGroup>
             </div>
          
         </template>
@@ -28,8 +28,6 @@
 
   const props = defineProps({
     groups : Array,
-    groupMin: Number,
-    groupMax: Number,
   });
 
   const handleSubmit = async() => {

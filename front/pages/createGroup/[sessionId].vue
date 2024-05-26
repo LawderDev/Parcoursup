@@ -4,6 +4,7 @@
     :nb-steps="2"
     :nb-steps-active="1"
     :nb-steps-lock="1"
+    :button-disabled="!canValidateGroup()"
     sub-title="Renseignez les informations ci-dessous afin de créer votre demande de projet"
     button-title="Valider le groupe"
     @handle-button-click="handleValidateGroup">
@@ -22,6 +23,9 @@ const { stateSession, getSessionData } = useSessionData()
 
 const route = useRoute()
 
+const canValidateGroup = () => {
+  return stateCreateGroup.group.length >= stateSession.session.group_min && stateCreateGroup.group.length <= stateSession.session.group_max;
+}
 const handleValidateGroup = async () => {
   await validateGroup(stateCreateGroup.group)
   await navigateTo('/createGroupConfirmation')

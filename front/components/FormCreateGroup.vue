@@ -33,8 +33,8 @@ const route = useRoute();
 onMounted(async () => {
     await getAllStudents();
     await getAvailableStudents();
-    for(let i = 0; i < props.groupMin; i++) {  
-      addPerson();
+    for(let i = 0; i < props.groupMin; i++) { 
+        addPerson();
     }
     state.loading = true;
 })
@@ -46,15 +46,25 @@ const state = reactive({
     loading:false,
   })
 
-  const canAddPerson = computed(() => getStudentsInGroup().length !== state.allStudents.length && props.group.length < props.groupMax);
+  const canAddPerson = computed(() => {
+    console.log(props.groupMax)
+    console.log(state.allStudents)
+    console.log(state.availableStudents)
+    const canAdd = state.allStudents.length > 0 && state.availableStudents > 0 && getStudentsInGroup().length !== state.allStudents.length ;
+    if(props.groupMax) return canAdd && props.group.length < props.groupMax;
+    return canAdd
+  })
 
   const addPerson = () => {
     if(getStudentsInGroup().length === state.allStudents.length) return;
-    emit("update:group", props.group.concat(state.availableStudents[0]))
+    emit("update:group", props.group.concat(state.availableStudents[0]));
     getAvailableStudents();
   }
 
-  const canDelete = computed(() => props.group.length !== props.groupMin);
+  const canDelete = computed(() => {
+    if(props.groupMin) props.group.length !== props.groupMin;
+    else return true;
+  })
 
   const deletePerson = (index) => {
     if(!canDelete) return;

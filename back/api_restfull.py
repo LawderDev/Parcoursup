@@ -1411,11 +1411,11 @@ def reaffect_group():
 
             print(students)
 
+            
             for student in group:
-                print(student['id_student'], student['id_new_group'])
-                print(students)
-                print(any(student['id_student'] not in t for t in students))
-                if(any(student['id_student'] in t for t in students)):
+                if(student['id_new_group'] == 0):
+                    cursor.execute("DELETE FROM ETUDIANT_GROUPE WHERE FK_Etudiant=?", (student['id_student'],))
+                elif(any(student['id_student'] in t for t in students)):
                     cursor.execute("UPDATE ETUDIANT_GROUPE SET FK_Groupe=? WHERE FK_Etudiant=?", (student['id_new_group'], student['id_student']))
                 else :
                     cursor.execute("INSERT INTO ETUDIANT_GROUPE VALUES (?, ?)", (student['id_student'], student['id_new_group']))
