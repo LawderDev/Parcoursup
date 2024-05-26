@@ -962,21 +962,21 @@ def get_group_projects_order_by_preferencies():
                             ORDER BY PREFERENCE_GROUPE.Ordre_Preference;""", (groupID, sessionID))
            
             response = cursor.fetchall()
+            print(response)
 
             # Prepare data for the front-end
             projects = []
             for idx, project in enumerate(response):
                 project_dict = {
-                    'id': response[idx][3],
-                    'nom': response[idx][4],
-                    'description': response[idx][5],
-                    'min_etu': response[idx][6],
-                    'max_etu': response[idx][7],
-                    'id_session': response[idx][8]
+                    'id': response[idx][4],
+                    'nom': response[idx][5],
+                    'description': response[idx][6],
+                    'min_etu': response[idx][7],
+                    'max_etu': response[idx][8],
+                    'id_session': response[idx][9],
+                    'date_derniere_modif': response[idx][3]
                 }
                 projects.append(project_dict)
-
-            print(projects)
 
             conn.close()
 
