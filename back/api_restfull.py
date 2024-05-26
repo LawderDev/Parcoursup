@@ -119,11 +119,22 @@ def login():
         data = request.json.get('data')
         user = Utilisateur.query.filter_by(Email=data[0]['Email']).first()
         
-        if user and check_password_hash(user.Password, data[0]['Password']):
+        if not data or 'Email' not in data[0] or 'Password' not in data[0]:
+            return jsonify({'message': 'Invalid request data'}), 400
+
+        user = Utilisateur.query.filter_by(Email=data[0]['Email']).first()
+        
+        if user is None:
+            return jsonify({'message': 'Invalid login'}), 401
+
+        if user.Password is None or data[0]['Password'] is None:
+            return jsonify({'message': 'Invalid password'}), 401
+
+        if check_password_hash(user.Password, data[0]['Password']):
             login_user(user)
             return jsonify({'message': 'Logged in successfully'}), 200
-        
-        return jsonify({'message': 'Invalid credentials'}), 401
+        else:
+            return jsonify({'message': 'Invalid password'}), 401
     except Exception as e:
         print(e)
         return jsonify({'error': str(e)}), 500
@@ -166,6 +177,41 @@ def get_current_user():
         return jsonify(user), 200
     except Exception as e:
         print(e)
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/update_password', methods=['POST'])
+@login_required
+def update_password():
+    """_summary_
+    const data = { 
+            "data" : [
+                {
+                'current_password':'monMDP', 
+                'new_password':'monMDP2'
+                }
+            ]     
+            };
+        const jsonData = JSON.stringify(data);
+    Returns:
+        _type_: _description_
+    """
+    try:
+        data = request.json.get('data')
+        current_password = data['current_password']
+        new_password = data['new_password']
+        
+        # Verify the current password
+        if not check_password_hash(current_user.Password, current_password):
+            return jsonify({'message': 'Current password is incorrect'}), 400
+        
+        # Update to the new password
+        hashed_new_password = generate_password_hash(new_password, method='pbkdf2:sha256', salt_length=16)
+        current_user.Password = hashed_new_password
+        db.session.commit()
+        return jsonify({'message': 'Password updated successfully'}), 200
+    except Exception as e:
+        print(e)
+        db.session.rollback()
         return jsonify({'error': str(e)}), 500
 
 # Initialize the database (run once to create the database)
@@ -916,21 +962,21 @@ def get_group_projects_order_by_preferencies():
                             ORDER BY PREFERENCE_GROUPE.Ordre_Preference;""", (groupID, sessionID))
            
             response = cursor.fetchall()
+            print(response)
 
             # Prepare data for the front-end
             projects = []
             for idx, project in enumerate(response):
                 project_dict = {
-                    'id': response[idx][3],
-                    'nom': response[idx][4],
-                    'description': response[idx][5],
-                    'min_etu': response[idx][6],
-                    'max_etu': response[idx][7],
-                    'id_session': response[idx][8]
+                    'id': response[idx][4],
+                    'nom': response[idx][5],
+                    'description': response[idx][6],
+                    'min_etu': response[idx][7],
+                    'max_etu': response[idx][8],
+                    'id_session': response[idx][9],
+                    'date_derniere_modif': response[idx][3]
                 }
                 projects.append(project_dict)
-
-            print(projects)
 
             conn.close()
 
@@ -1178,7 +1224,7 @@ def affect_preference_projet():
             {
               "projectID": 1,
               "groupID": 2,
-              "order": 2
+              "order": 2,
             }
         ]
     }
@@ -1482,12 +1528,14 @@ def affect_preference_group():
             {
               "groupID": 1,
               "projectID": 1,
-              "order": 1
+              "order": 1,
+              "Date_Derniere_Modif": "12/02/2024"
             },
             {
               "groupID": 1,
               "projectID": 2,
-              "order": 2
+              "order": 2,
+              "Date_Derniere_Modif": "12/02/2024"
             }
         ]
     }
@@ -1509,7 +1557,7 @@ def affect_preference_group():
 
         try:
             for preference in preferences:
-                group_id, project_id, order = preference['groupID'], preference['projectID'], preference['order']
+                group_id, project_id, order, date_derniere_modif = preference['groupID'], preference['projectID'], preference['order'], preference['Date_Derniere_Modif']
 
                 # Check for existing entry with projectID and groupID
                 existing_row = cursor.execute("SELECT * FROM PREFERENCE_GROUPE WHERE FK_Projet = ? AND FK_Groupe = ?",
@@ -1518,13 +1566,13 @@ def affect_preference_group():
                 if existing_row:
                     # Update existing order
                     cursor.execute(
-                        "UPDATE PREFERENCE_GROUPE SET Ordre_Preference = ? WHERE FK_Projet = ? AND FK_Groupe = ?",
-                        (order, project_id, group_id))
+                        "UPDATE PREFERENCE_GROUPE SET Ordre_Preference = ?, Date_Derniere_Modif = ? WHERE FK_Projet = ? AND FK_Groupe = ?",
+                        (order, date_derniere_modif ,project_id, group_id))
                 else:
                     # Insert new preference
                     cursor.execute(
-                        "INSERT INTO PREFERENCE_GROUPE (FK_Groupe, FK_Projet, Ordre_Preference) VALUES (?, ?, ?)",
-                        (group_id, project_id, order))
+                        "INSERT INTO PREFERENCE_GROUPE (FK_Groupe, FK_Projet, Ordre_Preference, Date_Derniere_Modif) VALUES (?, ?, ?, ?)",
+                        (group_id, project_id, order, date_derniere_modif))
 
                 conn.commit()
             conn.close()

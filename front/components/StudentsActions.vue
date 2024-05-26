@@ -3,6 +3,7 @@
       <div>
         <h2 class="text-3xl my-8 font-extrabold text-center">{{title}}</h2>
         <h3 class="m-5 text-secondary text-center">{{ subTitle }}</h3>
+        <h3 v-if="timestamp" class="m-5 text-secondary text-center">Dernière modification : {{ timestamp }} </h3>
       </div>
       <div class="flex justify-center">
           <Card class="h-[70vh] w-[95vw] md:w-[670px] max-w-[670px] overflow-y-scroll" no-fit>
@@ -30,6 +31,7 @@ defineProps({
   stepLock: Number,
   buttonTitle: String,
   buttonDisabled: Boolean,
+  timestamp: String,
 });
 
 defineEmits(['handleButtonClick'])

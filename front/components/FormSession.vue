@@ -291,12 +291,12 @@ const nameCorrect = computed(() => {
 
 const dateCorrect = computed(() => {
   const today = new Date();
-  return (
+  return true /* (
     state.endDateGroup < state.endDateSession &&
     state.endDateGroup > today &&
     state.endDateGroup != null &&
     state.endDateSession != null
-  );
+  ); */
 });
 
 const handleClick = async () => {

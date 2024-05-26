@@ -20,12 +20,16 @@ const { stateCreateGroup, validateGroup } = useCreateGroup()
 const { stateGroups, getAllGroups } = useGroups()
 const { stateSession, getSessionData } = useSessionData()
 
-
 const route = useRoute()
 
 const canValidateGroup = () => {
   return stateCreateGroup.group.length >= stateSession.session.group_min && stateCreateGroup.group.length <= stateSession.session.group_max;
 }
+
+definePageMeta({
+  middleware: ['check-end-date-group'] // Pass parameters here
+})
+
 const handleValidateGroup = async () => {
   await validateGroup(stateCreateGroup.group)
   await navigateTo('/createGroupConfirmation')
