@@ -66,6 +66,7 @@ import axios from "axios";
 import { useSessionData } from "~/composables/useSessionData";
 import { useToasterStore } from '@/stores/toaster';
 import { useProject } from "~/composables/useProject";
+import { useCreateGroup } from "~/composables/useCreateGroup";
 
 const state = reactive({
   sessionName: "Projet TIC 2024",
@@ -80,6 +81,8 @@ const toaster = useToasterStore();
 const { stateProject, api_call_projects } = useProject();
 
 const { stateSession, getSessionData, updateSession } = useSessionData(); 
+
+const {stateCreateGroup, validateGroup} = useCreateGroup()
 
 const route = useRoute();
 
@@ -118,10 +121,6 @@ const getAvailableStudents = () => {
   });
 
   state.availableStudents = availableStudents;
-};
-
-const handleEditGroup = (group) => {
-  console.log(group);
 };
 
 const getAllGroups = async () => {
@@ -187,7 +186,19 @@ const reafectGroup = async (data) => {
     );
 }
 
+const checkIfOneStudentInEachGroup = () => {
+    const isOneStudent = state.groups.every((group) => group.students.length >= 1);
+    if (!isOneStudent){
+      toaster.showMessage("Veuillez renseigner au moins un etudiants dans chaque groupes", "error");
+      return;
+    } 
+    return isOneStudent;
+}
+
 const handleSave = async () => {
+    // Vérifie qu'il y a au moins un étudiants dans chaque groupe
+    if(!checkIfOneStudentInEachGroup()) return;
+
     const oldGroups = await getAllGroups();
 
     const studentsToReassign = []
@@ -207,12 +218,30 @@ const handleSave = async () => {
         })
     })
 
-
-
     // Récupère les étudiants qui n'ont pas dans un groupe de base
-    const newGroups = state.groups.filter((group) => !oldGroups.some((oldGroup) => oldGroup.id === group.id));
+    let newGroups = state.groups.map( async(group) => {
+      if(group.id === null){
+        return {
+          id: (await validateGroup(group.students)).data.result[0],
+          students: group.students
+        }
+      }
+    })
 
-    console.log(newGroups)
+    newGroups = (await Promise.all(newGroups)).filter((group) => group)
+
+    let idx = 0;
+
+    state.groups = state.groups.map((group) => {
+      if(group.id === null){
+        group.id = newGroups[idx].id
+        group.students = newGroups[idx].students
+        idx++
+      }
+      return group;
+    })
+
+    //Ajouter les groupes qui n'éxistaient pas dans la base de donnée
     newGroups.forEach((group) => {
         group.students.forEach((student) => {
             studentsToReassign.push({
@@ -225,6 +254,7 @@ const handleSave = async () => {
     // Récupère les étudiants qui ne sont plus dans aucun groupe
     const oldGroupStudents = oldGroups.map((group) => group.students).flat();
     const newGroupStudents = state.groups.map((group) => group.students).flat();
+
     const studentsToDelete = oldGroupStudents.filter((student) => !newGroupStudents.some((newStudent) => newStudent.id === student.id));
 
     studentsToDelete.forEach((student) => {
@@ -233,8 +263,6 @@ const handleSave = async () => {
             id_new_group: 0,
         })
     })
-    
-    console.log(studentsToReassign)
 
     if(studentsToReassign.length !== 0) {
       await reafectGroup(studentsToReassign);
@@ -254,7 +282,6 @@ const setDefaultPreferences = () => {
     }
     const jsonData = JSON.stringify(data);
 
-    console.log(jsonData)
     axios.post("http://127.0.0.1:5000/api/affect_default_preferencies", jsonData, {
         headers: {
            'Content-Type': 'application/json'
@@ -298,6 +325,7 @@ const validateGroups = async () => {
 }
 
 const handleValidateGroup = async () => {
+    if(!checkIfOneStudentInEachGroup()) return;
     await handleSave();
     await validateGroups();
 

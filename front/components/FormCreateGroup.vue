@@ -48,7 +48,7 @@ const state = reactive({
   })
 
   const canAddPerson = computed(() => {
-    const canAdd = state.allStudents.length > 0 && state.availableStudents.length > 0 && getStudentsInGroup().length !== state.allStudents.length;
+    const canAdd = state.allStudents.length > 0 && state.availableStudents.length > 0 && getStudentsInGroup().length !== state.allStudents.length ;
     if(props.groupMax) return canAdd && props.group.length < props.groupMax;
     return canAdd
   })

@@ -31,10 +31,11 @@
   });
 
   const handleSubmit = async() => {
-    const res = await validateGroup([])
+    //Don't create group in database before click on save
+   // const res = await validateGroup([])
     
     nextTick(() => {
-      emit('handleCreateGroup', { id : res.data.result[0], students : stateCreateGroup.group })
+      emit('handleCreateGroup', { id : null, students : stateCreateGroup.group })
     })
   }
   </script>
