@@ -195,11 +195,25 @@ const checkIfOneStudentInEachGroup = () => {
     return isOneStudent;
 }
 
+const deleteGroups = async (groups) => {
+    try {
+        await axios.post("http://127.0.0.1:5000/api/delete_groups", {
+            groups: groups
+        });
+    } catch (error) {
+        console.error("Erreur lors de la suppression du groupe", error);
+    }
+}
+
 const handleSave = async () => {
     // Vérifie qu'il y a au moins un étudiants dans chaque groupe
     if(!checkIfOneStudentInEachGroup()) return;
 
     const oldGroups = await getAllGroups();
+
+    // Supprime les groupes qui n'existent plus
+    const groupsToDelete = oldGroups.filter((group) => !state.groups.some((oldGroup) => oldGroup.id === group.id));
+    if(groupsToDelete.length > 0) await deleteGroups(groupsToDelete.map((group) => group.id));
 
     const studentsToReassign = []
 
@@ -272,8 +286,7 @@ const handleSave = async () => {
 }
 
 const handleDeleteGroup = async (group) => {
-    //TODO delete group from database
-    console.log("delete group", group.id)
+    state.groups = state.groups.filter((g) => g !== group);
 }
 
 const setDefaultPreferences = () => {
