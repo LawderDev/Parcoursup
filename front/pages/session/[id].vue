@@ -1,7 +1,7 @@
 <template>
   <div>
     <NavBar :name="'fdsf'" />
-    <div class="my-8 mx-32">
+    <div class="my-8 mx-4 md:mx-28">
       <FormSession editMode v-if="stateSession.session" :session-data="stateSession.session" @handle-end-session="handleEndSession"></FormSession>
       <div>
         <div class="flex items-center mt-5 mb-5">
@@ -20,11 +20,11 @@
           >
         </ModalProjectForm>
         </div>
-        <h3 class="ml-5 text-gray-500">
+        <h3 class="text-gray-500 mb-4">
           Quels seront les projets disponibles ?
         </h3>
         <div
-          class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 mb-20 md:mb-0"
+          class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 mb-20 md:mb-0 gap-4"
         >
           <div v-for="project in stateProject.projects" :key="project.id">
             <ProjectCard

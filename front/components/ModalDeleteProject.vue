@@ -5,7 +5,7 @@
       <template v-slot:open-btn>
         <button
           v-if="props.disabled"
-          class="btn btn-ghost"
+          class="btn btn-ghost p-0 w-12 h-12"
           disabled
         >
           <img alt="delete-svg" src="../public/delete.svg" class="h-6 w-6" />
@@ -13,7 +13,7 @@
         <button
           v-else
           @click.stop="$emit('update:isOpen', true)"
-          class="btn btn-ghost"
+          class="btn btn-ghost p-0 w-12 h-12"
         >
           <img alt="delete-svg" src="../public/delete.svg" class="h-6 w-6" />
         </button>
