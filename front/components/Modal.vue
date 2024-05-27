@@ -4,7 +4,7 @@
       <slot name="open-btn"></slot>
     </div>
 
-    <dialog ref="dialog" class="modal">
+    <dialog ref="dialog" class="modal flex items-center justify-center">
       <Toaster :message="toaster.message" :type="toaster.type" :duration="toaster.duration" :is-open="toaster.isOpen"></Toaster>
       <div
         class="modal-box max-w-fit md:w-auto md:h-auto md:rounded-xl md:drop-shadow-md"

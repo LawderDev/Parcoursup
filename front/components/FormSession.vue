@@ -1,6 +1,26 @@
 <template>
   <div>
     <!-- VERSION PAGE -->
+    <template v-if="props.editMode">
+          <ButtonPrimary
+            v-if="state.sessionState === 'Grouping'"
+            class="ml-auto btn-wide"
+            @click="handleGrouping"
+            >Vérifier les groupes</ButtonPrimary
+          >
+          <ButtonPrimary
+            v-else-if="state.sessionState === 'Choosing'"
+            class="ml-auto btn-wide"
+            @click="handleEndSession"
+            >Terminer la session</ButtonPrimary
+          >
+          <ButtonPrimary
+            v-else-if="state.sessionState === 'Attributing'"
+            class="ml-auto btn-wide"
+            @click="handleAssignProjects"
+            >Assigner les projets</ButtonPrimary
+          >
+    </template>
     <div class="flex items-center" v-if="props.editMode">
       <h1
         class="text-3xl font-bold max-w-48 md:max-w-96 truncate tooltip tooltip-open"
@@ -32,24 +52,22 @@
           @click="handleEditCancel"
         ></EditTitle>
         <div class="ml-auto flex gap-4">
-          <ButtonPrimary
-            v-if="state.sessionState === 'Grouping'"
-            class="ml-auto"
-            @click="handleGrouping"
-            >Vérifier les groupes</ButtonPrimary
-          >
-          <ButtonPrimary
-            v-else-if="state.sessionState === 'Choosing'"
-            class="ml-auto"
-            @click="handleEndSession"
-            >Terminer la session</ButtonPrimary
-          >
-          <ButtonPrimary
-            v-else-if="state.sessionState === 'Attributing'"
-            class="ml-auto"
-            @click="handleAssignProjects"
-            >Assigner les projets</ButtonPrimary
-          >
+          <div v-if="props.editMode">
+            <div class="hidden md:flex">
+              <ButtonPrimary
+                v-if="state.sessionState === 'Attributing'"
+                class="md:place-self-end place-start"
+                disabled
+                >Enregistrer les modifications</ButtonPrimary
+              >
+              <ButtonPrimary
+                v-else
+                @click="handleClick"
+                class="md:place-self-end place-start"
+                >Enregistrer les modifications</ButtonPrimary
+              >
+          </div>
+        </div>
           <ModalDeleteSession
             v-model:isOpen="state.isOpen"
             :session-title="state.sessionName"
@@ -62,8 +80,8 @@
 
     <!-- VERSION MODAL -->
     <div v-if="!props.editMode">
-      <h2 class="mx-5 mb-2">Nom de la session</h2>
-      <div class="flex w-full px-5 mb-5">
+      <h2 class="mb-2">Nom de la session</h2>
+      <div class="flex w-full mb-5">
         <input
           v-model="state.sessionName"
           class="input input-bordered w-full rounded-badge"
@@ -72,17 +90,17 @@
     </div>
 
     <!--- DATE FORM --->
-    <h2 class="mx-5 mb-2">Date de fin des formations des groupes</h2>
-    <DateComponent v-if="props.editMode && (state.sessionState !== 'Grouping')" v-model="state.endDateGroup" class="px-5 mb-5" disabled/>
-    <DateComponent v-else class="px-5 mb-5" v-model="state.endDateGroup" />
-    <h2 class="mx-5 mb-2">Date de fin de la session</h2>
-    <DateComponent v-if="props.editMode && (state.sessionState === 'Attributing')" v-model="state.endDateSession" class="px-5 mb-5" disabled/>
-    <DateComponent v-else v-model="state.endDateSession" class="px-5 mb-5" />
+    <h2 class="mb-2">Date de fin des formations des groupes</h2>
+    <DateComponent v-if="props.editMode && (state.sessionState !== 'Grouping')" v-model="state.endDateGroup" class="mb-5" disabled/>
+    <DateComponent v-else class="mb-5" v-model="state.endDateGroup" />
+    <h2 class="mb-2">Date de fin de la session</h2>
+    <DateComponent v-if="props.editMode && (state.sessionState === 'Attributing')" v-model="state.endDateSession" class="mb-5" disabled/>
+    <DateComponent v-else v-model="state.endDateSession" class="mb-5" />
 
     <!--- GROUP FORM --->
-    <h2 class="mx-5 mb-2">Nombre de personnes par groupe</h2>
+    <h2 class="mb-2">Nombre de personnes par groupe</h2>
     <div class="md:w-13">
-      <label class="input input-bordered flex items-center gap-4 mx-5 mb-2 rounded-badge">
+      <label class="input input-bordered flex items-center gap-4 mb-2 rounded-badge">
         Minimum
         <input
           v-if="props.editMode && state.sessionState !== 'Grouping'"
@@ -104,7 +122,7 @@
           :max="state.maxGroup"
         />
       </label>
-      <label class="input input-bordered flex items-center gap-4 mx-5 my-5 rounded-badge">
+      <label class="input input-bordered flex items-center gap-4 my-5 rounded-badge">
         Maximum
         <input
           v-if="props.editMode && state.sessionState !== 'Grouping'"
@@ -130,8 +148,8 @@
 
     <!-- VERSION MODAL UNIQUEMENT -->
     <div v-if="!props.editMode">
-      <h2 class="mx-5 mb-2">Liste des étudiants</h2>
-      <div class="mx-5">
+      <h2 class="mb-2">Liste des étudiants</h2>
+      <div>
         <FileInput acceptedTypes=".csv" @fileSelected="handleFileSelected" />
         <p v-if="state.selectedFile">
           Fichier sélectionné: {{ state.selectedFile.name }}
@@ -140,22 +158,6 @@
     </div>
 
     <!-- VERSION PAGE -->
-    <div class="" v-if="props.editMode">
-      <div class="hidden md:flex justify-center p-4">
-        <ButtonPrimary
-          v-if="state.sessionState === 'Attributing'"
-          class="md:place-self-end place-start neumorphism"
-          disabled
-          >Enregistrer les modifications</ButtonPrimary
-        >
-        <ButtonPrimary
-          v-else
-          @click="handleClick"
-          class="md:place-self-end place-start neumorphism"
-          >Enregistrer les modifications</ButtonPrimary
-        >
-      </div>
-    </div>
 
     <div
       class="p-4 flex items-center justify-center z-50 md:hidden"
@@ -163,14 +165,14 @@
     >
       <ButtonPrimary
         v-if="state.sessionState === 'Attributing'"
-        class="md:place-self-end place-start neumorphism"
+        class="md:place-self-end place-start"
         disabled
         >Enregistrer les modifications</ButtonPrimary
       >
       <ButtonPrimary
         v-else
         @click="handleClick"
-        class="md:place-self-end place-start neumorphism"
+        class="md:place-self-end place-start"
         >Enregistrer les modifications</ButtonPrimary
       >
     </div>
