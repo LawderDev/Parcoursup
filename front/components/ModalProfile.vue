@@ -126,6 +126,7 @@ import { reactive } from "vue";
 import { defineEmits } from "vue";
 import OkClickable from "~/public/okClickable.svg";
 import Cancel from "~/public/cancel.svg";
+import axios from "axios";
 
 const state = reactive({
   name: "Benois-Pineau",
@@ -156,10 +157,56 @@ const handleEditCancel = () => {
 const passwordCorrect = computed(() => {
   return state.password !== state.newPassword && state.newPassword.length >= 8;
 });
+const getCurrentUserData = async () => {
+  try {
+    await callLogin()
+    const response = await axios.get("http://127.0.0.1:5000/api/current_user", {
+      withCredentials: true,  // Ensure cookies are sent and received
+    });
+    console.log("response.data", response.data);
+    return response
+  } catch (error) {
+    console.error(
+      "Erreur lors de la récupération des infos utilisateurs :",
+      error
+    );
+  }
+};
+const callLogin = async () => {
+  try {
+    const jsonData = getJsonData('test@test16.com', 'monMDP');
+    const res = await axios.post("http://127.0.0.1:5000/api/login", jsonData, {
+      headers: {
+        "Content-Type": "application/json",
+      },
+      withCredentials: true,  // Ensure cookies are sent and received
+    });
+    return res;
+  } catch (err) {
+    console.error(
+      "Erreur lors de la récupération du login :",
+      error
+    );
+  }
+};
+const getJsonData = (login, password) => {
+  const data = {
+    data: [
+      {
+        Email: login,
+        Password: password,
+      },
+    ],
+  };
+  return JSON.stringify(data);
+};
 watch(
   () => state.editPassword,
   () => {
     state.errorPassword = false;
   }
 );
+onMounted(async () => {
+  await getCurrentUserData();
+});
 </script>

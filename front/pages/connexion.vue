@@ -186,8 +186,8 @@ const getJsonData = (login, password) => {
   const data = {
     data: [
       {
-        Email: state.login,
-        Password: state.password,
+        Email: login,
+        Password: password,
       },
     ],
   };
