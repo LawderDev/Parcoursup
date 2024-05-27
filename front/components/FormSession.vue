@@ -73,9 +73,11 @@
 
     <!--- DATE FORM --->
     <h2 class="mx-5 mb-2">Date de fin des formations des groupes</h2>
-    <DateComponent v-model="state.endDateGroup" class="px-5 mb-5" />
+    <DateComponent v-if="props.editMode && (state.sessionState !== 'Grouping')" v-model="state.endDateGroup" class="px-5 mb-5" disabled/>
+    <DateComponent v-else class="px-5 mb-5" v-model="state.endDateGroup" />
     <h2 class="mx-5 mb-2">Date de fin de la session</h2>
-    <DateComponent v-model="state.endDateSession" class="px-5 mb-5" />
+    <DateComponent v-if="props.editMode && (state.sessionState === 'Attributing')" v-model="state.endDateSession" class="px-5 mb-5" disabled/>
+    <DateComponent v-else v-model="state.endDateSession" class="px-5 mb-5" />
 
     <!--- GROUP FORM --->
     <h2 class="mx-5 mb-2">Nombre de personnes par groupe</h2>
@@ -83,6 +85,17 @@
       <label class="input input-bordered flex items-center gap-4 mx-5 mb-2 rounded-badge">
         Minimum
         <input
+          v-if="props.editMode && state.sessionState !== 'Grouping'"
+          v-model="state.minGroup"
+          type="number"
+          class="grow"
+          placeholder="Entrez un nombre"
+          :min="0"
+          :max="state.maxGroup"
+          disabled
+        />
+        <input
+          v-else
           v-model="state.minGroup"
           type="number"
           class="grow"
@@ -94,6 +107,17 @@
       <label class="input input-bordered flex items-center gap-4 mx-5 my-5 rounded-badge">
         Maximum
         <input
+          v-if="props.editMode && state.sessionState !== 'Grouping'"
+          v-model="state.maxGroup"
+          type="number"
+          class="grow"
+          placeholder="Entrez un nombre"
+          :min="state.minGroup"
+          :max="9999"
+          disabled
+        />
+        <input
+          v-else
           v-model="state.maxGroup"
           type="number"
           class="grow"
@@ -119,6 +143,13 @@
     <div class="" v-if="props.editMode">
       <div class="hidden md:flex justify-center p-4">
         <ButtonPrimary
+          v-if="state.sessionState === 'Attributing'"
+          class="md:place-self-end place-start neumorphism"
+          disabled
+          >Enregistrer les modifications</ButtonPrimary
+        >
+        <ButtonPrimary
+          v-else
           @click="handleClick"
           class="md:place-self-end place-start neumorphism"
           >Enregistrer les modifications</ButtonPrimary
@@ -131,6 +162,13 @@
       v-if="props.editMode"
     >
       <ButtonPrimary
+        v-if="state.sessionState === 'Attributing'"
+        class="md:place-self-end place-start neumorphism"
+        disabled
+        >Enregistrer les modifications</ButtonPrimary
+      >
+      <ButtonPrimary
+        v-else
         @click="handleClick"
         class="md:place-self-end place-start neumorphism"
         >Enregistrer les modifications</ButtonPrimary
@@ -180,7 +218,7 @@ const toaster = useToasterStore();
 
 const { updateSession } = useSessionData();
 
-const emit = defineEmits(["handleValidate"]);
+const emit = defineEmits(["handleValidate", "handleEndSession"]);
 
 const state = reactive({
   sessionID: null,
@@ -378,9 +416,14 @@ const handleEndSession = async () => {
   };
 
   const jsonDataSession = JSON.stringify(formData);
-  console.log(jsonDataSession);
-  await updateSession(jsonDataSession);
-  state.sessionState = "Attributing";
+  const res = await updateSession(jsonDataSession);
+  if(res) {
+    state.sessionState = "Attributing";
+    emit("handleEndSession");
+    toaster.showMessage("La session a bien été cloturée", "success");
+  }else {
+    toaster.showMessage("Erreur lors de la clôturation de la session", "error");
+  }
 };
 
 const handleGrouping = async () => {

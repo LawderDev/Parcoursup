@@ -58,7 +58,7 @@
           </TransitionRoot>
         </div>
       </Combobox>
-      <button @click.prevent="$emit('delete')">
+      <button @click.prevent="$emit('delete')" v-if="canDelete">
            <img src="@/public/minus.svg" alt="Image" class="w-6 h-6 mr-2">
         </button>
     </div>
@@ -80,6 +80,7 @@
       selected: Object,
       peoples: Array,
       defaultValue: Object,
+      canDelete : Boolean,
   })
 
   const emit = defineEmits(['update:selected', 'delete'])

@@ -1,6 +1,7 @@
 <template>
   <StudentsActions
     title="SELECTION"
+    :timestamp="state.timestamp"
     :nb-steps="2"
     :nb-steps-active="2"
     :nb-steps-lock="0"
@@ -20,6 +21,7 @@ import axios from "axios";
 
 const state = reactive({
   projects: [],
+  timestamp: null,
 });
 
 const route = useRoute();
@@ -45,7 +47,7 @@ const getProjects = async () => {
       }
     );
     state.projects = response.data;
-    console.log(state.projects);
+    state.timestamp = response.data[0].date_derniere_modif
   } catch (error) {
     console.error("Erreur lors de la récupération des project :", error);
   }
@@ -56,12 +58,20 @@ const setGroupPreferencies = async () => {
     const data = {
       data: [],
     };
+    const options = {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "numeric",
+      minute: "numeric",
+    };
 
     state.projects.forEach((project, index) => {
       data.data.push({
         groupID: route.params.groupId,
         projectID: project.id,
         order: index + 1,
+        Date_Derniere_Modif: new Date().toLocaleDateString("fr-FR", options),
       });
     });
 

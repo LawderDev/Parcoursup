@@ -43,6 +43,7 @@ const api_call_sessions = async () => {
   try {
     const response = await axios.get("http://127.0.0.1:5000/api/get_sessions");
     state.sessions = response.data
+    console.log(state.sessions)
   } catch (error) {
     console.error("Erreur lors de la récupération des sessions :", error);
   }

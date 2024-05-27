@@ -2,7 +2,8 @@
   <div>
     <Modal @close="emit('update:isOpen', false)" :disabled="props.sessionState !== 'Grouping'">
       <template v-slot:open-btn>
-        <ButtonPlus @click="handleCreateProject" class="neumorphism" :disabled="props.sessionState !== 'Grouping'"/>
+        <ButtonPlus v-if="props.sessionState === 'Grouping'" @click="handleCreateProject" class="neumorphism"/>
+        <ButtonPlus v-else class="neumorphism" disabled/>
         <div id="hidden" class="hidden" ref="openBtn"></div>
       </template>
       <template v-slot:form>
@@ -72,6 +73,10 @@ const handleSubmit = () => {
   });
 };
 const handleModify = () => {
+  console.log("heer")
+  console.log(props.id)
+  console.log(props.name)
+  console.log(props.summary)
   emit("modify:project", {
     id: props.id,
     name: props.name,
