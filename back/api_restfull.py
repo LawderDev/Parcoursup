@@ -962,6 +962,9 @@ def get_group_projects_order_by_preferencies():
                             ORDER BY PREFERENCE_GROUPE.Ordre_Preference;""", (groupID, sessionID))
            
             response = cursor.fetchall()
+            print("RESPONSEEEEEEEEEEE")
+            print(sessionID)
+            print(groupID)
             print(response)
 
             # Prepare data for the front-end
@@ -974,7 +977,7 @@ def get_group_projects_order_by_preferencies():
                     'min_etu': response[idx][7],
                     'max_etu': response[idx][8],
                     'id_session': response[idx][9],
-                    'date_derniere_modif': response[idx][3]
+                    'date_derniere_modif': response[idx][3] 
                 }
                 projects.append(project_dict)
 
