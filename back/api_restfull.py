@@ -153,14 +153,6 @@ def logout():
 @login_required
 def get_current_user():
     """
-    const data = { 
-            "data" : [
-                {
-                'Email':'test@test16.com', 
-                'Password':'monMDP'
-                }
-            ]     
-            };
         const jsonData = JSON.stringify(data);
     // Access protected route after login
         axiosInstance.get('/api/current_user')
@@ -172,6 +164,7 @@ def get_current_user():
         print("enter current user function")
         user = {
             'Nom': current_user.Nom,
+            'Prenom' : current_user.Prenom,
             'Email': current_user.Email
         }
         return jsonify(user), 200
