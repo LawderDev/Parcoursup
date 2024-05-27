@@ -39,70 +39,58 @@
                 class="input input-bordered w-full max-w-xs"
               />
             </div>
-            <div>
-              <div v-if="!state.errorPassword">
-                <div v-if="!state.editPassword">
-                  <h2 class="m-3">Mot de passe</h2>
-                  <input
-                    v-model="state.password"
-                    type="password"
-                    class="input input-bordered w-full max-w-xs"
-                  />
-                </div>
-                <div v-else>
-                  <h2 class="m-3">Ancien mot de passe</h2>
-                  <input
-                    v-model="state.password"
-                    type="password"
-                    class="input input-bordered w-full max-w-xs"
-                  />
-                </div>
-              </div>
-              <div v-else-if="state.editPassword">
-                <h2 class="m-3 text-error">Ancien mot de passe</h2>
+            <div v-if="state.editPassword">
+              <div>
+                <h2
+                  class="m-3"
+                  :class="{
+                    'text-error': state.errorPassword && state.editPassword,
+                  }"
+                >
+                  Ancien mot de passe
+                </h2>
                 <input
                   v-model="state.password"
                   type="password"
-                  class="input input-bordered input-error w-full max-w-xs"
+                  :class="[
+                    'input input-bordered w-full max-w-xs',
+                    {
+                      'input-error': state.errorPassword,
+                    },
+                  ]"
                 />
               </div>
-            </div>
-            <div v-if="state.editPassword">
-              <div v-if="!state.errorPassword">
-                <h2 class="m-3">Nouveau mot de passe</h2>
-                <input
-                  v-model="state.newPassword"
-                  type="password"
-                  class="input input-bordered w-full max-w-xs"
-                />
-              </div>
-              <div v-else>
-                <h2 class="m-3 text-error">Nouveau mot de passe</h2>
-                <input
-                  v-model="state.newPassword"
-                  type="password"
-                  class="input input-bordered input-error w-full max-w-xs"
-                />
-              </div>
-            </div>
-            <div class="label" v-if="state.editPassword">
-              <span class="label-text-alt"
-                >Le mot de passe doit etre différent du précedent et contenir au
-                moins 8 caractères</span
-              >
-            </div>
-            <div class="flex justify-center">
               <div>
-                <EditInput
-                  v-show="state.editPassword && state.newPassword.length"
-                  :src="OkClickable"
-                  @click="handleSubmitNewPassword"
-                ></EditInput>
-                <EditInput
-                  v-show="state.editPassword"
-                  :src="Cancel"
-                  @click="handleEditCancel"
-                ></EditInput>
+                <h2 class="m-3" :class="{ 'text-error': state.errorPassword }">
+                  Nouveau mot de passe
+                </h2>
+                <input
+                  v-model="state.newPassword"
+                  type="password"
+                  :class="[
+                    'input input-bordered w-full max-w-xs',
+                    { 'input-error': state.errorPassword },
+                  ]"
+                />
+              </div>
+              <div class="label">
+                <span class="label-text-alt">
+                  Le mot de passe doit être différent du précédent et contenir
+                  au moins 8 caractères
+                </span>
+              </div>
+              <div class="flex justify-center">
+                <div>
+                  <EditInput
+                    v-show="state.newPassword.length && state.password.length"
+                    :src="OkClickable"
+                    @click="handleSubmitNewPassword"
+                  ></EditInput>
+                  <EditInput
+                    :src="Cancel"
+                    @click="handleEditCancel"
+                  ></EditInput>
+                </div>
               </div>
             </div>
           </div>
@@ -123,48 +111,82 @@
 
 <script setup>
 import { reactive } from "vue";
-import { defineEmits } from "vue";
 import OkClickable from "~/public/okClickable.svg";
 import Cancel from "~/public/cancel.svg";
 import axios from "axios";
+import bcrypt from "bcryptjs";
 
 const state = reactive({
-  name: "Benois-Pineau",
-  firstname: "Jenny",
-  email: "jbenoispineau@u-bordeaux.fr",
-  password: "monMDP",
+  name: "",
+  firstname: "",
+  email: "",
+  password: "",
   newPassword: "",
   editPassword: false,
   errorPassword: false,
+  hashedPassword: "",
 });
 const emit = defineEmits(["update:isOpen"]);
-const handleSubmitNewPassword = () => {
+const handleSubmitNewPassword = async () => {
   if (passwordCorrect.value) {
-    state.password = state.newPassword;
-    state.newPassword = "";
-    state.editPassword = false;
+    const res = await sendNewPassword();
+    if (res && res.status===200) {
+      state.password = "";
+      state.newPassword = "";
+      state.editPassword = false;
+      state.errorFalse = false;
+    }else{
+      state.errorPassword = true
+    }
   } else {
     state.errorPassword = true;
   }
 };
+
 const handleEditPassword = () => {
   state.editPassword = true;
 };
 const handleEditCancel = () => {
   state.editPassword = false;
+  state.password = "";
   state.newPassword = "";
 };
 const passwordCorrect = computed(() => {
   return state.password !== state.newPassword && state.newPassword.length >= 8;
 });
+const sendNewPassword = async () => {
+  try {
+    const data = {
+      data: [
+        {
+          current_password: state.password,
+          new_password: state.newPassword,
+        },
+      ],
+    };
+    console.log("hashPassword(state.password)",hashPassword(state.password))
+    const jsonData = JSON.stringify(data);
+    const res = await axios.post(
+      "http://127.0.0.1:5000/api/update_password",
+      jsonData, {
+      headers: {
+        "Content-Type": "application/json",
+      },
+      withCredentials: true, // Ensure cookies are sent and received
+    });
+    return res;
+  } catch (err) {
+    console.error("Erreur lors du changement de mot de pass :", err);
+  }
+};
 const getCurrentUserData = async () => {
   try {
-    await callLogin()
+    await callLogin();
     const response = await axios.get("http://127.0.0.1:5000/api/current_user", {
-      withCredentials: true,  // Ensure cookies are sent and received
+      withCredentials: true, // Ensure cookies are sent and received
     });
     console.log("response.data", response.data);
-    return response
+    return response.data;
   } catch (error) {
     console.error(
       "Erreur lors de la récupération des infos utilisateurs :",
@@ -174,19 +196,16 @@ const getCurrentUserData = async () => {
 };
 const callLogin = async () => {
   try {
-    const jsonData = getJsonData('test@test16.com', 'monMDP');
+    const jsonData = getJsonData("test@test16.com", "monMDP");
     const res = await axios.post("http://127.0.0.1:5000/api/login", jsonData, {
       headers: {
         "Content-Type": "application/json",
       },
-      withCredentials: true,  // Ensure cookies are sent and received
+      withCredentials: true, // Ensure cookies are sent and received
     });
     return res;
   } catch (err) {
-    console.error(
-      "Erreur lors de la récupération du login :",
-      error
-    );
+    console.error("Erreur lors de la récupération du login :", err);
   }
 };
 const getJsonData = (login, password) => {
@@ -200,6 +219,10 @@ const getJsonData = (login, password) => {
   };
   return JSON.stringify(data);
 };
+const hashPassword = (password) => {
+  const salt = bcrypt.genSaltSync(10);
+  return bcrypt.hashSync(password, salt);
+};
 watch(
   () => state.editPassword,
   () => {
@@ -207,6 +230,9 @@ watch(
   }
 );
 onMounted(async () => {
-  await getCurrentUserData();
+  const data = await getCurrentUserData();
+  state.firstname = data.Prenom;
+  state.name = data.Nom;
+  state.email = data.Email;
 });
 </script>

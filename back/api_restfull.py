@@ -190,9 +190,8 @@ def update_password():
     """
     try:
         data = request.json.get('data')
-        current_password = data['current_password']
-        new_password = data['new_password']
-        
+        current_password = data[0]['current_password']
+        new_password = data[0]['new_password']
         # Verify the current password
         if not check_password_hash(current_user.Password, current_password):
             return jsonify({'message': 'Current password is incorrect'}), 400
