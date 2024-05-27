@@ -20,7 +20,7 @@
           >
         </ModalProjectForm>
         </div>
-        <h3 class="text-gray-500">
+        <h3 class="text-gray-500 mb-4">
           Quels seront les projets disponibles ?
         </h3>
         <div

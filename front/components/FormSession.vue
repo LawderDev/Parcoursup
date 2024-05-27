@@ -90,23 +90,30 @@
     </div>
 
     <!--- DATE FORM --->
-    <h2 class="mb-2">Date de fin des formations des groupes</h2>
-    <DateComponent v-if="props.editMode && (state.sessionState !== 'Grouping')" v-model="state.endDateGroup" class="mb-5" disabled/>
-    <DateComponent v-else class="mb-5" v-model="state.endDateGroup" />
-    <h2 class="mb-2">Date de fin de la session</h2>
-    <DateComponent v-if="props.editMode && (state.sessionState === 'Attributing')" v-model="state.endDateSession" class="mb-5" disabled/>
-    <DateComponent v-else v-model="state.endDateSession" class="mb-5" />
-
+    <div :class="{'md:flex md:flex-wrap md:gap-4': props.editMode}">
+      <div>
+        <h2 class="mb-2">Date de fin des formations des groupes</h2>
+        <DateComponent v-if="props.editMode && (state.sessionState !== 'Grouping')" v-model="state.endDateGroup" class="mb-5" disabled/>
+        <DateComponent v-else class="mb-5" v-model="state.endDateGroup" />
+      </div>
+    
+      <div>
+        <h2 class="mb-2">Date de fin de la session</h2>
+        <DateComponent v-if="props.editMode && (state.sessionState === 'Attributing')" v-model="state.endDateSession" class="mb-5" disabled/>
+        <DateComponent v-else v-model="state.endDateSession" class="mb-5" />
+      </div>
+    </div>
     <!--- GROUP FORM --->
     <h2 class="mb-2">Nombre de personnes par groupe</h2>
-    <div class="md:w-13">
-      <label class="input input-bordered flex items-center gap-4 mb-2 rounded-badge">
+    <div class="md:w-13" :class="{'md:flex md:items-center md:flex-wrap gap-4': props.editMode}">
+      <label class="input input-bordered flex items-center gap-4 rounded-badge">
         Minimum
         <input
           v-if="props.editMode && state.sessionState !== 'Grouping'"
           v-model="state.minGroup"
           type="number"
           class="grow"
+          :class="{'w-[150px]': props.editMode}"
           placeholder="Entrez un nombre"
           :min="0"
           :max="state.maxGroup"
@@ -117,6 +124,7 @@
           v-model="state.minGroup"
           type="number"
           class="grow"
+          :class="{'w-[150px]': props.editMode}"
           placeholder="Entrez un nombre"
           :min="0"
           :max="state.maxGroup"
@@ -128,7 +136,8 @@
           v-if="props.editMode && state.sessionState !== 'Grouping'"
           v-model="state.maxGroup"
           type="number"
-          class="grow"
+          class="grow input-size"
+          :class="{'w-[150px]': props.editMode}"
           placeholder="Entrez un nombre"
           :min="state.minGroup"
           :max="9999"
@@ -139,6 +148,7 @@
           v-model="state.maxGroup"
           type="number"
           class="grow"
+          :class="{'w-[150px]': props.editMode}"
           placeholder="Entrez un nombre"
           :min="state.minGroup"
           :max="9999"
@@ -436,3 +446,6 @@ const handleAssignProjects = async () => {
   await navigateTo(`/result/${state.sessionID}`);
 };
 </script>
+
+<style scoped>
+</style>

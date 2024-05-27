@@ -1,6 +1,6 @@
 <template>
   <div>
-    <Card class="md:m-5 w-full" no-fit>
+    <Card class="w-full" no-fit>
       <div class="flex items-center">
         <h1 class="text-xl text-ellipsis overflow-hidden max-w-[200px]">{{ props.name }}</h1>
         <ModalDeleteProject class="ml-auto w-12 h-12" @delete-project="handleClickDelete" v-model:isOpen="state.isOpen" :project-name="props.name" :project-id="props.id" :disabled="props.sessionState !== 'Grouping'"></ModalDeleteProject>
