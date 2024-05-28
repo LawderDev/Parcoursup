@@ -8,7 +8,8 @@
       <SessionItem
         v-for="session in state.sessions"
         :title="session.nom"
-        :endDate="'Fin le ' + format_date(session.end_date)"
+        :end-date="'Fin le ' + format_date(session.end_date)"
+        :session-state="session.state"
         @delete="openDeleteModal(session)"
         @handleClick="openSessionPage(session.id)"
       ></SessionItem>

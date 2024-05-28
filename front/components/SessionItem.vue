@@ -13,11 +13,13 @@
           >
             {{ title }}
           </div>
+          <div class="md:hidden block" >{{ sessionState}}</div>
           <div class="mt-[2px]">
             {{ endDate }}
           </div>
         </div>
       </div>
+      <div class="ml-auto mr-36 hidden md:block"><span></span>{{ sessionState }}</div>
     </div>
     <div class="absolute z-10 top-4 right-4">
       <div @click.stop="$emit('delete')">
@@ -34,6 +36,7 @@
 defineProps({
   title: String,
   endDate: String,
+  sessionState: String,
 });
 
 defineEmits(['delete','handleClick'])
