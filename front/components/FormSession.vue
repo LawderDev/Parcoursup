@@ -2,33 +2,41 @@
   <div>
     <!-- VERSION PAGE -->
     <template v-if="props.editMode">
+      <div class="flex justify-between flex-wrap items-start gap-4 mb-4">
           <ButtonPrimary
             v-if="state.sessionState === 'Grouping'"
-            class="ml-auto btn-wide"
+            class="btn-wide"
             @click="handleGrouping"
             >Vérifier les groupes</ButtonPrimary
           >
           <ButtonPrimary
             v-else-if="state.sessionState === 'Choosing'"
-            class="ml-auto btn-wide"
+            class="btn-wide"
             @click="handleEndSession"
             >Terminer la session</ButtonPrimary
           >
           <ButtonPrimary
             v-else-if="state.sessionState === 'Attributing'"
-            class="ml-auto btn-wide"
+            class="btn-wide"
             @click="handleAssignProjects"
             >Assigner les projets</ButtonPrimary
           >
+          <div class="btn" v-if="state.sessionState === 'Grouping'" @click="copyLink(`http://localhost:3000/createGroup/${state.sessionID}`)">
+            http://localhost:3000/createGroup/{{ state.sessionID }}
+            <img alt="copy-svg" src="../public/copy.svg" class="h-6 w-6" />
+          </div>
+          <div v-else @click="downloadGroups">
+            <ButtonSecondary>Télécharger la composition des groupes</ButtonSecondary>
+          </div>
+        </div>
     </template>
     <div class="flex items-center" v-if="props.editMode">
-      <h1
+      <h2
         class="text-3xl font-bold max-w-48 md:max-w-96 truncate tooltip tooltip-open"
-        data-tip="Projet TIC 2024"
         v-show="!state.editTitle"
       >
         {{ state.sessionName }}
-      </h1>
+      </h2>
       <input
         v-model="state.newTitle"
         v-if="state.editTitle"
@@ -217,12 +225,16 @@ import OkClickable from "~/public/okClickable.svg";
 import Cancel from "~/public/cancel.svg";
 import { useSessionData } from "~/composables/useSessionData";
 import { useToasterStore } from "~/stores/toaster";
+import ButtonSecondary from "./ButtonSecondary.vue";
+import { useGroups } from "@/composables/useGroups";
 
 
 const props = defineProps({
   editMode: Boolean,
   sessionData: Object,
 });
+
+const { stateGroups, getAllGroups } = useGroups();
 
 const route = useRoute();
 
@@ -445,7 +457,44 @@ const handleGrouping = async () => {
 const handleAssignProjects = async () => {
   await navigateTo(`/result/${state.sessionID}`);
 };
-</script>
 
-<style scoped>
-</style>
+const copyLink = (link) => {
+  navigator.clipboard.writeText(link);
+  toaster.showMessage("Lien copié dans le presse-papier", "success");
+};
+
+const downloadGroups = async() => {
+     await getAllGroups(state.sessionID);
+     stateGroups.groups = stateGroups.groups.sort((a, b) => a.id - b.id);
+
+     let content = `Nom de la session: ${state.sessionName}\n`;
+     content += `ID de la session:: ${state.sessionID}\n\n`;
+     stateGroups.groups.forEach((group, index) => {
+      content += `---------------------------------------------------------------------------\n`;
+      content += `Groupe ${index + 1}\n`;
+      content += `Lien du choix des préférences: http://localhost:3000/rankingProjects/${state.sessionID}/${group.id}\n\n`;
+
+      content += `Composition du groupe:\n\n`;
+      group.students.forEach(student => {
+          content += `Nom: ${student.name}, Prénom: ${student.firstname}, Email: ${student.email}\n`;
+      });
+     })
+     
+     console.log(content)
+
+    // Crée un Blob avec le contenu texte
+    const blob = new Blob([content], { type: 'text/plain' });
+
+    // Crée un lien de téléchargement
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = 'groupes.txt';
+
+    // Ajoute le lien au document et clique dessus pour démarrer le téléchargement
+    document.body.appendChild(link);
+    link.click();
+
+    // Supprime le lien du document
+    document.body.removeChild(link);
+  }
+</script>

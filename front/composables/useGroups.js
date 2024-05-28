@@ -23,6 +23,7 @@ export function useGroups() {
             }
           );
           
+          console.log(res.data)
           stateGroups.groups = res.data
         } catch (err) {
           console.error(err);

@@ -16,13 +16,13 @@
               :value="props.name"
               @input="$emit('update:name', $event.target.value)"
               placeholder="Nom du projet..."
-              class="input input-bordered w-full max-w-xs"
+              class="input input-bordered w-[75vw] md:w-[35vw]"
             />
             <h2 class="ml-1 my-5">Description</h2>
             <textarea
               :value="props.summary"
               @input="$emit('update:summary', $event.target.value)"
-              class="textarea textarea-bordered"
+              class="textarea textarea-bordered w-[75vw] md:w-[35vw]"
               placeholder="Description du projet..."
             ></textarea>
           </div>
