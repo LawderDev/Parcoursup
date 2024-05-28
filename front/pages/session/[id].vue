@@ -2,6 +2,7 @@
   <div>
     <NavBar :name="'fdsf'" />
     <div class="my-8 mx-4 md:mx-28">
+      <h1 class="text-3xl mb-4" v-if="stateSession.session && stateSession.session.id"><span class="font-semibold">Id de la session :</span> {{ stateSession.session.id }}</h1>
       <FormSession editMode v-if="stateSession.session" :session-data="stateSession.session" @handle-end-session="handleEndSession"></FormSession>
       <div>
         <div class="flex items-center mt-5 mb-5">
