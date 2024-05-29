@@ -46,6 +46,7 @@
 const props = defineProps(["name"]);
 const letter = computed(() => props.name.charAt(0));
 
+import axios from 'axios';
 import ModalProfile from './ModalProfile.vue';
 
 const redirectToIndex = async () => {
@@ -65,4 +66,29 @@ const callLogout = async () => {
     console.error("Erreur lors de la deconnexion :", error);
   }
 }
+const callLogin = async () => {
+  try {
+    const jsonData = getJsonData("test@test16.com", "monMDP");
+    const res = await axios.post("http://127.0.0.1:5000/api/login", jsonData, {
+      headers: {
+        "Content-Type": "application/json",
+      },
+      withCredentials: true, // Ensure cookies are sent and received
+    });
+    return res;
+  } catch (err) {
+    console.error("Erreur lors de la récupération du login :", err);
+  }
+};
+const getJsonData = (login, password) => {
+  const data = {
+    data: [
+      {
+        Email: login,
+        Password: password,
+      },
+    ],
+  };
+  return JSON.stringify(data);
+};
 </script>
