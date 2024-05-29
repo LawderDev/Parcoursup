@@ -163,7 +163,6 @@ const sendNewPassword = async () => {
         },
       ],
     };
-    console.log("hashPassword(state.password)",hashPassword(state.password))
     const jsonData = JSON.stringify(data);
     const res = await axios.post(
       "http://127.0.0.1:5000/api/update_password",
@@ -183,7 +182,6 @@ const getCurrentUserData = async () => {
     const response = await axios.get("http://127.0.0.1:5000/api/current_user", {
       withCredentials: true, // Ensure cookies are sent and received
     });
-    console.log("response.data", response.data);
     return response.data;
   } catch (error) {
     console.error(

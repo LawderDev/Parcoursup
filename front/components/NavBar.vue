@@ -52,43 +52,20 @@ import ModalProfile from './ModalProfile.vue';
 const redirectToIndex = async () => {
   await navigateTo(`/`);
 };
+const redirectToConnexion = async () => {
+  await navigateTo(`/connexion`);
+};
 const handleDisconnect = async() => {
-  console.log("disconnect")
   await callLogout()
+  redirectToConnexion();
 }
 const callLogout = async () => {
   try {
     const response = await axios.get("http://127.0.0.1:5000/api/logout", {
       withCredentials: true, // Ensure cookies are sent and received
     });
-    console.log(response.data);
   } catch (error) {
     console.error("Erreur lors de la deconnexion :", error);
   }
 }
-const callLogin = async () => {
-  try {
-    const jsonData = getJsonData("test@test16.com", "monMDP");
-    const res = await axios.post("http://127.0.0.1:5000/api/login", jsonData, {
-      headers: {
-        "Content-Type": "application/json",
-      },
-      withCredentials: true, // Ensure cookies are sent and received
-    });
-    return res;
-  } catch (err) {
-    console.error("Erreur lors de la récupération du login :", err);
-  }
-};
-const getJsonData = (login, password) => {
-  const data = {
-    data: [
-      {
-        Email: login,
-        Password: password,
-      },
-    ],
-  };
-  return JSON.stringify(data);
-};
 </script>
