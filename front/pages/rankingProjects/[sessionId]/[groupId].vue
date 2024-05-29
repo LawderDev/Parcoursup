@@ -1,5 +1,6 @@
 <template>
   <StudentsActions
+    v-if="state.isLoading"
     title="SELECTION"
     :timestamp="state.timestamp"
     :nb-steps="2"
@@ -14,6 +15,7 @@
       description="Classez les projets en fonction de vos préférences"
     ></Ranking>
   </StudentsActions>
+  <Skeleton v-else></Skeleton>
 </template>
 
 <script setup>
@@ -22,6 +24,7 @@ import axios from "axios";
 const state = reactive({
   projects: [],
   timestamp: null,
+  isLoading: false,
 });
 
 const config = useRuntimeConfig();
@@ -97,5 +100,9 @@ const validateRanking = async () => {
   );
 };
 
-await getProjects();
+onMounted( async() => {
+  await getProjects();
+  state.isLoading = true;
+})
+
 </script>

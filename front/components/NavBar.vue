@@ -43,10 +43,16 @@
   </div>
 </template>
 <script setup>
-const props = defineProps(["name"]);
-const letter = computed(() => props.name.charAt(0));
-
 import ModalProfile from './ModalProfile.vue';
+const props = defineProps(["name", "hide"]);
+
+const state = reactive({
+  name: "Maabout",
+})
+
+const letter = computed(() => state.name.charAt(0));
+
+
 
 const redirectToIndex = async () => {
   await navigateTo(`/`);

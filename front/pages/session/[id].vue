@@ -1,52 +1,55 @@
 <template>
   <div>
-    <NavBar :name="'fdsf'" />
-    <div class="my-8 mx-4 md:mx-28">
-      <h1 class="text-3xl mb-4" v-if="stateSession.session && stateSession.session.id"><span class="font-semibold">Id de la session :</span> {{ stateSession.session.id }}</h1>
-      <FormSession editMode v-if="stateSession.session" :session-data="stateSession.session" @handle-end-session="handleEndSession"></FormSession>
-      <div>
-        <div class="flex items-center mt-5 mb-5">
-          <h2 class="text-3xl font-semibold mr-5">Projets</h2>
-          <ModalProjectForm
-            v-if="stateSession.session"
-            v-model:isOpen="state.isOpen"
-            :editMode="state.editMode"
-            v-model:name="state.name"
-            v-model:summary="state.summary"
-            v-model:id="state.id"
-            :session-state="stateSession.session.state"
-            @submit:project="handleNewProject"
-            @modify:project="handleModifyProject"
-            @create:project="openCreateModal"
-          >
-          </ModalProjectForm>
-        </div>
-        <h3 class="text-gray-500 mb-4">
-          Quels seront les projets disponibles ?
-        </h3>
-        <div
-          class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 mb-20 md:mb-0 gap-4"
-        >
-          <div v-for="project in stateProject.projects" :key="project.id">
-            <ProjectCard
-              @modifyProject="openModifyModal"
-              @deleteProject="handleDeleteProject"
-              @handleClickPreferencies="handleClickPreferencies"
-              :id="project.id"
-              :name="project.nom"
-              :summary="project.description"
+    <NavBar />
+    <template v-if="state.isLoading">
+      <div class="my-8 mx-4 md:mx-28">
+        <h1 class="text-3xl mb-4" v-if="stateSession.session && stateSession.session.id"><span class="font-semibold">Id de la session :</span> {{ stateSession.session.id }}</h1>
+        <FormSession editMode v-if="stateSession.session" :session-data="stateSession.session" @handle-end-session="handleEndSession"></FormSession>
+        <div>
+          <div class="flex items-center mt-5 mb-5">
+            <h2 class="text-3xl font-semibold mr-5">Projets</h2>
+            <ModalProjectForm
+              v-if="stateSession.session"
+              v-model:isOpen="state.isOpen"
+              :editMode="state.editMode"
+              v-model:name="state.name"
+              v-model:summary="state.summary"
+              v-model:id="state.id"
               :session-state="stateSession.session.state"
-            />
+              @submit:project="handleNewProject"
+              @modify:project="handleModifyProject"
+              @create:project="openCreateModal"
+            >
+            </ModalProjectForm>
+          </div>
+          <h3 class="text-gray-500 mb-4">
+            Quels seront les projets disponibles ?
+          </h3>
+          <div
+            class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 mb-20 md:mb-0 gap-4"
+          >
+            <div v-for="project in stateProject.projects" :key="project.id">
+              <ProjectCard
+                @modifyProject="openModifyModal"
+                @deleteProject="handleDeleteProject"
+                @handleClickPreferencies="handleClickPreferencies"
+                :id="project.id"
+                :name="project.nom"
+                :summary="project.description"
+                :session-state="stateSession.session.state"
+              />
+            </div>
           </div>
         </div>
+        <RankingGroupModal
+          v-model:isOpen="state.isRankingGroupModalOpen"
+          :project-id="state.selectedProjectId"
+          :session-id="Number(route.params.id)"
+        ></RankingGroupModal>
       </div>
-      <RankingGroupModal
-        v-model:isOpen="state.isRankingGroupModalOpen"
-        :project-id="state.selectedProjectId"
-        :session-id="Number(route.params.id)"
-      ></RankingGroupModal>
+      </template>
+      <Skeleton v-else></Skeleton>
     </div>
-  </div>
 </template>
 
 <script setup>
@@ -63,7 +66,7 @@ const state = reactive({
   isOpen: false,
   isRankingGroupModalOpen: false,
   selectedProjectId: 0,
-  loading: false,
+  isLoading: false,
 });
 
 const config = useRuntimeConfig();
@@ -175,7 +178,7 @@ definePageMeta({
     const api_check_id = async (sessionID) => {
       try {
         const config = useRuntimeConfig();
-        
+
         const response = await axios.get(
             `${config.public.backUrl}/api/get_session_id?sessionID=` + sessionID
         );
@@ -204,6 +207,7 @@ const handleEndSession = async () => {
 onMounted(async () => {
   await getSessionData(sessionID);
   await api_call_projects(sessionID);
+  state.isLoading = true;
 });
 
 </script>

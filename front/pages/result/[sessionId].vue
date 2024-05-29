@@ -1,5 +1,6 @@
 <template>
     <ProjectsConfirmation 
+        v-if="state.isLoading"
         title="RESULTATS"
         sub-title-mobile="Télécharger l'assignation des projets"
         sub-title="Visualiser et télécharger l'assignation des projets"
@@ -13,6 +14,7 @@
         :nb-steps-lock="0"
         @handleButtonClick="previousStep">
     </ProjectsConfirmation>
+    <Skeleton v-else></Skeleton>
 </template>
 
 <script setup>
@@ -22,6 +24,7 @@ import { useGroups } from "../../composables/useGroups";
 
 const state = reactive({
     assignations: [],
+    isLoading: false
 })
 
 const {stateProject, api_call_projects} = useProject();
@@ -75,5 +78,8 @@ const previousStep = async () => {
     await navigateTo(`/session/${route.params.sessionId}`)
 }
 
-await getAssignations();
+onMounted(async () => {
+    await getAssignations();
+    state.isLoading = true
+})
 </script>
