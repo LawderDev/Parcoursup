@@ -1,13 +1,13 @@
 <template>
     <div>
-      <Modal>
+      <Modal @close="$emit('update:isOpen', false)">
         <template v-slot:open-btn>
-          <ButtonPrimary @click="resetForm">Ajouter un utilisateur</ButtonPrimary>
+          <div class="hidden" ref="openBtn" @click="resetForm"></div>
         </template>
         <template v-slot:form>
             <div class="w-[75vw] md:w-[35vw]">
                 <h1 class="font-semibold text-primary text-center p-4 text-xl">
-                    Ajouter un utilisateur
+                    Modifier un utilisateur
                 </h1>
                 <div>
                     <h2 class="mb-2">Nom</h2>
@@ -48,7 +48,7 @@
         </template>
         <template v-slot:action>
             <ButtonPrimary @click="handleSubmit" title="Valider">Valider</ButtonPrimary>
-            <button class="hidden" ref="closeBtn"></button>
+            <button class="hidden" ref="closeBtn" @click="$emit('update:isOpen', false)"></button>
         </template>
       </Modal>
     </div>
@@ -61,7 +61,12 @@ import { useToasterStore } from '@/stores/toaster';
 const toaster = useToasterStore();
 const config = useRuntimeConfig();
 
-const emit = defineEmits(["handleValidate"]);
+const emit = defineEmits(["handleValidate", "update:isOpen"]);
+
+const props = defineProps({
+    user: Object,
+    isOpen: Boolean,
+});
 
 const state = reactive({
     name: {
@@ -91,12 +96,14 @@ const state = reactive({
     },
 })
 
+const openBtn = ref(null);
 const closeBtn = ref(null);
 
-const createUser = async () => {
+const updateUser = async () => {
     const data = { 
         "data" : [
             {
+                'Id': props.user.id,
                 'Nom': state.name.value,
                 'Prenom': state.firstname.value,
                 'Email': state.email.value, 
@@ -107,8 +114,7 @@ const createUser = async () => {
 
     const jsonData = JSON.stringify(data);
             
-    // User registration
-    await axios.post(`${config.public.backUrl}/api/register`,jsonData, {
+    await axios.post(`${config.public.backUrl}/api/update_user`,jsonData, {
         headers: {
             'Content-Type': 'application/json'
          }
@@ -116,15 +122,15 @@ const createUser = async () => {
 }
 
 const resetForm = () => {
-    state.name.value = "";
+    state.name.value = props.user.name;
     state.name.isValid = true;
-    state.firstname.value = "";
+    state.firstname.value = props.user.firstname;
     state.firstname.isValid = true;
-    state.email.value = "";
+    state.email.value = props.user.email;
     state.email.isValid = true;
-    state.password.value = "";
+    state.password.value = props.user.password;
     state.password.isValid = true;
-    state.confirmPassword.value = "";
+    state.confirmPassword.value = props.user.password;
     state.confirmPassword.isValid = true;
 }
 
@@ -157,9 +163,18 @@ const handleSubmit =  async () => {
     }
 
     closeBtn.value.click();
-    await createUser();
+    await updateUser();
     emit("handleValidate");
-    toaster.showMessage("L'utilisateur a bien été ajouté", "success");
+    toaster.showMessage("L'utilisateur a bien été modifié", "success");
 }
+
+watch(
+    () => props.isOpen,
+    (newIsOpen) => {
+        if(newIsOpen) {
+            openBtn.value.click();
+        }
+    }
+)
 </script>
   

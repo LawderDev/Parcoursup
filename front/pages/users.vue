@@ -3,7 +3,7 @@
       <NavBar></NavBar>
       <template v-if="state.isLoading">
         <div class="flex justify-end mr-10">
-            <ModalCreateUser></ModalCreateUser>
+            <ModalCreateUser @handle-validate="api_call_users"></ModalCreateUser>
         </div>
         <div class="mt-6">
           <UserItem
@@ -11,10 +11,11 @@
             :name="user.name"
             :firstname="user.firstname"
             @delete="openDeleteModal(user)"
-            @handleClick="openUserPage(user.id)"
+            @handleClick="openEditModal(user)"
           ></UserItem>
         </div>
-        <ModalDeleteUser hide-button v-model:isOpen="state.isOpen" :name="state.selectedUser.name" :firstname="state.selectedUser.firstname" :userId="state.selectedUser.id" @handle-delete="api_call_users"></ModalDeleteUser>
+        <ModalDeleteUser hide-button v-model:isOpen="state.isDeleteOpen" :name="state.selectedUser.name" :firstname="state.selectedUser.firstname" :userId="state.selectedUser.id" @handle-delete="api_call_users"></ModalDeleteUser>
+        <ModalEditUser v-model:isOpen="state.isEditOpen" :user="state.selectedUser" @handle-validate="api_call_users"></ModalEditUser>
       </template>
       <Skeleton v-else></Skeleton>
     </div>
@@ -27,21 +28,21 @@
   const config = useRuntimeConfig();
   
   const state = reactive({
-    isOpen: false,
+    isDeleteOpen: false,
+    isEditOpen: false,
     selectedUser: {},
     users: [],
     isLoading: false
   });
   
   const openDeleteModal = (user) => {
-    state.selectedUser.id = user.id;
-    state.selectedUser.name = user.name;
-    state.selectedUser.firstname = user.firstname;
-    state.isOpen = true;
+    state.selectedUser = user;
+    state.isDeleteOpen = true;
   };
   
-  const openUserPage = async (userID) => {
-    await navigateTo("/users/" + userID);
+  const openEditModal = async (user) => {
+    state.selectedUser = user;
+    state.isEditOpen = true;
   };
   
   const api_call_users = async () => {
@@ -52,14 +53,13 @@
     } catch (error) {
       console.error("Erreur lors de la récupération des utilisateurs :", error);
     }
-    state.isOpen = false
+    state.isDeleteOpen = false;
+    state.isEditOpen = false;
   };
 
   onMounted(async () => {
     await api_call_users();
     state.isLoading = true;
   })
-  
-  
   </script>
   

@@ -274,6 +274,39 @@ def delete_user():
             return jsonify({'error': str(e)}), 500
     else:
         return jsonify({'error': "nul"}), 50
+    
+@app.route('/api/update_user', methods=['POST'])
+def update_user():
+    print('Enter update user function')
+    # Retrieve parameters from the request body
+    user = request.json.get('data')
+
+    # Il faut utiliser os.path.join pour que ce soit multiplateforme
+    db = os.path.join(os.getcwd(), 'db', 'parcoursup.sqlite')
+    if os.path.exists(db):
+        conn = sqlite3.connect(db)
+        cursor = conn.cursor()
+        try:
+            
+            queryParameters = [(user[0]['Nom'], user[0]['Prenom'], user[0]['Email'], user[0]['Password'],
+                                user[0]['Id'])]
+
+            sqlRequest = cursor.execute(
+                "UPDATE UTILISATEUR SET Nom = ?, Prenom = ?, Email = ?, Password = ? WHERE ID = ?",
+                queryParameters[0])
+            userID = sqlRequest.fetchone()
+
+            # Commit the insertions
+            conn.commit()
+            conn.close()
+
+            # Convert data to JSON format
+            return jsonify({'result': userID}), 200
+
+        except sqlite3.Error as e:
+            return jsonify({'error': str(e)}), 500
+    else:
+        return jsonify({'error': "nul"}), 50
 
 
 # Initialize the database (run once to create the database)
