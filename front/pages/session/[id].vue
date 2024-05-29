@@ -19,7 +19,7 @@
             @modify:project="handleModifyProject"
             @create:project="openCreateModal"
           >
-        </ModalProjectForm>
+          </ModalProjectForm>
         </div>
         <h3 class="text-gray-500 mb-4">
           Quels seront les projets disponibles ?
@@ -46,7 +46,6 @@
         :session-id="Number(route.params.id)"
       ></RankingGroupModal>
     </div>
-    <!-- Boutons en bas de l'écran -->
   </div>
 </template>
 
