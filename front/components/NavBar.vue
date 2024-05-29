@@ -36,7 +36,7 @@
             </div>
           </li>
           <li class="pl-1">
-            <div class="flex items-center">
+            <div class="flex items-center" @click="handleDisconnect">
               <img src="../public/logout.svg" class="w-5" />
               <a class="md:text-lg">Deconnexion</a>
             </div>
@@ -53,4 +53,18 @@ const letter = computed(() => props.name.charAt(0));
 const redirectToIndex = async () => {
   await navigateTo(`/`);
 };
+const handleDisconnect = async() => {
+  console.log("disconnect")
+  await callLogout()
+}
+const callLogout = async () => {
+  try {
+    const response = await axios.get("http://127.0.0.1:5000/api/logout", {
+      withCredentials: true, // Ensure cookies are sent and received
+    });
+    console.log(response.data);
+  } catch (error) {
+    console.error("Erreur lors de la deconnexion :", error);
+  }
+}
 </script>
