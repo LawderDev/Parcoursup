@@ -43,11 +43,14 @@
   </div>
 </template>
 <script setup>
-const props = defineProps(["name"]);
-const letter = computed(() => props.name.charAt(0));
-
+import { useToasterStore } from "~/stores/toaster";
 import axios from 'axios';
 import ModalProfile from './ModalProfile.vue';
+
+const props = defineProps(["name"]);
+const letter = computed(() => props.name.charAt(0));
+const toaster = useToasterStore();
+
 
 const redirectToIndex = async () => {
   await navigateTo(`/`);
@@ -57,6 +60,7 @@ const redirectToConnexion = async () => {
 };
 const handleDisconnect = async() => {
   await callLogout()
+  toaster.showMessage("Deconnexion réussie", "success");
   redirectToConnexion();
 }
 const callLogout = async () => {
