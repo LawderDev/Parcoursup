@@ -138,12 +138,15 @@
 import { useToasterStore } from "~/stores/toaster";
 import axios from "axios";
 const toaster = useToasterStore();
+const config = useRuntimeConfig();
+
 const state = reactive({
   login: null,
   password: null,
   loginError: false,
   passwordError: false,
 });
+
 const openIndexPage = async () => {
   state.loginError =false
   state.passwordError =false
@@ -172,7 +175,7 @@ const showErrorUnknown = () => {
 const callLogin = async () => {
   try {
     const jsonData = getJsonData(state.login, state.password);
-    const res = await axios.post("http://127.0.0.1:5000/api/login", jsonData, {
+    const res = await axios.post(`${config.public.backUrl}/api/login`, jsonData, {
       headers: {
         "Content-Type": "application/json",
       },

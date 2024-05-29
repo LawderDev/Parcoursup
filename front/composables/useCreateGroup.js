@@ -1,6 +1,8 @@
 import axios from 'axios';
 
 export function useCreateGroup() {
+    const config = useRuntimeConfig();
+
     const stateCreateGroup = reactive({
       group: [],
     })
@@ -10,7 +12,7 @@ export function useCreateGroup() {
           const data = {data: group.map(student => ({'studentID': student.id}))}
           const jsonData = JSON.stringify(data);
           const res = await axios.post(
-            "http://127.0.0.1:5000/api/create_group",
+            `${config.public.backUrl}/api/create_group`,
             jsonData,
             {
               headers: {
@@ -18,7 +20,7 @@ export function useCreateGroup() {
               },
             }
           );
-          return res
+          return res;
         } catch (err) {
           console.error(err);
         }

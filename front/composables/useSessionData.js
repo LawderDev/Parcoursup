@@ -1,6 +1,8 @@
 import axios from 'axios';
 
 export function useSessionData() {
+    const config = useRuntimeConfig();
+
     const stateSession = reactive({
       session: null,
     })
@@ -8,7 +10,7 @@ export function useSessionData() {
     const getSessionData = async (sessionID) => {
         try {
         const response = await axios.get(
-            "http://127.0.0.1:5000/api/get_session_data?sessionID=" + sessionID
+            `${config.public.backUrl}/api/get_session_data?sessionID=` + sessionID
         );
         if (response.data) {
             stateSession.session = response.data;
@@ -23,7 +25,7 @@ export function useSessionData() {
 
     const updateSession = async (jsonData) => {
         try {
-          const res = await axios.post("http://127.0.0.1:5000/api/update_session", jsonData, {
+          const res = await axios.post(`${config.public.backUrl}/api/update_session`, jsonData, {
             headers: {
               "Content-Type": "application/json",
             },

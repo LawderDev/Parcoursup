@@ -66,12 +66,13 @@ const state = reactive({
   loading: false,
 });
 
+const config = useRuntimeConfig();
 const { stateProject, api_call_projects } = useProject();
 const { stateSession, getSessionData } = useSessionData();
 
 const handleDeleteProject = async (id) => {
   try {
-    await axios.post("http://127.0.0.1:5000/api/delete_project", {
+    await axios.post(`${config.public.backUrl}/api/delete_project`, {
       projectID: id,
     });
     await api_call_projects(sessionID);
@@ -83,7 +84,7 @@ const handleDeleteProject = async (id) => {
 const create_project = async (jsonData) => {
   try {
     const res = await axios.post(
-      "http://127.0.0.1:5000/api/create_project",
+      `${config.public.backUrl}/api/create_project`,
       jsonData,
       {
         headers: {
@@ -100,7 +101,7 @@ const create_project = async (jsonData) => {
 const update_project = async (jsonData) => {
   try {
     const res = await axios.post(
-      "http://127.0.0.1:5000/api/update_project",
+      `${config.public.backUrl}/api/update_project`,
       jsonData,
       {
         headers: {
@@ -173,8 +174,10 @@ definePageMeta({
   validate: async (route) => {
     const api_check_id = async (sessionID) => {
       try {
+        const config = useRuntimeConfig();
+        
         const response = await axios.get(
-            "http://127.0.0.1:5000/api/get_session_id?sessionID=" + sessionID
+            `${config.public.backUrl}/api/get_session_id?sessionID=` + sessionID
         );
 
         if (!response.data || response.data.length == 0) {

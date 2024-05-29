@@ -25,6 +25,7 @@ const state = reactive({
 
 const {stateProject, api_call_projects} = useProject();
 const {stateGroups, getAllGroups} = useGroups()
+const config = useRuntimeConfig();
 
 const getAssignations = async () => {
     try {
@@ -33,7 +34,7 @@ const getAssignations = async () => {
         }
         const jsonData = JSON.stringify(data);
         const res = await axios.post(
-            "http://127.0.0.1:5000/api/gale_shapley",
+            `${config.public.backUrl}/api/gale_shapley`,
             jsonData,
             {
                 headers: {

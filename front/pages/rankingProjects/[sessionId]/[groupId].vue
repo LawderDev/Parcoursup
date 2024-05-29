@@ -24,6 +24,8 @@ const state = reactive({
   timestamp: null,
 });
 
+const config = useRuntimeConfig();
+
 const route = useRoute();
 
 definePageMeta({
@@ -38,7 +40,7 @@ const getProjects = async () => {
     };
     const jsonData = JSON.stringify(data);
     const response = await axios.post(
-      "http://127.0.0.1:5000/api/get_group_projects_order_by_preferencies",
+      `${config.public.backUrl}/api/get_group_projects_order_by_preferencies`,
       jsonData,
       {
         headers: {
@@ -78,7 +80,7 @@ const setGroupPreferencies = async () => {
 
     const jsonData = JSON.stringify(data);
 
-    await axios.post("http://127.0.0.1:5000/api/affect_preference_group", jsonData, {
+    await axios.post(`${config.public.backUrl}/api/affect_preference_group`, jsonData, {
       headers: {
         "Content-Type": "application/json",
       },

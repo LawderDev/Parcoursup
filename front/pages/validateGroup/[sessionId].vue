@@ -76,13 +76,15 @@ const state = reactive({
   loading: false,
 });
 
+const config = useRuntimeConfig();
+
 const toaster = useToasterStore();
 
 const { stateProject, api_call_projects } = useProject();
 
 const { stateSession, getSessionData, updateSession } = useSessionData(); 
 
-const {stateCreateGroup, validateGroup} = useCreateGroup()
+const {stateCreateGroup, validateGroup} = useCreateGroup();
 
 const route = useRoute();
 
@@ -132,7 +134,7 @@ const getAllGroups = async () => {
     const jsonData = JSON.stringify(data);
 
     const res = await axios.post(
-      "http://127.0.0.1:5000/api/get_all_groups_students",
+      `${config.public.backUrl}/api/get_all_groups_students`,
       jsonData,
       {
         headers: {
@@ -156,7 +158,7 @@ const getAllStudents = async () => {
     const jsonData = JSON.stringify(data);
 
     const res = await axios.post(
-      "http://127.0.0.1:5000/api/get_all_students",
+      `${config.public.backUrl}/api/get_all_students`,
       jsonData,
       {
         headers: {
@@ -179,7 +181,7 @@ const reafectGroup = async (data) => {
 
     const jsonData = JSON.stringify({ data: data})
 
-    await axios.post("http://127.0.0.1:5000/api/reaffect_group", jsonData, {
+    await axios.post(`${config.public.backUrl}/api/reaffect_group`, jsonData, {
         headers: {
            'Content-Type': 'application/json'
         }}
@@ -197,7 +199,7 @@ const checkIfOneStudentInEachGroup = () => {
 
 const deleteGroups = async (groups) => {
     try {
-        await axios.post("http://127.0.0.1:5000/api/delete_groups", {
+        await axios.post(`${config.public.backUrl}/api/delete_groups`, {
             groups: groups
         });
     } catch (error) {
@@ -295,7 +297,7 @@ const setDefaultPreferences = () => {
     }
     const jsonData = JSON.stringify(data);
 
-    axios.post("http://127.0.0.1:5000/api/affect_default_preferencies", jsonData, {
+    axios.post(`${config.public.backUrl}/api/affect_default_preferencies`, jsonData, {
         headers: {
            'Content-Type': 'application/json'
         }}
