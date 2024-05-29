@@ -57,6 +57,21 @@ const getAssignations = async () => {
 
         assignations.sort((a, b) => a.group.id - b.group.id);
 
+        const groupsAssignations = assignations.map((assignation, index) => {
+            return {
+                    id_group: assignation.group.id,
+                    id_project: assignation.project.id,
+            }
+        })
+
+        const formatGroupsAssignations = {
+            sessionID: route.params.sessionId,
+            group_project: groupsAssignations
+        }
+
+        //TODO use back
+        console.log(formatGroupsAssignations)
+
         state.assignations = assignations.map((assignation, index) => {
             return {
                 group: {
