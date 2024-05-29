@@ -27,10 +27,15 @@
         </div>
         <ul
           tabindex="0"
-          class="shadow menu menu-sm dropdown-content bg-base-100 rounded-box w-40 md:w-60"
+          class="shadow menu menu-lg md:menu-sm dropdown-content bg-base-100 rounded-box w-60 z-20"
         >
-        <ModalProfile> </ModalProfile>
-
+        <ModalProfile></ModalProfile>
+          <li class="pl-1">
+            <div class="flex items-center">
+              <img src="../public/users.svg" class="w-5" />
+              <NuxtLink class="md:text-lg" to="/users">Utilisateurs</NuxtLink>
+            </div>
+          </li>
           <li class="pl-1">
             <div class="flex items-center" @click="handleDisconnect">
               <img src="../public/logout.svg" class="w-5" />
@@ -46,9 +51,7 @@
 import ModalProfile from './ModalProfile.vue';
 import { useToasterStore } from "~/stores/toaster";
 import axios from 'axios';
-import ModalProfile from './ModalProfile.vue';
 
-const letter = computed(() => props.name.charAt(0));
 const toaster = useToasterStore();
 
 const state = reactive({
