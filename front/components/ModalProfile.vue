@@ -114,7 +114,6 @@ import { reactive } from "vue";
 import OkClickable from "~/public/okClickable.svg";
 import Cancel from "~/public/cancel.svg";
 import axios from "axios";
-import bcrypt from "bcryptjs";
 
 const state = reactive({
   name: "",
@@ -176,7 +175,7 @@ const sendNewPassword = async () => {
     });
     return res;
   } catch (err) {
-    console.error("Erreur lors du changement de mot de pass :", err);
+    console.error("Erreur lors du changement de mot de passe :", err);
   }
 };
 const getCurrentUserData = async () => {
@@ -219,9 +218,10 @@ const getJsonData = (login, password) => {
   };
   return JSON.stringify(data);
 };
-const hashPassword = (password) => {
-  const salt = bcrypt.genSaltSync(10);
-  return bcrypt.hashSync(password, salt);
+const hashPassword = async (password) => {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(password);
+  return await crypto.subtle.digest("SHA-256", data);
 };
 watch(
   () => state.editPassword,
