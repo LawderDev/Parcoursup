@@ -151,6 +151,7 @@ const openIndexPage = async () => {
   state.loginError =false
   state.passwordError =false
   const res = await callLogin()
+  console.log("res",res)
   if (res.status===200) {
     toaster.showMessage("Connexion réussie", "success");
     await navigateTo("/");
@@ -174,15 +175,16 @@ const showErrorUnknown = () => {
 }
 const callLogin = async () => {
   try {
-    const jsonData = getJsonData(state.login, state.password);
-    const res = await axios.post(`${config.public.backUrl}/api/login`, jsonData, {
+    const jsonData = getJsonData("test@test16.com", "monMDP");
+    const res = await axios.post("http://127.0.0.1:5000/api/login", jsonData, {
       headers: {
         "Content-Type": "application/json",
       },
+      withCredentials: true, // Ensure cookies are sent and received
     });
     return res;
   } catch (err) {
-    return err.response
+    console.error("Erreur lors de la récupération du login :", err);
   }
 };
 const getJsonData = (login, password) => {

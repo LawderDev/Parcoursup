@@ -32,7 +32,7 @@
         <ModalProfile> </ModalProfile>
 
           <li class="pl-1">
-            <div class="flex items-center">
+            <div class="flex items-center" @click="handleDisconnect">
               <img src="../public/logout.svg" class="w-5" />
               <a class="md:text-lg">Deconnexion</a>
             </div>
@@ -44,7 +44,12 @@
 </template>
 <script setup>
 import ModalProfile from './ModalProfile.vue';
-const props = defineProps(["name", "hide"]);
+import { useToasterStore } from "~/stores/toaster";
+import axios from 'axios';
+import ModalProfile from './ModalProfile.vue';
+
+const letter = computed(() => props.name.charAt(0));
+const toaster = useToasterStore();
 
 const state = reactive({
   name: "Maabout",
@@ -52,9 +57,24 @@ const state = reactive({
 
 const letter = computed(() => state.name.charAt(0));
 
-
-
 const redirectToIndex = async () => {
   await navigateTo(`/`);
 };
+const redirectToConnexion = async () => {
+  await navigateTo(`/connexion`);
+};
+const handleDisconnect = async() => {
+  await callLogout()
+  toaster.showMessage("Deconnexion réussie", "success");
+  redirectToConnexion();
+}
+const callLogout = async () => {
+  try {
+    const response = await axios.get("http://127.0.0.1:5000/api/logout", {
+      withCredentials: true, // Ensure cookies are sent and received
+    });
+  } catch (error) {
+    console.error("Erreur lors de la deconnexion :", error);
+  }
+}
 </script>

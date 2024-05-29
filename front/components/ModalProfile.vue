@@ -163,7 +163,6 @@ const sendNewPassword = async () => {
         },
       ],
     };
-    console.log("hashPassword(state.password)",hashPassword(state.password))
     const jsonData = JSON.stringify(data);
     const res = await axios.post(
       "http://127.0.0.1:5000/api/update_password",
@@ -180,11 +179,9 @@ const sendNewPassword = async () => {
 };
 const getCurrentUserData = async () => {
   try {
-    await callLogin();
     const response = await axios.get("http://127.0.0.1:5000/api/current_user", {
       withCredentials: true, // Ensure cookies are sent and received
     });
-    console.log("response.data", response.data);
     return response.data;
   } catch (error) {
     console.error(
@@ -192,31 +189,6 @@ const getCurrentUserData = async () => {
       error
     );
   }
-};
-const callLogin = async () => {
-  try {
-    const jsonData = getJsonData("test@test16.com", "monMDP");
-    const res = await axios.post("http://127.0.0.1:5000/api/login", jsonData, {
-      headers: {
-        "Content-Type": "application/json",
-      },
-      withCredentials: true, // Ensure cookies are sent and received
-    });
-    return res;
-  } catch (err) {
-    console.error("Erreur lors de la récupération du login :", err);
-  }
-};
-const getJsonData = (login, password) => {
-  const data = {
-    data: [
-      {
-        Email: login,
-        Password: password,
-      },
-    ],
-  };
-  return JSON.stringify(data);
 };
 const hashPassword = async (password) => {
   const encoder = new TextEncoder();
