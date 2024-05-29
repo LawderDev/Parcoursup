@@ -43,14 +43,19 @@
   </div>
 </template>
 <script setup>
+import ModalProfile from './ModalProfile.vue';
 import { useToasterStore } from "~/stores/toaster";
 import axios from 'axios';
 import ModalProfile from './ModalProfile.vue';
 
-const props = defineProps(["name"]);
 const letter = computed(() => props.name.charAt(0));
 const toaster = useToasterStore();
 
+const state = reactive({
+  name: "Maabout",
+})
+
+const letter = computed(() => state.name.charAt(0));
 
 const redirectToIndex = async () => {
   await navigateTo(`/`);

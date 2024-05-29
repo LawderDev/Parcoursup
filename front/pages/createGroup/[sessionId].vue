@@ -1,5 +1,6 @@
 <template>
   <StudentsActions 
+    v-if="state.isLoading"
     title="GROUPE"
     :nb-steps="2"
     :nb-steps-active="1"
@@ -10,6 +11,7 @@
     @handle-button-click="handleValidateGroup">
       <FormCreateGroup title="Votre groupe" subTitle="De qui est composé votre groupe ?" v-model:group="stateCreateGroup.group" :groups="stateGroups.groups" :groupMin="stateSession.session.group_min" :groupMax="stateSession.session.group_max"></FormCreateGroup>
   </StudentsActions>
+  <Skeleton v-else></Skeleton>
 </template>
 
 <script setup>
@@ -21,6 +23,10 @@ const { stateGroups, getAllGroups } = useGroups()
 const { stateSession, getSessionData } = useSessionData()
 
 const route = useRoute()
+
+const state = reactive({
+  isLoading: false,
+});
 
 const canValidateGroup = () => {
   return stateCreateGroup.group.length >= stateSession.session.group_min && stateCreateGroup.group.length <= stateSession.session.group_max;
@@ -35,6 +41,10 @@ const handleValidateGroup = async () => {
   await navigateTo('/createGroupConfirmation')
 }
 
-await getAllGroups(route.params.sessionId);
-await getSessionData(route.params.sessionId);
+onMounted(async () => {
+  await getAllGroups(route.params.sessionId);
+  await getSessionData(route.params.sessionId);
+  state.isLoading = true;
+})
+
 </script>
