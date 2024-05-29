@@ -24,6 +24,7 @@
                 </div>
               </div>
               <ButtonPrimary @click="handleDownload">{{ downloadButton }}</ButtonPrimary>
+              <ButtonSecondary @click="sendMailsResult">{{ sendMails }}</ButtonSecondary>
           </Card>
       </div>
       <div class="flex justify-center">
@@ -41,6 +42,7 @@
     subTitle: String,
     cardTitle: String,
     downloadButton: String,
+    sendMails: String,
     buttonTitle: String,
     nbSteps: Number,
     nbStepsActive: Number,
@@ -66,6 +68,14 @@
 
     // Supprime le lien du document
     document.body.removeChild(link);
+  }
+
+ const sendMailsResult = async () => {
+    //TODO 
+
+    /*await axios.post(`${config.public.backUrl}/api/send_mail_result`, {
+      groups: props.assignations
+    })*/
   }
 
   defineEmits(['handleButtonClick'])

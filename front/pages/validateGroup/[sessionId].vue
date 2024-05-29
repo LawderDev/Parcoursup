@@ -333,10 +333,24 @@ const validateGroups = async () => {
     const jsonDataSession = JSON.stringify(formData);
     await updateSession(jsonDataSession);
     await setDefaultPreferences();
+    await sendGroupsMail();
 
     toaster.showMessage("Groupes attribués avec succès", "success");
 
     await navigateTo(`/session/${route.params.sessionId}`);
+}
+
+const sendGroupsMail = async () => {
+    //TODO: envoyer un mail pour chaque groupe
+    const formData = {
+        session_ID: route.params.sessionId
+    };
+    const jsonData = JSON.stringify(formData);
+    await axios.post(`${config.public.backUrl}/api/send_groups_mail`, jsonData, {
+        headers: {
+            'Content-Type': 'application/json'
+        }}
+    );
 }
 
 const handleValidateGroup = async () => {
