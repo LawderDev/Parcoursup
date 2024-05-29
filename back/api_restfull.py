@@ -206,6 +206,75 @@ def update_password():
         print(e)
         db.session.rollback()
         return jsonify({'error': str(e)}), 500
+    
+@app.route('/api/get_users', methods=['GET'])
+def get_users():
+    print('enter get users function')
+    db = os.path.join(os.getcwd(), 'db', 'parcoursup.sqlite')
+    if os.path.exists(db):
+        try:
+            
+            conn = sqlite3.connect(db)
+            cursor = conn.cursor()
+
+            cursor.execute("SELECT * from UTILISATEUR")
+
+            response = cursor.fetchall()
+
+            users = []
+            for user in response:
+                user_dict = {
+                    'id': user[0],
+                    'name': user[1],
+                    'firstname': user[2],
+                    'email': user[3],
+                    'password': user[4]
+                }
+                users.append(user_dict)
+
+            conn.close()
+
+            # Convert data to JSON format
+            return jsonify(users)
+
+        except sqlite3.Error as e:
+            return jsonify({'error': str(e)}), 500
+    else:
+        return jsonify({'error': "nul"}), 50
+    
+@app.route('/api/delete_user', methods=['POST'])
+def delete_user():
+    """
+    _summary_
+        Method that delete a user, take in parameter the id.
+    Returns:
+        _type_: _description_
+    """
+    print('Enter delete user function')
+    # Retrieve parameters from the request body
+    userID = request.json.get('userID')  # json item
+
+    # Il faut utiliser os.path.join pour que ce soit multiplateforme
+    db = os.path.join(os.getcwd(), 'db', 'parcoursup.sqlite')
+    if os.path.exists(db):
+        conn = sqlite3.connect(db)
+        cursor = conn.cursor()
+        try:
+            sqlRequest = cursor.execute("DELETE FROM UTILISATEUR WHERE ID = ?;", (userID,))
+            res = sqlRequest.fetchone()
+
+            # Commit the delete
+            conn.commit()
+            conn.close()
+
+            # Convert data to JSON format
+            return jsonify({'result': res}), 200
+
+        except sqlite3.Error as e:
+            return jsonify({'error': str(e)}), 500
+    else:
+        return jsonify({'error': "nul"}), 50
+
 
 # Initialize the database (run once to create the database)
 # with app.app_context():
@@ -234,7 +303,7 @@ def get_session_id():
             conn = sqlite3.connect(db)
             cursor = conn.cursor()
 
-            cursor.execute("SELECT ID from SESSION where ID = " + sessionID)
+            cursor.execute("SELECT ID from SESSION where ID = ?", (sessionID,))
 
             response = cursor.fetchall()
             print(response)
@@ -264,7 +333,7 @@ def get_session_data():
             conn = sqlite3.connect(db)
             cursor = conn.cursor()
 
-            cursor.execute("SELECT * from SESSION where ID = " + sessionID)
+            cursor.execute("SELECT * from SESSION where ID = ?" + (sessionID,))
 
             response = cursor.fetchall()
             print(response)
