@@ -139,7 +139,7 @@ def login():
         print(e)
         return jsonify({'error': str(e)}), 500
 
-@app.route('/api/logout', methods=['POST'])
+@app.route('/api/logout', methods=['GET'])
 @login_required
 def logout():
     try:
