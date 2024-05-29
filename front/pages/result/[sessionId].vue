@@ -1,11 +1,12 @@
 <template>
     <ProjectsConfirmation 
         title="RESULTATS"
-        subTitleMobile="Télécharger l'assignation des projets"
-        subTitle="Visualiser et télécharger l'assignation des projets"
-        cardTitle="Les projets ont bien été assignés" 
-        downloadButton="Télécharger le résultat"
-        buttonTitle="Retour"
+        sub-title-mobile="Télécharger l'assignation des projets"
+        sub-title="Visualiser et télécharger l'assignation des projets"
+        card-title="Les projets ont bien été assignés" 
+        send-mails="Envoyer le résultat à tous les groupes"
+        download-button="Télécharger le résultat"
+        button-title="Retour"
         :assignations="state.assignations"
         :nb-steps="2"
         :nb-steps-active="2"
@@ -58,6 +59,7 @@ const getAssignations = async () => {
                 group: {
                     id: assignation.group.id,
                     nom: `Groupe ${index + 1}`,
+                    students: assignation.group.students,
                     description: assignation.group.students.map(student => `${student.name} ${student.firstname}`).join(",\n ")
                 },
                 project: assignation.project,
