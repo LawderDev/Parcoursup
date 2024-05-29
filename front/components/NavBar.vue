@@ -29,12 +29,8 @@
           tabindex="0"
           class="shadow menu menu-sm dropdown-content bg-base-100 rounded-box w-40 md:w-60"
         >
-          <li class="pl-1">
-            <div class="flex items-center">
-              <img src="../public/settings.svg" class="w-5" />
-              <a class="md:text-lg">Profil</a>
-            </div>
-          </li>
+        <ModalProfile> </ModalProfile>
+
           <li class="pl-1">
             <div class="flex items-center">
               <img src="../public/logout.svg" class="w-5" />
@@ -49,6 +45,8 @@
 <script setup>
 const props = defineProps(["name"]);
 const letter = computed(() => props.name.charAt(0));
+
+import ModalProfile from './ModalProfile.vue';
 
 const redirectToIndex = async () => {
   await navigateTo(`/`);
