@@ -51,9 +51,7 @@
 import ModalProfile from './ModalProfile.vue';
 import { useToasterStore } from "~/stores/toaster";
 import axios from 'axios';
-import ModalProfile from './ModalProfile.vue';
 
-const letter = computed(() => props.name.charAt(0));
 const toaster = useToasterStore();
 
 const state = reactive({

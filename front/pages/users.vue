@@ -36,6 +36,7 @@
   const openDeleteModal = (user) => {
     state.selectedUser.id = user.id;
     state.selectedUser.name = user.name;
+    state.selectedUser.firstname = user.firstname;
     state.isOpen = true;
   };
   
