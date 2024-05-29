@@ -34,6 +34,8 @@ import { useToasterStore } from '@/stores/toaster';
 
 const toaster = useToasterStore();
 
+const config = useRuntimeConfig()
+
 const openBtn = ref(null);
 
 const emit = defineEmits(["update:isOpen", "handleDelete"]);
@@ -56,7 +58,7 @@ watch(
 
 const handleSubmit = async () => {
   try {
-    await axios.post("http://127.0.0.1:5000/api/delete_session", {
+    await axios.post(`${config.public.backUrl}/api/delete_session`, {
       sessionID: props.sessionId,
     });
     emit("handleDelete");

@@ -4,7 +4,7 @@
       class="btn btn-block relative z-0 h-24 flex justify-start rounded-3xl bg-base-100 border-0 shadow-transparent"
       @click="$emit('handleClick')"
     >
-      <ImagePlaceHolder class="">{{ title[0] }}</ImagePlaceHolder>
+      <ImagePlaceHolder>{{ title[0] }}</ImagePlaceHolder>
 
       <div class="text-left">
         <div class="w-[190px] flex flex-col gap-1 md:gap-0 pb-1">

@@ -21,7 +21,7 @@
             @click="handleAssignProjects"
             >Assigner les projets</ButtonPrimary
           >
-          <div class="btn" v-if="state.sessionState === 'Grouping'" @click="copyLink(`http://localhost:3000/createGroup/${state.sessionID}`)">
+          <div class="btn" v-if="state.sessionState === 'Grouping'" @click="copyLink(`${config.public.frontUrl}/createGroup/${state.sessionID}`)">
             http://localhost:3000/createGroup/{{ state.sessionID }}
             <img alt="copy-svg" src="../public/copy.svg" class="h-6 w-6" />
           </div>
@@ -228,11 +228,12 @@ import { useToasterStore } from "~/stores/toaster";
 import ButtonSecondary from "./ButtonSecondary.vue";
 import { useGroups } from "@/composables/useGroups";
 
-
 const props = defineProps({
   editMode: Boolean,
   sessionData: Object,
 });
+
+const config = useRuntimeConfig();
 
 const { stateGroups, getAllGroups } = useGroups();
 
@@ -399,7 +400,7 @@ const handleClick = async () => {
 
 const create_session = async (jsonData) => {
   try {
-    const res = await axios.post("http://127.0.0.1:5000/api/create_session", jsonData, {
+    const res = await axios.post(`${config.public.backUrl}/api/create_session`, jsonData, {
       headers: {
         "Content-Type": "application/json",
       },
@@ -412,7 +413,7 @@ const create_session = async (jsonData) => {
 
 const create_student = async (jsonData) => {
   try {
-    const res = await axios.post("http://127.0.0.1:5000/api/create_students", jsonData, {
+    const res = await axios.post(`${config.public.backUrl}/api/create_students`, jsonData, {
       headers: {
         "Content-Type": "application/json",
       },

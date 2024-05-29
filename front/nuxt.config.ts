@@ -18,5 +18,11 @@ export default defineNuxtConfig({
       rel: 'stylesheet',
       href: 'https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap'
     }
-  ]
+  ],
+  runtimeConfig: {
+    public: {
+      backUrl: process.env.NUXT_BACK_URL,
+      frontUrl: process.env.NUXT_FRONT_URL,
+    }
+  },
 })

@@ -18,6 +18,8 @@
 import ButtonPlus from "@/assets/images/plus.png"
 import axios from "axios";
 
+const config = useRuntimeConfig()
+
 const props = defineProps({
     title: String,
     subTitle: String,
@@ -41,7 +43,6 @@ onMounted(async () => {
       }
     })
    
-
     state.loading = true;
 })
 
@@ -104,7 +105,7 @@ const state = reactive({
       const jsonData = JSON.stringify(data);
 
       const res = await axios.post(
-        "http://127.0.0.1:5000/api/get_all_students",
+        `${config.public.backUrl}/api/get_all_students`,
         jsonData,
         {
           headers: {
