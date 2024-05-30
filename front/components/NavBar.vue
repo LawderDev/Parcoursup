@@ -67,6 +67,7 @@ const redirectToConnexion = async () => {
   await navigateTo(`/connexion`);
 };
 const handleDisconnect = async() => {
+  return;
   await callLogout()
   toaster.showMessage("Deconnexion réussie", "success");
   redirectToConnexion();
