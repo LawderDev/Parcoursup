@@ -1,6 +1,8 @@
 import axios from 'axios';
 
 export function useGroups() {
+    const config = useRuntimeConfig()
+
     const stateGroups = reactive({
       groups: [],
     })
@@ -14,7 +16,7 @@ export function useGroups() {
           const jsonData = JSON.stringify(data);
     
           const res = await axios.post(
-            "http://127.0.0.1:5000/api/get_all_groups_students",
+            `${config.public.backUrl}/api/get_all_groups_students`,
             jsonData,
             {
               headers: {
@@ -23,6 +25,7 @@ export function useGroups() {
             }
           );
           
+          console.log(res.data)
           stateGroups.groups = res.data
         } catch (err) {
           console.error(err);

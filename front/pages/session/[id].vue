@@ -1,45 +1,55 @@
 <template>
   <div>
-    <NavBar :name="'fdsf'" />
-    <div class="grid justify-center m-8">
-      <FormSession editMode v-if="stateSession.session" :session-data="stateSession.session"></FormSession>
-      <div>
-        <div class="flex items-center mt-5 mb-5">
-          <h2 class="text-3xl font-semibold mr-5">Projets</h2>
-          <ModalProjectForm
-            v-model:isOpen="state.isOpen"
-            :editMode="state.editMode"
-            v-model:name="state.name"
-            v-model:summary="state.summary"
-            v-model:id="state.id"
-            @submit:project="handleNewProject"
-            @modify:project="handleModifyProject"
-            @create:project="openCreateModal"
+    <NavBar />
+    <template v-if="state.isLoading">
+      <div class="my-8 mx-4 md:mx-28">
+        <h1 class="text-3xl mb-4" v-if="stateSession.session && stateSession.session.id"><span class="font-semibold">Id de la session :</span> {{ stateSession.session.id }}</h1>
+        <FormSession editMode v-if="stateSession.session" :session-data="stateSession.session" @handle-end-session="handleEndSession"></FormSession>
+        <div>
+          <div class="flex items-center mt-5 mb-5">
+            <h2 class="text-3xl font-semibold mr-5">Projets</h2>
+            <ModalProjectForm
+              v-if="stateSession.session"
+              v-model:isOpen="state.isOpen"
+              :editMode="state.editMode"
+              v-model:name="state.name"
+              v-model:summary="state.summary"
+              v-model:id="state.id"
+              :session-state="stateSession.session.state"
+              @submit:project="handleNewProject"
+              @modify:project="handleModifyProject"
+              @create:project="openCreateModal"
+            >
+            </ModalProjectForm>
+          </div>
+          <h3 class="text-gray-500 mb-4">
+            Quels seront les projets disponibles ?
+          </h3>
+          <div
+            class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 mb-20 md:mb-0 gap-4"
           >
-        </ModalProjectForm>
-        </div>
-        <h3 class="ml-5 text-gray-500">
-          Quels seront les projets disponibles ?
-        </h3>
-        <div
-          class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3  mb-20 md:mb-0"
-        >
-          <div v-for="project in stateProject.projects" :key="project.id">
-            <ProjectCard
-              @modifyProject="openModifyModal"
-              @deleteProject="handleDeleteProject"
-              @handleClickPreferencies="handleClickPreferencies"
-              :id="project.id"
-              :name="project.nom"
-              :summary="project.description"
-            />
+            <div v-for="project in stateProject.projects" :key="project.id">
+              <ProjectCard
+                @modifyProject="openModifyModal"
+                @deleteProject="handleDeleteProject"
+                @handleClickPreferencies="handleClickPreferencies"
+                :id="project.id"
+                :name="project.nom"
+                :summary="project.description"
+                :session-state="stateSession.session.state"
+              />
+            </div>
           </div>
         </div>
+        <RankingGroupModal
+          v-model:isOpen="state.isRankingGroupModalOpen"
+          :project-id="state.selectedProjectId"
+          :session-id="Number(route.params.id)"
+        ></RankingGroupModal>
       </div>
+      </template>
+      <Skeleton v-else></Skeleton>
     </div>
-    <RankingGroupModal v-model:isOpen="state.isRankingGroupModalOpen" :project-id="state.selectedProjectId" :session-id="Number(route.params.id)"></RankingGroupModal>
-    <!-- Boutons en bas de l'écran -->
-  </div>
 </template>
 
 <script setup>
@@ -56,17 +66,19 @@ const state = reactive({
   isOpen: false,
   isRankingGroupModalOpen: false,
   selectedProjectId: 0,
+  isLoading: false,
 });
 
-const {stateProject, api_call_projects} = useProject();
-const { stateSession, getSessionData } = useSessionData(); 
+const config = useRuntimeConfig();
+const { stateProject, api_call_projects } = useProject();
+const { stateSession, getSessionData } = useSessionData();
 
 const handleDeleteProject = async (id) => {
   try {
-    await axios.post("http://127.0.0.1:5000/api/delete_project", {
+    await axios.post(`${config.public.backUrl}/api/delete_project`, {
       projectID: id,
     });
-    await api_call_projects(sessionIDd);
+    await api_call_projects(sessionID);
   } catch (error) {
     console.error("Erreur lors de la suppression de la session", error);
   }
@@ -75,7 +87,7 @@ const handleDeleteProject = async (id) => {
 const create_project = async (jsonData) => {
   try {
     const res = await axios.post(
-      "http://127.0.0.1:5000/api/create_project",
+      `${config.public.backUrl}/api/create_project`,
       jsonData,
       {
         headers: {
@@ -92,7 +104,7 @@ const create_project = async (jsonData) => {
 const update_project = async (jsonData) => {
   try {
     const res = await axios.post(
-      "http://127.0.0.1:5000/api/update_project",
+      `${config.public.backUrl}/api/update_project`,
       jsonData,
       {
         headers: {
@@ -134,6 +146,7 @@ const handleModifyProject = async (newProject) => {
       },
     ],
   };
+  console.log(formData);
   const jsonDataSession = JSON.stringify(formData);
   const project_id = await update_project(jsonDataSession);
 };
@@ -141,7 +154,7 @@ const handleModifyProject = async (newProject) => {
 const handleClickPreferencies = (projectId) => {
   state.selectedProjectId = Number(projectId);
   state.isRankingGroupModalOpen = true;
-}
+};
 
 const openCreateModal = () => {
   state.isOpen = true;
@@ -152,7 +165,7 @@ const openCreateModal = () => {
 const openModifyModal = (event) => {
   state.isOpen = true;
   state.editMode = true;
-  state.id = event.id
+  state.id = event.id;
   state.name = event.name;
   state.summary = event.summary;
 };
@@ -164,8 +177,10 @@ definePageMeta({
   validate: async (route) => {
     const api_check_id = async (sessionID) => {
       try {
+        const config = useRuntimeConfig();
+
         const response = await axios.get(
-          "http://127.0.0.1:5000/api/get_session_id?sessionID=" + sessionID
+            `${config.public.backUrl}/api/get_session_id?sessionID=` + sessionID
         );
 
         if (!response.data || response.data.length == 0) {
@@ -185,42 +200,16 @@ definePageMeta({
   },
 });
 
-onMounted( async() => {
-  await getSessionData(sessionID)
+const handleEndSession = async () => {
+  stateSession.session.state = "Attributing";
+};
+
+onMounted(async () => {
+  await getSessionData(sessionID);
   await api_call_projects(sessionID);
-})
 
+  console.log(stateSession);
+  state.isLoading = true;
+});
 
-const liste = [
-  {
-    id: 1,
-    name: "Titre de l'élément 1",
-    summary:
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed quis ex non mauris vehicula scelerisque. Ut in ex ac nulla auctor dictum. Quisque volutpat vulputate risus, non scelerisque justo porta a. Phasellus auctor nisl vel tincidunt consequat. Suspendisse potenti. Nullam vestibulum malesuada faucibus. Suspendisse ac tortor lectus. Maecenas in pulvinar felis. Sed sit amet augue nec orci tincidunt lacinia. Vivamus euismod, metus ac convallis feugiat, libero elit auctor libero, nec vestibulum justo libero a dolor. Fusce efficitur libero eu justo suscipit, vitae finibus mi bibendum. Cras vulputate elit et lacus ultricies, vitae placerat enim vestibulum.",
-  },
-  {
-    id: 2,
-    name: "Titre de l'élément 2",
-    summary:
-      "Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Integer id lorem sit amet purus ultrices consequat at et libero. Duis ultricies quam vitae diam scelerisque sollicitudin. Maecenas fermentum justo vel dui sodales dapibus. Etiam nec nulla vel odio aliquet facilisis. Vivamus ut est a enim consectetur consectetur. Nulla facilisi. Vivamus bibendum ultricies mi, nec suscipit felis malesuada ac. Ut tempus justo sapien, eu tincidunt turpis iaculis vel. Ut et magna nec libero commodo venenatis nec nec mauris. Nam eget vehicula odio, ut mattis ipsum. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Ut dapibus dui sed quam fermentum, sed fermentum lorem porttitor. Integer nec vestibulum lacus. Proin varius tempus velit, ut rhoncus mi varius id. Integer tristique leo nec velit fringilla, sed vehicula nunc rhoncus.",
-  },
-  {
-    id: 3,
-    name: "Titre de l'élément 3",
-    summary:
-      "Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Integer ut arcu ac est tempor malesuada. Morbi lacinia nulla nec justo feugiat, ac convallis odio auctor. Nulla in turpis lorem. Nam non nibh fermentum, lobortis mi ut, consequat nunc. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Integer volutpat vestibulum lorem, id accumsan lorem efficitur sit amet. Morbi laoreet euismod elit, ut egestas eros aliquet eget. Integer auctor eros in mi facilisis vehicula. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Curabitur venenatis sem id massa rutrum, nec interdum eros auctor. Fusce non sapien nec justo consequat viverra. Integer aliquet, enim eget mattis ultricies, velit ipsum vulputate metus, eget pharetra justo tortor non odio. Aliquam rutrum nisi vel urna dapibus, sed fringilla velit suscipit. Aliquam erat volutpat. Cras vel metus nulla. Nam sed elit tincidunt, finibus lorem sit amet, lacinia ipsum.",
-  },
-  {
-    id: 4,
-    name: "Titre de l'élément 3",
-    summary:
-      "Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Integer ut arcu ac est tempor malesuada. Morbi lacinia nulla nec justo feugiat, ac convallis odio auctor. Nulla in turpis lorem. Nam non nibh fermentum, lobortis mi ut, consequat nunc. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Integer volutpat vestibulum lorem, id accumsan lorem efficitur sit amet. Morbi laoreet euismod elit, ut egestas eros aliquet eget. Integer auctor eros in mi facilisis vehicula. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Curabitur venenatis sem id massa rutrum, nec interdum eros auctor. Fusce non sapien nec justo consequat viverra. Integer aliquet, enim eget mattis ultricies, velit ipsum vulputate metus, eget pharetra justo tortor non odio. Aliquam rutrum nisi vel urna dapibus, sed fringilla velit suscipit. Aliquam erat volutpat. Cras vel metus nulla. Nam sed elit tincidunt, finibus lorem sit amet, lacinia ipsum.",
-  },
-  {
-    id: 5,
-    name: "Titre de l'élément 3",
-    summary:
-      "Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Integer ut arcu ac est tempor malesuada. Morbi lacinia nulla nec justo feugiat, ac convallis odio auctor. Nulla in turpis lorem. Nam non nibh fermentum, lobortis mi ut, consequat nunc. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Integer volutpat vestibulum lorem, id accumsan lorem efficitur sit amet. Morbi laoreet euismod elit, ut egestas eros aliquet eget. Integer auctor eros in mi facilisis vehicula. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Curabitur venenatis sem id massa rutrum, nec interdum eros auctor. Fusce non sapien nec justo consequat viverra. Integer aliquet, enim eget mattis ultricies, velit ipsum vulputate metus, eget pharetra justo tortor non odio. Aliquam rutrum nisi vel urna dapibus, sed fringilla velit suscipit. Aliquam erat volutpat. Cras vel metus nulla. Nam sed elit tincidunt, finibus lorem sit amet, lacinia ipsum.",
-  },
-];
 </script>

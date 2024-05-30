@@ -24,6 +24,7 @@
                 </div>
               </div>
               <ButtonPrimary @click="handleDownload">{{ downloadButton }}</ButtonPrimary>
+              <ButtonSecondary @click="sendMailsResult">{{ sendMails }}</ButtonSecondary>
           </Card>
       </div>
       <div class="flex justify-center">
@@ -35,17 +36,26 @@
   </template>
   
   <script setup>
+import axios from 'axios';
+import { useToasterStore } from '@/stores/toaster';
+
+const config = useRuntimeConfig();
+const toaster = useToasterStore();
+
+
  const props = defineProps({
     title: String,
     subTitleMobile: String,
     subTitle: String,
     cardTitle: String,
     downloadButton: String,
+    sendMails: String,
     buttonTitle: String,
     nbSteps: Number,
     nbStepsActive: Number,
     nbStepsLock: Number,
     assignations: Array,
+    formatGroupsAssignations: Array,
   })
 
   const handleDownload = () => {
@@ -66,6 +76,19 @@
 
     // Supprime le lien du document
     document.body.removeChild(link);
+  }
+
+ const sendMailsResult = async () => {
+    console.log(props.formatGroupsAssignations)
+
+    try{
+      await axios.post(`${config.public.backUrl}/api/send_mail_result`, props.formatGroupsAssignations)
+      toaster.showMessage("Les emails ont bien été envoyé !", "success");
+    }
+    catch(error){
+      toaster.showMessage("Erreur lors de l'envoi des emails, vérifiez votre serveur SMTP", "error");
+      console.error(error)
+    }
   }
 
   defineEmits(['handleButtonClick'])

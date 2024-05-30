@@ -23,18 +23,23 @@
   
   <script setup>
   const {stateCreateGroup, validateGroup} = useCreateGroup()
+  import { useToasterStore } from '@/stores/toaster';
 
   const emit = defineEmits(["handleCreateGroup"]);
+  const toaster = useToasterStore();
 
   const props = defineProps({
     groups : Array,
   });
 
   const handleSubmit = async() => {
-    const res = await validateGroup([])
+    if(!stateCreateGroup.group.length) {
+      toaster.showMessage('Le groupe doit contenir au moins un membre', 'error')
+      return
+    }
     
     nextTick(() => {
-      emit('handleCreateGroup', { id : res.data.result[0], students : stateCreateGroup.group })
+      emit('handleCreateGroup', { id : null, students : stateCreateGroup.group })
     })
   }
   </script>

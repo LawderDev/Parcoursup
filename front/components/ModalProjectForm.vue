@@ -1,8 +1,9 @@
 <template>
   <div>
-    <Modal @close="emit('update:isOpen', false)">
+    <Modal @close="emit('update:isOpen', false)" :disabled="props.sessionState !== 'Grouping'">
       <template v-slot:open-btn>
-        <ButtonPlus @click="handleCreateProject" class="neumorphism" />
+        <ButtonPlus v-if="props.sessionState === 'Grouping'" @click="handleCreateProject" class="neumorphism"/>
+        <ButtonPlus v-else class="neumorphism" disabled/>
         <div id="hidden" class="hidden" ref="openBtn"></div>
       </template>
       <template v-slot:form>
@@ -15,13 +16,13 @@
               :value="props.name"
               @input="$emit('update:name', $event.target.value)"
               placeholder="Nom du projet..."
-              class="input input-bordered w-full max-w-xs"
+              class="input input-bordered w-[75vw] md:w-[35vw]"
             />
             <h2 class="ml-1 my-5">Description</h2>
             <textarea
               :value="props.summary"
               @input="$emit('update:summary', $event.target.value)"
-              class="textarea textarea-bordered"
+              class="textarea textarea-bordered w-[75vw] md:w-[35vw]"
               placeholder="Description du projet..."
             ></textarea>
           </div>
@@ -46,13 +47,16 @@
 <script setup>
 import { defineEmits } from "vue";
 const openBtn = ref(null);
+
 const props = defineProps({
   isOpen: Boolean,
   editMode: Boolean,
   id: Number,
   name: String,
   summary: String,
+  sessionState: String,
 });
+
 const emit = defineEmits([
   "submit:project",
   "update:isOpen",
@@ -69,6 +73,10 @@ const handleSubmit = () => {
   });
 };
 const handleModify = () => {
+  console.log("heer")
+  console.log(props.id)
+  console.log(props.name)
+  console.log(props.summary)
   emit("modify:project", {
     id: props.id,
     name: props.name,
