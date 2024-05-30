@@ -1,5 +1,6 @@
 import json
 
+from dotenv import load_dotenv
 from flask import Flask, jsonify, request
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
@@ -11,15 +12,17 @@ from flask_mail import Mail
 import sqlite3
 import os
 
+load_dotenv()
+
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'your_secret_key'
+app.config['SECRET_KEY'] = os.getenv("SECRET_KEY")
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(os.getcwd(), 'db', 'parcoursup.sqlite')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-app.config['MAIL_SERVER'] = 'smtp.freesmtpservers.com'  # 'smtp.mailersend.net'
-app.config['MAIL_PORT'] = 25  # 587
-app.config['MAIL_USERNAME'] = 'smartchoice@smartchoice.com'
-app.config['MAIL_PASSWORD'] = ''  # 'XrzOr7jafJU0Mrux'
+app.config['MAIL_SERVER'] = os.getenv("MAIL_SERVER")
+app.config['MAIL_PORT'] = os.getenv("MAIL_PORT")
+app.config['MAIL_USERNAME'] = os.getenv("MAIL_USERNAME")
+app.config['MAIL_PASSWORD'] = os.getenv("MAIL_PASSWORD")
 app.config['MAIL_USE_TLS'] = True
 app.config['MAIL_USE_SSL'] = False
 mail = Mail(app)
@@ -210,7 +213,7 @@ def send_mail_group():
     };
     :return:
     """
-    api_key = "mlsn.9a1ca8996bd516b08079567ad65214ace18758d98d46278053867fd9e282c241"
+    api_key = os.getenv("MAIL_API_KEY")
     mailer = emails.NewEmail(api_key)
 
     session_dict = get_session_data(session=request.json.get("sessionID"))
@@ -243,25 +246,25 @@ def send_mail_group():
         else:
             return jsonify({"error": response}), 500
     else:
-        return jsonify({"error": response}),    500
+        return jsonify({"error": response}), 500
 
 
 def send_mail_simple_group(session_dict, id_group, students):
     """
     Create and send the group mail to all the person of the group
-
-    :param id_group:
-    :param students:
+    :param session_dict: dict containing all the information of the session
+    :param id_group: id of the group
+    :param students: dict with all the student of the group
     :return:
     """
-
     # -- Replacing values using the template
 
     nom_session = "{{nom_session}}"  # session_dict['name_session']
     list_etu = "{{list_etu}}"
     date_limit = "{{date_limit}}"  # session_dict['end_date_session']
     lien_choix_projet_template = "{{lien_choix_projet}}"  # session_dict['id']
-    lien_choix_projet_groupe = str(session_dict['id']) + '/' + str(id_group) # TODO : Changer avec le lien du serveur
+
+    lien_choix_projet_groupe = os.getenv("SERVER_LINK") + '/' + str(session_dict['id']) + '/' + str(id_group)
 
     string_students = ""
     string_students_text = ""
@@ -287,26 +290,27 @@ def send_mail_simple_group(session_dict, id_group, students):
     mail_list = []
 
     mail_text = (f"Votre groupe de projet pour {session_dict['name_session']} est composé de {string_students_text}.\n"
-                 f"Vous pouvez désormais choisir vos préférences de projet en suivant le lien suivant {lien_choix_projet_groupe}.\n"
+                 f"Vous pouvez désormais choisir vos préférences de projet en suivant le lien suivant "
+                 f"{lien_choix_projet_groupe}.\n"
                  f"Pour plus d'informations, contactez votre professeur référent.\n"
                  f"\nEnvoyé avec ❤️ par l'équipe SmartChoice")
 
     for student in students:
         mail = {
-                "from": {
-                    "email": "MS_CFwncD@trial-pr9084zy9kxgw63d.mlsender.net",
-                    "name": "SmartChoice"
-                },
-                "to": [
-                    {
-                        "email": student['email'],
-                        "name": f"{student['firstname']} {student['name']}"
-                    }
-                ],
-                "subject": f"Votre groupe de projet pour {session_dict['name_session']}",
-                "text": mail_text,
-                "html": f"{body}",
-            }
+            "from": {
+                "email": os.getenv("MAIL"),
+                "name": os.getenv("MAIL_NAME")
+            },
+            "to": [
+                {
+                    "email": student['email'],
+                    "name": f"{student['firstname']} {student['name']}"
+                }
+            ],
+            "subject": f"Votre groupe de projet pour {session_dict['name_session']}",
+            "text": mail_text,
+            "html": f"{body}",
+        }
         mail_list.append(mail)
 
     return mail_list
@@ -334,7 +338,7 @@ def send_mail_result():
 
     print("Enter sending result mails function")
 
-    api_key = "mlsn.9a1ca8996bd516b08079567ad65214ace18758d98d46278053867fd9e282c241"
+    api_key = os.getenv("MAIL_API_KEY")
     mailer = emails.NewEmail(api_key)
 
     session_dict = get_session_data(session=request.json.get('sessionID'))
@@ -384,18 +388,18 @@ def send_mail_result():
         return jsonify({"error": response}), 500
 
 
-def send_mail_simple_result(session_dict, id_group, projet_dict, students):
+def send_mail_simple_result(session_dict, id_group, project_dict, students):
     """
     Create the group mail to all the person of the group
-
-    :param id_group:
-    :param students:
+    :param session_dict: dict containing all the information of the session
+    :param id_group: id of the group
+    :param project_dict: dict containing all the information of the project
+    :param students: dict of all the students of the group
     :return:
     """
-
     # -- Replacing values using the template
 
-    nom_session = "{{nom_session}}"  #session_dict['name_session']
+    nom_session = "{{nom_session}}"  # session_dict['name_session']
     group = "{{group}}"
     name = "{{name}}"
     project_name = "{{project_name}}"
@@ -418,11 +422,11 @@ def send_mail_simple_result(session_dict, id_group, projet_dict, students):
     body = body.replace(nom_session, session_dict['name_session'])
     body = body.replace(group, f"Groupe {id_group}")
     body = body.replace(name, string_students)
-    body = body.replace(project_name, projet_dict['nom'])
-    body = body.replace(project_description, projet_dict['description'])
+    body = body.replace(project_name, project_dict['nom'])
+    body = body.replace(project_description, project_dict['description'])
 
     mail_text = (f"Votre groupe ({id_group}) composé de {string_students_text} a été assigné "
-                 f"au projet {projet_dict['nom']} ({projet_dict['description']}).\n"
+                 f"au projet {project_dict['nom']} ({project_dict['description']}).\n"
                  f"Contactez votre professeur référent pour plus de renseignement.\n"
                  f"\nEnvoyé avec ❤️ par l'équipe SmartChoice")
 
@@ -435,8 +439,8 @@ def send_mail_simple_result(session_dict, id_group, projet_dict, students):
 
         mail = {
             "from": {
-                "email": "MS_CFwncD@trial-pr9084zy9kxgw63d.mlsender.net",
-                "name": "SmartChoice"
+                "email": os.getenv("MAIL"),
+                "name": os.getenv("MAIL_NAME")
             },
             "to": [
                 {
@@ -456,19 +460,19 @@ def send_mail_simple_result(session_dict, id_group, projet_dict, students):
 
 @app.route('/api/get_session_id', methods=['GET'])
 def get_session_id():
-    print('enter')
+    print('Enter get session ID function')
     # Il faut utiliser os.path.join pour que ce soit multiplateforme
     db = os.path.join(os.getcwd(), 'db', 'parcoursup.sqlite')
     if os.path.exists(db):
         try:
-            sessionID = request.args.get('sessionID')
-            if not sessionID:
+            session_id = request.args.get('sessionID')
+            if not session_id:
                 return jsonify({'error': 'Session ID parameter is missing'}), 400
 
             conn = sqlite3.connect(db)
             cursor = conn.cursor()
 
-            cursor.execute("SELECT ID from SESSION where ID = " + sessionID)
+            cursor.execute("SELECT ID from SESSION where ID = " + session_id)
 
             response = cursor.fetchall()
             print(response)
@@ -487,19 +491,19 @@ def get_session_id():
 
 @app.route('/api/get_session_data', methods=['GET'])
 def get_session_data():
-    print('enter')
+    print('Enter get session data function')
     # Il faut utiliser os.path.join pour que ce soit multiplateforme
     db = os.path.join(os.getcwd(), 'db', 'parcoursup.sqlite')
     if os.path.exists(db):
         try:
-            sessionID = request.args.get('sessionID')
-            if not sessionID:
+            session_id = request.args.get('sessionID')
+            if not session_id:
                 return jsonify({'error': 'Session ID parameter is missing'}), 400
 
             conn = sqlite3.connect(db)
             cursor = conn.cursor()
 
-            cursor.execute("SELECT * from SESSION where ID = " + sessionID)
+            cursor.execute("SELECT * from SESSION where ID = " + session_id)
 
             response = cursor.fetchall()
             print(response)
@@ -528,19 +532,19 @@ def get_session_data():
 
 
 def get_session_data(session):
-    print('enter')
+    print('Enter get session data function')
     # Il faut utiliser os.path.join pour que ce soit multiplateforme
     db = os.path.join(os.getcwd(), 'db', 'parcoursup.sqlite')
     if os.path.exists(db):
         try:
-            sessionID = session
-            if not sessionID:
+            session_id = session
+            if not session_id:
                 return jsonify({'error': 'Session ID parameter is missing'}), 400
 
             conn = sqlite3.connect(db)
             cursor = conn.cursor()
 
-            cursor.execute("SELECT * from SESSION where ID = " + str(sessionID))
+            cursor.execute("SELECT * from SESSION where ID = " + str(session_id))
 
             response = cursor.fetchall()
             print(response)
@@ -585,8 +589,8 @@ data = {
 @app.route('/api/gale_shapley', methods=['POST'])
 def gale_shapley_route():
     print(request.json)
-    sessionId = request.json.get('sessionID')
-    print("enter gale")
+    session_id = request.json.get('sessionID')
+    print("Enter gale shapley")
     db = os.path.join(os.getcwd(), 'db', 'parcoursup.sqlite')
     print(db)
     if os.path.exists(db):
@@ -597,34 +601,34 @@ def gale_shapley_route():
                                         INNER JOIN PROJET ON PREFERENCE_PROJET.FK_Projet = PROJET.ID 
                                         WHERE PROJET.FK_Session = ?
                                         ORDER BY PREFERENCE_PROJET.FK_Projet, PREFERENCE_PROJET.Ordre_Preference;""",
-                           (sessionId,))
-            projectsData = cursor.fetchall()
+                           (session_id,))
+            projects_data = cursor.fetchall()
 
-            def formatData(data):
-                formatedData = {}
+            def format_data(data):
+                formated_data = {}
                 for x, y, z in data:
-                    if str(x) not in formatedData:
-                        formatedData[str(x)] = [None, None, None]
-                    formatedData[str(x)][z - 1] = str(y)
-                return formatedData
+                    if str(x) not in formated_data:
+                        formated_data[str(x)] = [None, None, None]
+                    formated_data[str(x)][z - 1] = str(y)
+                return formated_data
 
-            projectsPreferencies = formatData(projectsData)
+            projects_preferencies = format_data(projects_data)
 
             cursor.execute("""SELECT FK_GROUPE, FK_Projet, Ordre_Preference FROM PREFERENCE_GROUPE
                             INNER JOIN GROUPE ON PREFERENCE_GROUPE.FK_Groupe = GROUPE.ID 
                             INNER JOIN PROJET ON PREFERENCE_GROUPE.FK_Projet = PROJET.ID
                             WHERE PROJET.FK_Session = ?
-                            ORDER BY PREFERENCE_GROUPE.FK_Groupe, PREFERENCE_GROUPE.Ordre_Preference;""", (sessionId,))
+                            ORDER BY PREFERENCE_GROUPE.FK_Groupe, PREFERENCE_GROUPE.Ordre_Preference;""", (session_id,))
 
-            groupsData = cursor.fetchall()
+            groups_data = cursor.fetchall()
 
-            groupsPreferencies = formatData(groupsData)
+            groups_preferencies = format_data(groups_data)
 
             conn.close()
 
             data = {
-                "men_preferences": groupsPreferencies,
-                "women_preferences": projectsPreferencies,
+                "men_preferences": groups_preferencies,
+                "women_preferences": projects_preferencies,
             }
 
             if 'men_preferences' in data and 'women_preferences' in data:
@@ -680,7 +684,7 @@ def gale_shapley(women_preferences, men_preferences):
 
 @app.route('/api/hello_world', methods=['GET'])
 def get_hello_world():
-    print('enter')
+    print('Enter test function')
     # Il faut utiliser os.path.join pour que ce soit multiplateforme
     db = os.path.join(os.getcwd(), 'db', 'parcoursup.sqlite')
     print(db)
@@ -746,20 +750,20 @@ def create_session():
         conn = sqlite3.connect(db)
         cursor = conn.cursor()
         try:
-            queryParameters = (
+            query_parameters = (
                 session[0]['Nom'], session[0]['Deadline_Creation_Groupe'], session[0]['Deadline_Choix_Projet'],
                 session[0]['Nb_Etudiant_Min'], session[0]['Nb_Etudiant_Max'], session[0]['Etat'],
                 session[0]['FK_Utilisateur'])
 
-            sqlRequest = cursor.execute("INSERT INTO SESSION VALUES (NULL, ?, ?, ?, ?, ?, ?, ?) RETURNING ID",
-                                        queryParameters)
-            sessionID = sqlRequest.fetchone()
+            sql_request = cursor.execute("INSERT INTO SESSION VALUES (NULL, ?, ?, ?, ?, ?, ?, ?) RETURNING ID",
+                                         query_parameters)
+            session_id = sql_request.fetchone()
             # Commit the insertions
             conn.commit()
             conn.close()
 
             # Convert data to JSON format
-            return jsonify({'result': sessionID}), 200
+            return jsonify({'result': session_id}), 200
 
         except sqlite3.Error as e:
             return jsonify({'error': str(e)}), 500
@@ -796,7 +800,7 @@ def update_session():
     """
     print('Enter update session function')
     # Retrieve parameters from the request body
-    sessionID = request.json.get('session_ID')
+    session_id = request.json.get('session_ID')
     session = request.json.get('data')
 
     # Il faut utiliser os.path.join pour que ce soit multiplateforme
@@ -806,22 +810,23 @@ def update_session():
         cursor = conn.cursor()
         try:
 
-            queryParameters = [(session[0]['Nom'], session[0]['Deadline_Creation_Groupe'],
-                                session[0]['Deadline_Choix_Projet'], session[0]['Nb_Etudiant_Min'],
-                                session[0]['Nb_Etudiant_Max'], session[0]['Etat'], session[0]['FK_Utilisateur'],
-                                sessionID)]
+            query_parameters = [(session[0]['Nom'], session[0]['Deadline_Creation_Groupe'],
+                                 session[0]['Deadline_Choix_Projet'], session[0]['Nb_Etudiant_Min'],
+                                 session[0]['Nb_Etudiant_Max'], session[0]['Etat'], session[0]['FK_Utilisateur'],
+                                 session_id)]
 
-            sqlRequest = cursor.execute(
-                "UPDATE SESSION SET Nom = ?, Deadline_Creation_Groupe = ?, Deadline_Choix_Projet = ?, Nb_Etudiant_Min = ?, Nb_Etudiant_Max = ?, Etat = ?, FK_Utilisateur = ? WHERE ID = ?",
-                queryParameters[0])
-            sessionID = sqlRequest.fetchone()
+            sql_request = cursor.execute(
+                "UPDATE SESSION SET Nom = ?, Deadline_Creation_Groupe = ?, Deadline_Choix_Projet = ?, Nb_Etudiant_Min "
+                "= ?, Nb_Etudiant_Max = ?, Etat = ?, FK_Utilisateur = ? WHERE ID = ?",
+                query_parameters[0])
+            session_id = sql_request.fetchone()
 
             # Commit the insertions
             conn.commit()
             conn.close()
 
             # Convert data to JSON format
-            return jsonify({'result': sessionID}), 200
+            return jsonify({'result': session_id}), 200
 
         except sqlite3.Error as e:
             return jsonify({'error': str(e)}), 500
@@ -839,7 +844,7 @@ def delete_session():
     """
     print('Enter delete session function')
     # Retrieve parameters from the request body
-    sessionID = request.json.get('sessionID')  # json item
+    session_id = request.json.get('sessionID')  # json item
 
     # Il faut utiliser os.path.join pour que ce soit multiplateforme
     db = os.path.join(os.getcwd(), 'db', 'parcoursup.sqlite')
@@ -847,8 +852,8 @@ def delete_session():
         conn = sqlite3.connect(db)
         cursor = conn.cursor()
         try:
-            sqlRequest = cursor.execute("DELETE FROM SESSION WHERE ID = ?;", (sessionID,))
-            res = sqlRequest.fetchone()
+            sql_request = cursor.execute("DELETE FROM SESSION WHERE ID = ?;", (session_id,))
+            res = sql_request.fetchone()
 
             # Commit the delete
             conn.commit()
@@ -874,11 +879,9 @@ def get_sessions():
 
         try:
             # Retrieve data from SQLite database
-
             cursor.execute("SELECT id, Nom, Deadline_Choix_Projet, Etat FROM SESSION")
 
             response = cursor.fetchall()
-            print(response)
 
             sessions = []
             for idx, session in enumerate(response):
@@ -915,7 +918,7 @@ def create_students():
     print('Enter create students function')
 
     # Retrieve parameters from the request body
-    sessionID = request.json.get('sessionID')  # assuming the parameters are sent in JSON format
+    session_id = request.json.get('sessionID')  # assuming the parameters are sent in JSON format
     students = request.json.get('data')
 
     db = os.path.join(os.getcwd(), 'db', 'parcoursup.sqlite')
@@ -928,15 +931,15 @@ def create_students():
             table_exists = cursor.fetchone() is not None
 
             if table_exists:
-                cursor.execute(f"DELETE FROM ETUDIANT WHERE FK_Session ='{sessionID}'")
+                cursor.execute(f"DELETE FROM ETUDIANT WHERE FK_Session ='{session_id}'")
 
             print(students)
             # Insert student data (without RETURNING)
-            queryParameters = [(data['Nom'], data['Prenom'], data['Email'], sessionID) for data in students]
+            query_parameters = [(data['Nom'], data['Prenom'], data['Email'], session_id) for data in students]
 
             cursor.executemany(
                 "INSERT INTO ETUDIANT (Nom, Prenom, Email, FK_Session) VALUES (?, ?, ?, ?)",
-                queryParameters
+                query_parameters
             )
 
             # Commit the insertions
@@ -964,7 +967,7 @@ def is_in_group():
     """
     print('Enter student is in group function')
     # Retrieve parameters from the request body
-    studentID = request.json.get('studentID')
+    student_id = request.json.get('studentID')
 
     # Il faut utiliser os.path.join pour que ce soit multiplateforme
     db = os.path.join(os.getcwd(), 'db', 'parcoursup.sqlite')
@@ -972,12 +975,12 @@ def is_in_group():
         conn = sqlite3.connect(db)
         cursor = conn.cursor()
         try:
-            sqlRequest = cursor.execute("SELECT FK_Groupe from ETUDIANT_GROUPE WHERE FK_Etudiant = ?", (studentID,))
-            res = sqlRequest.fetchone()
+            sql_request = cursor.execute("SELECT FK_Groupe from ETUDIANT_GROUPE WHERE FK_Etudiant = ?", (student_id,))
+            res = sql_request.fetchone()
 
             conn.close()
 
-            if res != None:
+            if res is not None:
                 res = True  # Déjà dans un groupe
             else:
                 res = False  # Pas dans un groupe
@@ -1012,7 +1015,7 @@ def get_all_students():
     print('Enter get all students function')
 
     # Retrieve parameters from the request body
-    sessionID = request.json.get('sessionID')
+    session_id = request.json.get('sessionID')
 
     db = os.path.join(os.getcwd(), 'db', 'parcoursup.sqlite')
     if os.path.exists(db):
@@ -1021,7 +1024,7 @@ def get_all_students():
 
         try:
             # Retrieve data from SQLite database
-            cursor.execute("SELECT * FROM Etudiant WHERE FK_Session = ? ;", (sessionID,))
+            cursor.execute("SELECT * FROM Etudiant WHERE FK_Session = ? ;", (session_id,))
             response = cursor.fetchall()
 
             # Prepare data for the front-end
@@ -1034,8 +1037,6 @@ def get_all_students():
                     'email': response[idx][3],
                 }
                 students.append(student_dict)
-
-            print(students)
 
             conn.close()
 
@@ -1090,19 +1091,19 @@ def create_project():
 
         try:
             # Create the group in the table GROUPE and return the ID
-            queryParameters = [(projet[0]['Nom'], projet[0]['Description'], projet[0]['Nb_Etudiant_Min'],
-                                projet[0]['Nb_Etudiant_Max'], projet[0]['FK_Session'])]
+            query_parameters = [(projet[0]['Nom'], projet[0]['Description'], projet[0]['Nb_Etudiant_Min'],
+                                 projet[0]['Nb_Etudiant_Max'], projet[0]['FK_Session'])]
 
-            sqlRequest = cursor.execute("INSERT INTO PROJET VALUES (NULL, ?, ?, ?, ?, ?) RETURNING ID",
-                                        queryParameters[0])
-            projectID = sqlRequest.fetchone()
+            sql_request = cursor.execute("INSERT INTO PROJET VALUES (NULL, ?, ?, ?, ?, ?) RETURNING ID",
+                                         query_parameters[0])
+            project_id = sql_request.fetchone()
 
             # Commit the insertions
             conn.commit()
             conn.close()
 
             # Convert data to JSON format
-            return jsonify({'result': projectID}), 200
+            return jsonify({'result': project_id}), 200
 
         except sqlite3.Error as e:
             return jsonify({'error': str(e)}), 500
@@ -1120,7 +1121,7 @@ def delete_project():
     """
     print('Enter delete project function')
     # Retrieve parameters from the request body
-    projectID = request.json.get('projectID')  # json item
+    project_id = request.json.get('projectID')  # json item
 
     # Il faut utiliser os.path.join pour que ce soit multiplateforme
     db = os.path.join(os.getcwd(), 'db', 'parcoursup.sqlite')
@@ -1128,8 +1129,8 @@ def delete_project():
         conn = sqlite3.connect(db)
         cursor = conn.cursor()
         try:
-            sqlRequest = cursor.execute("DELETE FROM PROJET WHERE ID = ?;", (projectID,))
-            res = sqlRequest.fetchone()
+            sql_request = cursor.execute("DELETE FROM PROJET WHERE ID = ?;", (project_id,))
+            res = sql_request.fetchone()
 
             # Commit the delete
             conn.commit()
@@ -1165,7 +1166,7 @@ def get_all_projects():
     print('Enter get all projects function')
 
     # Retrieve parameters from the request body
-    sessionID = request.json.get('sessionID')
+    session_id = request.json.get('sessionID')
 
     db = os.path.join(os.getcwd(), 'db', 'parcoursup.sqlite')
     if os.path.exists(db):
@@ -1174,7 +1175,7 @@ def get_all_projects():
 
         try:
             # Retrieve data from SQLite database
-            cursor.execute("SELECT * FROM Projet WHERE FK_Session = ? ;", (sessionID,))
+            cursor.execute("SELECT * FROM Projet WHERE FK_Session = ? ;", (session_id,))
             response = cursor.fetchall()
 
             # Prepare data for the front-end
@@ -1269,7 +1270,8 @@ def get_group_projects_order_by_preferencies():
         };
         const jsonData = JSON.stringify(data);
 
-        const response = await axios.post("http://127.0.0.1:5000/api/get_group_projects_order_by_preferencies, jsonData, {
+        const response = await axios.post("http://127.0.0.1:5000/api/get_group_projects_order_by_preferencies, jsonData,
+         {
           headers: {
             'Content-Type': 'application/json'
           }}
@@ -1280,8 +1282,8 @@ def get_group_projects_order_by_preferencies():
     print('Enter group projects order by preferencies function')
 
     # Retrieve parameters from the request body
-    sessionID = request.json.get('sessionID')
-    groupID = request.json.get('groupID')
+    session_id = request.json.get('sessionID')
+    group_id = request.json.get('groupID')
 
     db = os.path.join(os.getcwd(), 'db', 'parcoursup.sqlite')
     if os.path.exists(db):
@@ -1292,7 +1294,7 @@ def get_group_projects_order_by_preferencies():
             cursor.execute("""SELECT * from PREFERENCE_GROUPE
                             INNER JOIN PROJET ON  PROJET.ID = PREFERENCE_GROUPE.FK_Projet 
                             WHERE FK_GROUPE = ? AND FK_Session = ?
-                            ORDER BY PREFERENCE_GROUPE.Ordre_Preference;""", (groupID, sessionID))
+                            ORDER BY PREFERENCE_GROUPE.Ordre_Preference;""", (group_id, session_id))
 
             response = cursor.fetchall()
 
@@ -1333,7 +1335,8 @@ def get_project_groups_order_by_preferencies():
         };
         const jsonData = JSON.stringify(data);
 
-        const response = await axios.post("http://127.0.0.1:5000/api/get_project_groups_order_by_preferencies, jsonData, {
+        const response = await axios.post("http://127.0.0.1:5000/api/get_project_groups_order_by_preferencies, jsonData,
+         {
           headers: {
             'Content-Type': 'application/json'
           }}
@@ -1344,8 +1347,8 @@ def get_project_groups_order_by_preferencies():
     print('Enter project groups order by preferencies function')
 
     # Retrieve parameters from the request body
-    sessionID = request.json.get('sessionID')
-    projectID = request.json.get('projectID')
+    session_id = request.json.get('sessionID')
+    project_id = request.json.get('projectID')
 
     db = os.path.join(os.getcwd(), 'db', 'parcoursup.sqlite')
     if os.path.exists(db):
@@ -1356,7 +1359,7 @@ def get_project_groups_order_by_preferencies():
             cursor.execute("""SELECT * from PREFERENCE_PROJET
                             INNER JOIN GROUPE ON GROUPE.ID = PREFERENCE_PROJET.FK_Groupe 
                             WHERE FK_PROJET = ?
-                            ORDER BY PREFERENCE_PROJET.Ordre_Preference;""", (projectID,))
+                            ORDER BY PREFERENCE_PROJET.Ordre_Preference;""", (project_id,))
 
             response = cursor.fetchall()
 
@@ -1367,7 +1370,7 @@ def get_project_groups_order_by_preferencies():
                     JOIN SESSION s ON e.FK_Session = s.ID
                     JOIN GROUPE g ON eg.FK_Groupe = g.ID
                     WHERE s.ID = ?;
-                    """, (sessionID,))
+                    """, (session_id,))
 
             groups_response = cursor.fetchall()
             groups = []
@@ -1447,19 +1450,19 @@ def update_project():
         cursor = conn.cursor()
 
         try:
-            queryParameters = [data['nom'],
-                               data['description'],
-                               data['min_etu'],
-                               data['max_etu'],
-                               data['id'],
-                               data['id_session']
-                               ]
+            query_parameters = [data['nom'],
+                                data['description'],
+                                data['min_etu'],
+                                data['max_etu'],
+                                data['id'],
+                                data['id_session']
+                                ]
 
-            sqlRequest = cursor.execute(
+            sql_request = cursor.execute(
                 "UPDATE PROJET SET Nom = ?, Description = ?, Nb_Etudiant_Min = ?, Nb_Etudiant_Max = ? WHERE ID = ? "
                 "and FK_Session = ?;",
-                queryParameters)
-            res = sqlRequest.fetchone()
+                query_parameters)
+            res = sql_request.fetchone()
 
             # Commit the insertions
             conn.commit()
@@ -1491,7 +1494,7 @@ def affect_default_preferencies():
     print('Enter affect default preferencies function')
 
     # Retrieve parameters from the request body
-    sessionId = request.json.get('data')  # assuming the parameters are sent in JSON format
+    session_id = request.json.get('data')  # assuming the parameters are sent in JSON format
 
     # Il faut utiliser os.path.join pour que ce soit multiplateforme
     db = os.path.join(os.getcwd(), 'db', 'parcoursup.sqlite')
@@ -1502,12 +1505,12 @@ def affect_default_preferencies():
         try:
             cursor.execute("""SELECT DISTINCT FK_Groupe FROM ETUDIANT e
                     LEFT JOIN ETUDIANT_GROUPE eg ON e.ID = eg.FK_Etudiant
-                    WHERE e.FK_Session = ?;""", (sessionId,))
+                    WHERE e.FK_Session = ?;""", (session_id,))
 
             groups = cursor.fetchall()
 
             cursor.execute("""SELECT id FROM Projet
-                            WHERE FK_Session = ?;""", (sessionId,))
+                            WHERE FK_Session = ?;""", (session_id,))
 
             projects = cursor.fetchall()
 
@@ -1642,7 +1645,7 @@ def create_group():
     print('Enter create group function')
 
     # Retrieve parameters from the request body
-    studentsID = request.json.get(
+    students_id = request.json.get(
         'data')  # Students ids members of the group assuming the parameters are sent in JSON format
 
     # Il faut utiliser os.path.join pour que ce soit multiplateforme
@@ -1654,20 +1657,20 @@ def create_group():
         cursor = conn.cursor()
         try:
             # Create the group in the table GROUPE and return the ID
-            sqlRequest = cursor.execute(
+            sql_request = cursor.execute(
                 "INSERT INTO GROUPE VALUES (NULL) RETURNING ID")
-            groupID = sqlRequest.fetchone()
+            group_id = sql_request.fetchone()
 
             # Insert in ETUDIANT_GROUPE table with the group ID
-            queryParameters = [(data['studentID'], groupID[0]) for data in studentsID]
-            cursor.executemany("INSERT INTO ETUDIANT_GROUPE VALUES (?, ?)", queryParameters)
+            query_parameters = [(data['studentID'], group_id[0]) for data in students_id]
+            cursor.executemany("INSERT INTO ETUDIANT_GROUPE VALUES (?, ?)", query_parameters)
 
             # Commit the insertions
             conn.commit()
             conn.close()
 
             # Convert data to JSON format
-            return jsonify({'result': groupID}), 200
+            return jsonify({'result': group_id}), 200
 
         except sqlite3.Error as e:
             print(e)
@@ -1699,7 +1702,7 @@ def get_all_groups_students():
         """
     print('Enter get all the groups and the students within it function')
     # Retrieve parameters from the request body
-    sessionID = request.json.get('sessionID')
+    session_id = request.json.get('sessionID')
 
     db = os.path.join(os.getcwd(), 'db', 'parcoursup.sqlite')
     if os.path.exists(db):
@@ -1717,7 +1720,7 @@ def get_all_groups_students():
                 """
 
             # Execute the query with the session ID as a parameter
-            cursor.execute(sql, (sessionID,))
+            cursor.execute(sql, (session_id,))
 
             # Build the output data structure
             groups = {}
@@ -1757,7 +1760,7 @@ def get_all_groups_students(session):
     print('Enter get all the groups and the students within it function')
 
     # Retrieve parameters from the request body
-    sessionID = session
+    session_id = session
 
     db = os.path.join(os.getcwd(), 'db', 'parcoursup.sqlite')
     if os.path.exists(db):
@@ -1775,7 +1778,7 @@ def get_all_groups_students(session):
                 """
 
             # Execute the query with the session ID as a parameter
-            cursor.execute(sql, (sessionID,))
+            cursor.execute(sql, (session_id,))
 
             # Build the output data structure
             groups = {}
@@ -1854,7 +1857,7 @@ def reaffect_group():
                 print(student['id_student'], student['id_new_group'])
                 print(students)
                 print(any(student['id_student'] not in t for t in students))
-                if (any(student['id_student'] in t for t in students)):
+                if any(student['id_student'] in t for t in students):
                     cursor.execute("UPDATE ETUDIANT_GROUPE SET FK_Groupe=? WHERE FK_Etudiant=?",
                                    (student['id_new_group'], student['id_student']))
                 else:
