@@ -366,7 +366,7 @@ def get_session_data():
             conn = sqlite3.connect(db)
             cursor = conn.cursor()
 
-            cursor.execute("SELECT * from SESSION where ID = ?" + (sessionID,))
+            cursor.execute("SELECT * from SESSION where ID = ?", (sessionID,))
 
             response = cursor.fetchall()
             print(response)

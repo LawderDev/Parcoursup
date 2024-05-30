@@ -207,6 +207,8 @@ const handleEndSession = async () => {
 onMounted(async () => {
   await getSessionData(sessionID);
   await api_call_projects(sessionID);
+
+  console.log(stateSession);
   state.isLoading = true;
 });
 
