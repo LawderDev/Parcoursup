@@ -25,6 +25,8 @@ const props = defineProps({
   sessionId: Number,
 })
 
+const config = useRuntimeConfig()
+
 const emit = defineEmits(["update:isOpen"]);
 
 const state = reactive({
@@ -39,7 +41,7 @@ const state = reactive({
         };
       const jsonData = JSON.stringify(data);
 
-      const response = await axios.post("http://127.0.0.1:5000/api/get_project_groups_order_by_preferencies", jsonData, {
+      const response = await axios.post(`${config.public.backUrl}/api/get_project_groups_order_by_preferencies`, jsonData, {
           headers: {
             'Content-Type': 'application/json'
           }
@@ -98,7 +100,7 @@ const state = reactive({
     const jsonData = JSON.stringify(data);
 
     await axios.post(
-      "http://127.0.0.1:5000/api/affect_preference_projet",
+      `${config.public.backUrl}/api/affect_preference_projet`,
       jsonData,
       {
         headers: {

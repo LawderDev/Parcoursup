@@ -1,15 +1,25 @@
 <template>
   <div>
-    <Modal @close="$emit('update:isOpen', false)">
+    <Modal @close="$emit('update:isOpen', false)" :disabled="props.disabled">
+      
       <template v-slot:open-btn>
         <button
+          v-if="props.disabled"
+          class="btn btn-ghost p-0 w-12 h-12"
+          disabled
+        >
+          <img alt="delete-svg" src="../public/delete.svg" class="h-6 w-6" />
+        </button>
+        <button
+          v-else
           @click.stop="$emit('update:isOpen', true)"
-          class="btn btn-ghost"
+          class="btn btn-ghost p-0 w-12 h-12"
         >
           <img alt="delete-svg" src="../public/delete.svg" class="h-6 w-6" />
         </button>
         <div ref="openBtn" class="hidden"></div>
       </template>
+      
       <template v-slot:form>
         <div class="flex flex-col">
           <h2 class="font-semibold text-primary text-center mb-5 text-xl">
@@ -42,6 +52,7 @@ const props = defineProps({
   isOpen: Boolean,
   projectName: String,
   projectId: Number,
+  disabled: Boolean,
 });
 
 watch(

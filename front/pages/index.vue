@@ -1,19 +1,23 @@
 <template>
   <div>
-    <NavBar name="M"></NavBar>
-    <div class="flex justify-end mr-10">
-      <ModalCreateSession @handle-validate="api_call_sessions"></ModalCreateSession>
-    </div>
-    <div class="mt-6">
-      <SessionItem
-        v-for="session in state.sessions"
-        :title="session.nom"
-        :endDate="'Fin le ' + format_date(session.end_date)"
-        @delete="openDeleteModal(session)"
-        @handleClick="openSessionPage(session.id)"
-      ></SessionItem>
-    </div>
-    <ModalDeleteSession hide-button v-model:isOpen="state.isOpen" :session-title="state.selectedSession.title" :session-id="state.selectedSession.id" @handle-delete="api_call_sessions"></ModalDeleteSession>
+    <NavBar></NavBar>
+    <template v-if="state.isLoading">
+      <div class="flex justify-end mr-10">
+        <ModalCreateSession @handle-validate="api_call_sessions"></ModalCreateSession>
+      </div>
+      <div class="mt-6">
+        <SessionItem
+          v-for="session in state.sessions"
+          :title="session.nom"
+          :end-date="'Fin le ' + format_date(session.end_date)"
+          :session-state="session.state"
+          @delete="openDeleteModal(session)"
+          @handleClick="openSessionPage(session.id)"
+        ></SessionItem>
+      </div>
+      <ModalDeleteSession hide-button v-model:isOpen="state.isOpen" :session-title="state.selectedSession.title" :session-id="state.selectedSession.id" @handle-delete="api_call_sessions"></ModalDeleteSession>
+    </template>
+    <Skeleton v-else></Skeleton>
   </div>
 </template>
 
@@ -21,11 +25,14 @@
 import { reactive } from "vue";
 import axios from "axios";
 
+const config = useRuntimeConfig();
+
 const state = reactive({
   helloWorld: "",
   isOpen: false,
   selectedSession: {},
   sessions: [],
+  isLoading: false
 });
 
 const openDeleteModal = (session) => {
@@ -41,8 +48,9 @@ const openSessionPage = async (sessionID) => {
 
 const api_call_sessions = async () => {
   try {
-    const response = await axios.get("http://127.0.0.1:5000/api/get_sessions");
+    const response = await axios.get(`${config.public.backUrl}/api/get_sessions`);
     state.sessions = response.data
+    console.log(state.sessions)
   } catch (error) {
     console.error("Erreur lors de la récupération des sessions :", error);
   }
@@ -62,5 +70,10 @@ const format_date = (dateString) => {
   return `${day}/${month}/${year} à ${hours}h${minutes}`;
 }
 
-await api_call_sessions();
+onMounted(async () => {
+  await api_call_sessions();
+  state.isLoading = true;
+})
+
+
 </script>

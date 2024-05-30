@@ -1,6 +1,8 @@
 import axios from 'axios';
 
 export function useProject() {
+    const config = useRuntimeConfig();
+
     const stateProject = reactive({
       projects: [],
     })
@@ -12,7 +14,7 @@ export function useProject() {
           };
           const jsonData = JSON.stringify(data);
           const response = await axios.post(
-            "http://127.0.0.1:5000/api/get_all_projects",
+            `${config.public.backUrl}/api/get_all_projects`,
             jsonData,
             {
               headers: {

@@ -21,7 +21,7 @@
               <h2 class="m-3">Email</h2>
               <input
                 v-model="state.login"
-                type="text"
+                type="email"
                 class="input input-bordered w-full max-w-xs"
               />
             </div>
@@ -29,7 +29,7 @@
               <h2 class="m-3 text-error">Email</h2>
               <input
                 v-model="state.login"
-                type="text"
+                type="email"
                 class="input input-bordered input-error w-full max-w-xs"
               />
               <span class="label label-text-alt text-error"
@@ -41,7 +41,7 @@
                 <h2 class="m-3">Mot de passe</h2>
                 <input
                   v-model="state.password"
-                  type="text"
+                  type="password"
                   class="input input-bordered w-full max-w-xs"
                 />
               </div>
@@ -49,7 +49,7 @@
                 <h2 class="m-3 text-error">Mot de passe</h2>
                 <input
                   v-model="state.password"
-                  type="text"
+                  type="password"
                   class="input input-bordered input-error w-full max-w-xs"
                 />
                 <span class="label label-text-alt text-error"
@@ -84,7 +84,7 @@
               <h2 class="m-3">Email</h2>
               <input
                 v-model="state.login"
-                type="text"
+                type="email"
                 class="input input-bordered w-full max-w-xs"
               />
             </div>
@@ -92,7 +92,7 @@
               <h2 class="m-3 text-error">Email</h2>
               <input
                 v-model="state.login"
-                type="text"
+                type="email"
                 class="input input-bordered input-error w-full max-w-xs"
               />
               <span class="label label-text-alt text-error"
@@ -104,7 +104,7 @@
                 <h2 class="m-3">Mot de passe</h2>
                 <input
                   v-model="state.password"
-                  type="text"
+                  type="password"
                   class="input input-bordered w-full max-w-xs"
                 />
               </div>
@@ -112,7 +112,7 @@
                 <h2 class="m-3 text-error">Mot de passe</h2>
                 <input
                   v-model="state.password"
-                  type="text"
+                  type="password"
                   class="input input-bordered input-error w-full max-w-xs"
                 />
                 <span class="label label-text-alt text-error"
@@ -138,16 +138,20 @@
 import { useToasterStore } from "~/stores/toaster";
 import axios from "axios";
 const toaster = useToasterStore();
+const config = useRuntimeConfig();
+
 const state = reactive({
   login: null,
   password: null,
   loginError: false,
   passwordError: false,
 });
+
 const openIndexPage = async () => {
   state.loginError =false
   state.passwordError =false
   const res = await callLogin()
+  console.log("res",res)
   if (res.status===200) {
     toaster.showMessage("Connexion réussie", "success");
     await navigateTo("/");
@@ -171,23 +175,24 @@ const showErrorUnknown = () => {
 }
 const callLogin = async () => {
   try {
-    const jsonData = getJsonData(state.login, state.password);
+    const jsonData = getJsonData("test@test16.com", "monMDP");
     const res = await axios.post("http://127.0.0.1:5000/api/login", jsonData, {
       headers: {
         "Content-Type": "application/json",
       },
+      withCredentials: true, // Ensure cookies are sent and received
     });
     return res;
   } catch (err) {
-    return err.response
+    console.error("Erreur lors de la récupération du login :", err);
   }
 };
 const getJsonData = (login, password) => {
   const data = {
     data: [
       {
-        Email: state.login,
-        Password: state.password,
+        Email: login,
+        Password: password,
       },
     ],
   };

@@ -159,8 +159,7 @@ def login():
         print(e)
         return jsonify({'error': str(e)}), 500
 
-
-@app.route('/api/logout', methods=['POST'])
+@app.route('/api/logout', methods=['GET'])
 @login_required
 def logout():
     try:
@@ -175,14 +174,6 @@ def logout():
 @login_required
 def get_current_user():
     """
-    const data = { 
-            "data" : [
-                {
-                'Email':'test@test16.com', 
-                'Password':'monMDP'
-                }
-            ]     
-            };
         const jsonData = JSON.stringify(data);
     // Access protected route after login
         axiosInstance.get('/api/current_user')
@@ -194,6 +185,7 @@ def get_current_user():
         print("enter current user function")
         user = {
             'Nom': current_user.Nom,
+            'Prenom' : current_user.Prenom,
             'Email': current_user.Email
         }
         return jsonify(user), 200
@@ -201,6 +193,147 @@ def get_current_user():
         print(e)
         return jsonify({'error': str(e)}), 500
 
+
+@app.route('/api/update_password', methods=['POST'])
+@login_required
+def update_password():
+    """_summary_
+    const data = { 
+            "data" : [
+                {
+                'current_password':'monMDP', 
+                'new_password':'monMDP2'
+                }
+            ]     
+            };
+        const jsonData = JSON.stringify(data);
+    Returns:
+        _type_: _description_
+    """
+    try:
+        data = request.json.get('data')
+        current_password = data['current_password']
+        new_password = data['new_password']
+        
+        # Verify the current password
+        if not check_password_hash(current_user.Password, current_password):
+            return jsonify({'message': 'Current password is incorrect'}), 400
+        
+        # Update to the new password
+        hashed_new_password = generate_password_hash(new_password, method='pbkdf2:sha256', salt_length=16)
+        current_user.Password = hashed_new_password
+        db.session.commit()
+        return jsonify({'message': 'Password updated successfully'}), 200
+    except Exception as e:
+        print(e)
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500
+    
+@app.route('/api/get_users', methods=['GET'])
+def get_users():
+    print('enter get users function')
+    db = os.path.join(os.getcwd(), 'db', 'parcoursup.sqlite')
+    if os.path.exists(db):
+        try:
+            
+            conn = sqlite3.connect(db)
+            cursor = conn.cursor()
+
+            cursor.execute("SELECT * from UTILISATEUR")
+
+            response = cursor.fetchall()
+
+            users = []
+            for user in response:
+                user_dict = {
+                    'id': user[0],
+                    'name': user[1],
+                    'firstname': user[2],
+                    'email': user[3],
+                    'password': user[4]
+                }
+                users.append(user_dict)
+
+            conn.close()
+
+            # Convert data to JSON format
+            return jsonify(users)
+
+        except sqlite3.Error as e:
+            return jsonify({'error': str(e)}), 500
+    else:
+        return jsonify({'error': "nul"}), 50
+    
+@app.route('/api/delete_user', methods=['POST'])
+def delete_user():
+    """
+    _summary_
+        Method that delete a user, take in parameter the id.
+    Returns:
+        _type_: _description_
+    """
+    print('Enter delete user function')
+    # Retrieve parameters from the request body
+    userID = request.json.get('userID')  # json item
+
+    # Il faut utiliser os.path.join pour que ce soit multiplateforme
+    db = os.path.join(os.getcwd(), 'db', 'parcoursup.sqlite')
+    if os.path.exists(db):
+        conn = sqlite3.connect(db)
+        cursor = conn.cursor()
+        try:
+            sqlRequest = cursor.execute("DELETE FROM UTILISATEUR WHERE ID = ?;", (userID,))
+            res = sqlRequest.fetchone()
+
+            # Commit the delete
+            conn.commit()
+            conn.close()
+
+            # Convert data to JSON format
+            return jsonify({'result': res}), 200
+
+        except sqlite3.Error as e:
+            return jsonify({'error': str(e)}), 500
+    else:
+        return jsonify({'error': "nul"}), 50
+    
+@app.route('/api/update_user', methods=['POST'])
+def update_user():
+    print('Enter update user function')
+    # Retrieve parameters from the request body
+    user = request.json.get('data')
+
+    # Il faut utiliser os.path.join pour que ce soit multiplateforme
+    db = os.path.join(os.getcwd(), 'db', 'parcoursup.sqlite')
+    if os.path.exists(db):
+        conn = sqlite3.connect(db)
+        cursor = conn.cursor()
+        try:
+            
+            queryParameters = [(user[0]['Nom'], user[0]['Prenom'], user[0]['Email'], user[0]['Password'],
+                                user[0]['Id'])]
+
+            sqlRequest = cursor.execute(
+                "UPDATE UTILISATEUR SET Nom = ?, Prenom = ?, Email = ?, Password = ? WHERE ID = ?",
+                queryParameters[0])
+            userID = sqlRequest.fetchone()
+
+            # Commit the insertions
+            conn.commit()
+            conn.close()
+
+            # Convert data to JSON format
+            return jsonify({'result': userID}), 200
+
+        except sqlite3.Error as e:
+            return jsonify({'error': str(e)}), 500
+    else:
+        return jsonify({'error': "nul"}), 50
+
+
+# Initialize the database (run once to create the database)
+# with app.app_context():
+#     db.create_all()
 
 ###
 # MAIL
@@ -471,8 +604,8 @@ def get_session_id():
 
             conn = sqlite3.connect(db)
             cursor = conn.cursor()
-
-            cursor.execute("SELECT ID from SESSION where ID = " + session_id)
+            
+            cursor.execute("SELECT ID from SESSION where ID = " + (session_id,))
 
             response = cursor.fetchall()
             print(response)
@@ -503,7 +636,7 @@ def get_session_data():
             conn = sqlite3.connect(db)
             cursor = conn.cursor()
 
-            cursor.execute("SELECT * from SESSION where ID = " + session_id)
+            cursor.execute("SELECT * from SESSION where ID = ?", (session_id,))
 
             response = cursor.fetchall()
             print(response)
@@ -1297,21 +1430,24 @@ def get_group_projects_order_by_preferencies():
                             ORDER BY PREFERENCE_GROUPE.Ordre_Preference;""", (group_id, session_id))
 
             response = cursor.fetchall()
+            print("RESPONSEEEEEEEEEEE")
+            print(sessionID)
+            print(groupID)
+            print(response)
 
             # Prepare data for the front-end
             projects = []
             for idx, project in enumerate(response):
                 project_dict = {
-                    'id': response[idx][3],
-                    'nom': response[idx][4],
-                    'description': response[idx][5],
-                    'min_etu': response[idx][6],
-                    'max_etu': response[idx][7],
-                    'id_session': response[idx][8]
+                    'id': response[idx][4],
+                    'nom': response[idx][5],
+                    'description': response[idx][6],
+                    'min_etu': response[idx][7],
+                    'max_etu': response[idx][8],
+                    'id_session': response[idx][9],
+                    'date_derniere_modif': response[idx][3] 
                 }
                 projects.append(project_dict)
-
-            print(projects)
 
             conn.close()
 
@@ -1561,7 +1697,7 @@ def affect_preference_projet():
             {
               "projectID": 1,
               "groupID": 2,
-              "order": 2
+              "order": 2,
             }
         ]
     }
@@ -1674,6 +1810,41 @@ def create_group():
 
         except sqlite3.Error as e:
             print(e)
+            return jsonify({'error': str(e)}), 500
+    else:
+        return jsonify({'error': "nul"}), 50
+    
+
+@app.route('/api/delete_groups', methods=['POST'])
+def delete_groups():
+    """
+    _summary_
+        Method that delete a list of groups, take in parameter the ids.
+    Returns:
+        _type_: _description_
+    """
+    print('Enter delete groups function')
+    # Retrieve parameters from the request body
+    groups = request.json.get('groups')  # json item
+
+    # Il faut utiliser os.path.join pour que ce soit multiplateforme
+    db = os.path.join(os.getcwd(), 'db', 'parcoursup.sqlite')
+    if os.path.exists(db):
+        conn = sqlite3.connect(db)
+        cursor = conn.cursor()
+        try:
+            for groupID in groups:
+                sqlRequest = cursor.execute("DELETE FROM GROUPE WHERE ID = ?;", (groupID,))
+                res = sqlRequest.fetchone()
+
+            # Commit the delete
+            conn.commit()
+            conn.close()
+
+            # Convert data to JSON format
+            return jsonify({'result': res}), 200
+
+        except sqlite3.Error as e:
             return jsonify({'error': str(e)}), 500
     else:
         return jsonify({'error': "nul"}), 50
@@ -1853,16 +2024,15 @@ def reaffect_group():
 
             print(students)
 
+            
             for student in group:
-                print(student['id_student'], student['id_new_group'])
-                print(students)
-                print(any(student['id_student'] not in t for t in students))
-                if any(student['id_student'] in t for t in students):
-                    cursor.execute("UPDATE ETUDIANT_GROUPE SET FK_Groupe=? WHERE FK_Etudiant=?",
-                                   (student['id_new_group'], student['id_student']))
-                else:
-                    cursor.execute("INSERT INTO ETUDIANT_GROUPE VALUES (?, ?)",
-                                   (student['id_student'], student['id_new_group']))
+                if(student['id_new_group'] == 0):
+                    cursor.execute("DELETE FROM ETUDIANT_GROUPE WHERE FK_Etudiant=?", (student['id_student'],))
+                elif(any(student['id_student'] in t for t in students)):
+                    cursor.execute("UPDATE ETUDIANT_GROUPE SET FK_Groupe=? WHERE FK_Etudiant=?", (student['id_new_group'], student['id_student']))
+                else :
+                    cursor.execute("INSERT INTO ETUDIANT_GROUPE VALUES (?, ?)", (student['id_student'], student['id_new_group']))
+
 
             # Commit the insertions
             conn.commit()
@@ -1890,12 +2060,14 @@ def affect_preference_group():
             {
               "groupID": 1,
               "projectID": 1,
-              "order": 1
+              "order": 1,
+              "Date_Derniere_Modif": "12/02/2024"
             },
             {
               "groupID": 1,
               "projectID": 2,
-              "order": 2
+              "order": 2,
+              "Date_Derniere_Modif": "12/02/2024"
             }
         ]
     }
@@ -1917,7 +2089,7 @@ def affect_preference_group():
 
         try:
             for preference in preferences:
-                group_id, project_id, order = preference['groupID'], preference['projectID'], preference['order']
+                group_id, project_id, order, date_derniere_modif = preference['groupID'], preference['projectID'], preference['order'], preference['Date_Derniere_Modif']
 
                 # Check for existing entry with projectID and groupID
                 existing_row = cursor.execute("SELECT * FROM PREFERENCE_GROUPE WHERE FK_Projet = ? AND FK_Groupe = ?",
@@ -1926,13 +2098,13 @@ def affect_preference_group():
                 if existing_row:
                     # Update existing order
                     cursor.execute(
-                        "UPDATE PREFERENCE_GROUPE SET Ordre_Preference = ? WHERE FK_Projet = ? AND FK_Groupe = ?",
-                        (order, project_id, group_id))
+                        "UPDATE PREFERENCE_GROUPE SET Ordre_Preference = ?, Date_Derniere_Modif = ? WHERE FK_Projet = ? AND FK_Groupe = ?",
+                        (order, date_derniere_modif ,project_id, group_id))
                 else:
                     # Insert new preference
                     cursor.execute(
-                        "INSERT INTO PREFERENCE_GROUPE (FK_Groupe, FK_Projet, Ordre_Preference) VALUES (?, ?, ?)",
-                        (group_id, project_id, order))
+                        "INSERT INTO PREFERENCE_GROUPE (FK_Groupe, FK_Projet, Ordre_Preference, Date_Derniere_Modif) VALUES (?, ?, ?, ?)",
+                        (group_id, project_id, order, date_derniere_modif))
 
                 conn.commit()
             conn.close()
