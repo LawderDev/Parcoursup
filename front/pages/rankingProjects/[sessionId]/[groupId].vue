@@ -52,7 +52,6 @@ const getProjects = async () => {
       }
     );
     state.projects = response.data;
-    console.log(response.data);
     state.timestamp = response.data[0].date_derniere_modif
   } catch (error) {
     console.error("Erreur lors de la récupération des project :", error);

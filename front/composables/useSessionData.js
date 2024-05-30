@@ -12,7 +12,6 @@ export function useSessionData() {
           const response = await axios.get(
               `${config.public.backUrl}/api/get_session_data?sessionID=` + sessionID
           );
-          console.log(response)
           if (response.data) {
               stateSession.session = response.data;
               return true;

@@ -6,7 +6,7 @@
       alt=""
     />
     <div class="lg:m-9">
-      <Card class="">
+      <Card class="m-8 neumorphism">
         <div class="m-0">
           <h2 class="text-3xl my-4 font-bold text-center text-primary">
             Connexion
@@ -36,7 +36,7 @@
                 >Adresse mail incorrect</span
               >
             </div>
-            <div>
+            <div class="mb-8">
               <div v-if="!state.passwordError">
                 <h2 class="m-3">Mot de passe</h2>
                 <input
@@ -58,10 +58,6 @@
               </div>
             </div>
           </div>
-        </div>
-        <div class="flex flex-col justify-center m-8">
-          <h3 class="text-center m-1">Vous n'avez pas de compte?</h3>
-          <a class="link text-center w-full" href="">Créer un compte</a>
         </div>
       </Card>
       <div class="flex justify-center mt-5">
@@ -138,6 +134,7 @@
 import { useToasterStore } from "~/stores/toaster";
 import axios from "axios";
 const toaster = useToasterStore();
+
 const config = useRuntimeConfig();
 
 const state = reactive({
@@ -148,34 +145,34 @@ const state = reactive({
 });
 
 const openIndexPage = async () => {
-  state.loginError =false
-  state.passwordError =false
-  const res = await callLogin()
-  console.log("res",res)
-  if (res.status===200) {
+  state.loginError = false;
+  state.passwordError = false;
+  const res = await callLogin();
+  if (res.status === 200) {
+    //auth.state.email = res.data.user;
     toaster.showMessage("Connexion réussie", "success");
     await navigateTo("/");
-  } else if (res.status===401){
-    handleError(res.data.message)
-  }else{
-    showErrorUnknown()
+  } else if (res.status === 401) {
+    handleError(res.data.message);
+  } else {
+    showErrorUnknown();
   }
 };
 const handleError = (message) => {
-  if(message.includes('login')){
-    state.loginError = true
-  }else if (message.includes('password')){
-    state.passwordError = true
-  } else{
-    showErrorUnknown()
+  if (message.includes("login")) {
+    state.loginError = true;
+  } else if (message.includes("password")) {
+    state.passwordError = true;
+  } else {
+    showErrorUnknown();
   }
-}
+};
 const showErrorUnknown = () => {
   toaster.showMessage("Erreur inconnue de lors de l'authentification", "error");
-}
+};
 const callLogin = async () => {
   try {
-    const jsonData = getJsonData("test@test16.com", "monMDP");
+    const jsonData = getJsonData(state.login, state.password);
     const res = await axios.post("http://127.0.0.1:5000/api/login", jsonData, {
       headers: {
         "Content-Type": "application/json",
@@ -185,6 +182,7 @@ const callLogin = async () => {
     return res;
   } catch (err) {
     console.error("Erreur lors de la récupération du login :", err);
+    return err.response
   }
 };
 const getJsonData = (login, password) => {
@@ -205,4 +203,29 @@ watch(
     }
   }
 );
+
+
+const createUser = async () => {
+    const data = { 
+        "data" : [
+            {
+                'Nom': "Ramin",
+                'Prenom': "Kenny",
+                'Email': "kenny.ramin@gmail.com", 
+                'Password':"kenny123",
+            }
+        ]     
+        };
+
+    const jsonData = JSON.stringify(data);
+            
+    // User registration
+    await axios.post(`${config.public.backUrl}/api/register`,jsonData, {
+        headers: {
+            'Content-Type': 'application/json'
+         }
+    })
+}
+
+//await createUser();
 </script>

@@ -67,7 +67,6 @@ const state = reactive({
   }
 
   const canDelete = computed(() => {
-    console.log(props.groupMin)
     if(props.groupMin) return props.group.length !== props.groupMin;
     else return true;
   })

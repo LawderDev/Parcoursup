@@ -55,7 +55,7 @@ const toaster = useToasterStore();
     nbStepsActive: Number,
     nbStepsLock: Number,
     assignations: Array,
-    formatGroupsAssignations: Array,
+    formatGroupsAssignations: Object,
   })
 
   const handleDownload = () => {
@@ -79,7 +79,6 @@ const toaster = useToasterStore();
   }
 
  const sendMailsResult = async () => {
-    console.log(props.formatGroupsAssignations)
 
     try{
       await axios.post(`${config.public.backUrl}/api/send_mail_result`, props.formatGroupsAssignations)
