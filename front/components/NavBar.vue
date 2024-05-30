@@ -31,9 +31,9 @@
         >
         <ModalProfile></ModalProfile>
           <li class="pl-1">
-            <div class="flex items-center">
+            <div class="flex items-center" @click="navigateToUsers" >
               <img src="../public/users.svg" class="w-5" />
-              <NuxtLink class="md:text-lg" to="/users">Utilisateurs</NuxtLink>
+              <a class="md:text-lg">Utilisateurs</a>
             </div>
           </li>
           <li class="pl-1">
@@ -80,4 +80,8 @@ const callLogout = async () => {
     console.error("Erreur lors de la deconnexion :", error);
   }
 }
+
+const navigateToUsers = async () => {
+  await navigateTo(`/users`);
+};
 </script>
