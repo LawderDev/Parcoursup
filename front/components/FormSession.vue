@@ -100,7 +100,7 @@
     <!--- DATE FORM --->
     <div :class="{'md:flex md:flex-wrap md:gap-4': props.editMode}">
       <div>
-        <h2 class="mb-2">Date de fin des formations des groupes</h2>
+        <h2 class="mb-2">Date de fin de formation des groupes</h2>
         <DateComponent v-if="props.editMode && (state.sessionState !== 'Grouping')" v-model="state.endDateGroup" class="mb-5" disabled/>
         <DateComponent v-else class="mb-5" v-model="state.endDateGroup" />
       </div>

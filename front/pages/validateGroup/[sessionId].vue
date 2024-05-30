@@ -309,7 +309,7 @@ const setDefaultPreferences = () => {
 
 const validateGroups = async () => {
     if(getStudentsInGroup().length !== state.allStudents.length) {
-      toaster.showMessage("Tout les étudiants doivent être affecter dans un groupe", "error");
+      toaster.showMessage("Tous les étudiants doivent être affectés dans un groupe", "error");
       return
     }
 
@@ -336,9 +336,16 @@ const validateGroups = async () => {
     const jsonDataSession = JSON.stringify(formData);
     await updateSession(jsonDataSession);
     await setDefaultPreferences();
-    await sendGroupsMail();
 
     toaster.showMessage("Groupes attribués avec succès", "success");
+
+    try{
+      await sendGroupsMail();
+    }
+    catch(err) {
+      toaster.showMessage("Erreur lors de l'envoi des emails, veuillez vérifier votre serveur SMTP", "error");
+      console.error(err);
+    }
 
     await navigateTo(`/session/${route.params.sessionId}`);
 }

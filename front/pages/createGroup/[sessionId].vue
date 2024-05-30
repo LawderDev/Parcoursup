@@ -6,7 +6,7 @@
     :nb-steps-active="1"
     :nb-steps-lock="1"
     :button-disabled="!canValidateGroup()"
-    sub-title="Renseignez les informations ci-dessous afin de créer votre demande de projet"
+    sub-title="Renseignez les informations ci-dessous afin de créer votre groupe de projet"
     button-title="Valider le groupe"
     @handle-button-click="handleValidateGroup">
       <FormCreateGroup title="Votre groupe" subTitle="De qui est composé votre groupe ?" v-model:group="stateCreateGroup.group" :groups="stateGroups.groups" :groupMin="stateSession.session.group_min" :groupMax="stateSession.session.group_max"></FormCreateGroup>

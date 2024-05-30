@@ -1,12 +1,12 @@
 <template>
   <StudentsActions
     v-if="state.isLoading"
-    title="SELECTION"
+    title="SÉLECTION"
     :timestamp="state.timestamp"
     :nb-steps="2"
     :nb-steps-active="2"
     :nb-steps-lock="0"
-    sub-title="Renseignez les informations pour permettre de créer votre demande de projet"
+    sub-title="Renseignez les informations pour permettre l'assignation des projets en fonction de vos préférences"
     button-title="Valider les préférences"
     @handle-button-click="validateRanking"
   >

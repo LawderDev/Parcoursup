@@ -1432,10 +1432,6 @@ def get_group_projects_order_by_preferencies():
                             ORDER BY PREFERENCE_GROUPE.Ordre_Preference;""", (group_id, session_id))
 
             response = cursor.fetchall()
-            print("RESPONSEEEEEEEEEEE")
-            print(sessionID)
-            print(groupID)
-            print(response)
 
             # Prepare data for the front-end
             projects = []
