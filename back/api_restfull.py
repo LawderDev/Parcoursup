@@ -1,3 +1,5 @@
+import json
+
 from flask import Flask, jsonify, request
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
@@ -5,7 +7,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from flask_cors import CORS
 from collections import Counter
 from mailersend import emails
-from flask_mail import Mail, Message
+from flask_mail import Mail
 import sqlite3
 import os
 
@@ -197,19 +199,6 @@ def get_current_user():
         return jsonify({'error': str(e)}), 500
 
 
-# Initialize the database (run once to create the database)
-# with app.app_context():
-#     db.create_all()
-
-
-# SI ERREUR VOICI LA COMMANDE : py -m pip install scikit-learn==1.2.2
-# api_key = 'a1b1045de421855d4d44bb2b53d4da8f'
-
-# app = Flask(__name__)
-# # Allow all link CORS
-# CORS(app, resources={r"/api/*": {"origins": "*"}})
-
-
 ###
 # MAIL
 ###
@@ -217,19 +206,44 @@ def get_current_user():
 def send_mail_group():
     """
     data = {
-        "session_ID": 1
+        "sessionID": 1
     };
     :return:
     """
+    api_key = "mlsn.9a1ca8996bd516b08079567ad65214ace18758d98d46278053867fd9e282c241"
+    mailer = emails.NewEmail(api_key)
 
-    sessionID = 1
+    session_dict = get_session_data(session=request.json.get("sessionID"))
+    students = get_all_groups_students(session=request.json.get("sessionID"))
 
-    session_dict = get_session_data(session=sessionID)  # request.json.get('sessionID')
-    students = get_all_groups_students(session=sessionID)  # request.json.get('sessionID')
+    mail_list = []
 
-    for i, group in enumerate(students.values()):
-        msg = send_mail_simple_group(session_dict, group['id'], group['students'])
-        mail.send(msg)
+    for group in students.values():
+        mail_list.append(send_mail_simple_group(session_dict, group['id'], group['students']))
+
+    # Send mail
+    response = mailer.send_bulk(mail_list)
+    objects = response.split("\n")
+    if len(objects) < 2:
+        for obj in objects:
+            data = json.loads(obj)
+        status = objects[0]
+        message = data["message"]
+        bulk_email_id = data["bulk_email_id"]
+
+        response = {
+            "status": status,
+            "message": message,
+            "bulk_email_id": bulk_email_id,
+            "bulk_email_status": mailer.get_bulk_status_by_id(bulk_email_id)
+        }
+
+        if status == 202:
+            return jsonify({"result": response}), 200
+        else:
+            return jsonify({"error": response}), 500
+    else:
+        return jsonify({"error": response}),    500
 
 
 def send_mail_simple_group(session_dict, id_group, students):
@@ -246,85 +260,38 @@ def send_mail_simple_group(session_dict, id_group, students):
     nom_session = "{{nom_session}}"  # session_dict['name_session']
     list_etu = "{{list_etu}}"
     date_limit = "{{date_limit}}"  # session_dict['end_date_session']
-    lien_choix_projet = "{{lien_choix_projet}}"  # session_dict['id']
+    lien_choix_projet_template = "{{lien_choix_projet}}"  # session_dict['id']
+    lien_choix_projet_groupe = str(session_dict['id']) + '/' + str(id_group) # TODO : Changer avec le lien du serveur
 
     string_students = ""
-    for student in students:
-        string_students += f"{student['name']} {student['firstname']} <br> "
+    string_students_text = ""
+    for i, student in enumerate(students):
+        string_students += f"{student['name']} {student['firstname']}<br>"
+        if i == len(students) - 1:
+            string_students_text += f"et {student['name']} {student['firstname']}"
+        elif i == len(students) - 2:
+            string_students_text += f"{student['name']} {student['firstname']} "
+        else:
+            string_students_text += f"{student['name']} {student['firstname']}, "
 
     with open(os.path.join(os.getcwd(), 'template', 'group_mail.html'), 'r', encoding="UTF-8") as f:
         body = f.read()
 
     body = body.replace(nom_session, session_dict['name_session'])
     body = body.replace(date_limit, session_dict['end_date_session'])
-    body = body.replace(lien_choix_projet,
-                        str(session_dict['id']) + '/' + str(id_group))  # TODO : Changer avec le lien du serveur
+    body = body.replace(lien_choix_projet_template, lien_choix_projet_groupe)
     body = body.replace(list_etu, string_students)
 
     # -- Create Mail
 
-    msg = Message(subject=f"Votre groupe de projet pour {session_dict['name_session']}",
-                  sender=app.config['MAIL_USERNAME'], recipients=['marco.korczak@etu.u-bordeaux.fr'])
-    msg.body = "Hey, sending you this email from my Flask app, lmk if it works."
-    msg.html = body
-
-    return msg
-
-
-"""
-    mailer = emails.NewEmail("mlsn.9a1ca8996bd516b08079567ad65214ace18758d98d46278053867fd9e282c241") #TODO: Ajouter au ENV
-
-    mail_body = body
-
-    mail_from = {
-        "name": "SmartChoice",
-        "email": "MS_CFwncD@trial-pr9084zy9kxgw63d.mlsender.net",
-    }
-
-    recipients = [
-        {
-            'name': 'KORCZAK Marco',
-            'email': 'marco.korczak@etu.u-bordeaux.fr'
-        }
-    ]
-
-    for student in recipients:
-        print(student)
-        mail_message = {}
-
-        mailer.set_mail_from(mail_from, mail_message)
-        mailer.set_mail_to([student],mail_message)
-        mailer.set_subject(f"Votre groupe de projet pour {session_dict['name_session']}", mail_message)
-        mailer.set_html_content(mail_body, mail_message)
-        mailer.set_plaintext_content("", mail_message)
-        #mailer.set_bcc_recipients([student], mail_message)
-        #using print() will also return status code and data
-        print(mailer.send(mail_message))
-
-
-    api_key = "mlsn.9a1ca8996bd516b08079567ad65214ace18758d98d46278053867fd9e282c241"
-
-    mailer = emails.NewEmail(api_key)
-
-    recipients = [
-        {
-            'name': 'BANCAL Benjamin',
-            'email': 'benjamin.bancal@gmail.com'
-        },
-        {
-            'name' : 'KORCZAK Marco',
-            'email' : 'marco.korczak28@gmail.com'
-        },
-        {
-            'name' : 'KORCZAK Marco',
-            'email': 'marco.korczak@etu.u-bordeaux.fr'
-        }
-    ]
-
     mail_list = []
 
-    for student in recipients:
-        print(student)
+    mail_text = (f"Votre groupe de projet pour {session_dict['name_session']} est composé de {string_students_text}.\n"
+                 f"Vous pouvez désormais choisir vos préférences de projet en suivant le lien suivant {lien_choix_projet_groupe}.\n"
+                 f"Pour plus d'informations, contactez votre professeur référent.\n"
+                 f"\nEnvoyé avec ❤️ par l'équipe SmartChoice")
+
+    for student in students:
         mail = {
                 "from": {
                     "email": "MS_CFwncD@trial-pr9084zy9kxgw63d.mlsender.net",
@@ -333,18 +300,16 @@ def send_mail_simple_group(session_dict, id_group, students):
                 "to": [
                     {
                         "email": student['email'],
-                        "name": student['name']
+                        "name": f"{student['firstname']} {student['name']}"
                     }
                 ],
                 "subject": f"Votre groupe de projet pour {session_dict['name_session']}",
-                "text": "",
+                "text": mail_text,
                 "html": f"{body}",
             }
         mail_list.append(mail)
 
-    print(mail_list)
-    print(mailer.send_bulk(mail_list))
-"""
+    return mail_list
 
 
 @app.route('/api/send_mail_result', methods=['POST'])
@@ -372,27 +337,13 @@ def send_mail_result():
     api_key = "mlsn.9a1ca8996bd516b08079567ad65214ace18758d98d46278053867fd9e282c241"
     mailer = emails.NewEmail(api_key)
 
-    data = {
-        "sessionID": 1,
-        "group_project": {
-            "1": {
-                "id_group": "44",
-                "id_project": "2"
-            },
-            "2": {
-                "id_group": "2",
-                "id_project": "1"
-            }
-        }
-    }
-
-    session_dict = get_session_data(session=data['sessionID'])  # request.json.get('sessionID')
-    students_all = get_all_groups_students(session=data['sessionID'])  # request.json.get('sessionID')
-    projects = get_all_projects(session=data['sessionID'])  # request.json.get('sessionID')
+    session_dict = get_session_data(session=request.json.get('sessionID'))
+    students_all = get_all_groups_students(session=request.json.get('sessionID'))
+    projects = get_all_projects(session=request.json.get('sessionID'))
 
     mail_list = []
 
-    for group in data['group_project'].values():
+    for group in request.json.get('group_project').values():
         projet_dict = {}  # initialize project dict
         id_group = -1
         students = {}
@@ -406,15 +357,31 @@ def send_mail_result():
                 students = sous_group['students']
 
         if id_group != -1 and projet_dict != {} and students != {}:
-            # print("----------------------------------")
-            # print(session_dict)
-            # print("id_group : ", id_group)
-            # print("projet_dict : ", projet_dict)
-            # print("students : ", students)
-            # print("----------------------------------")
             mail_list.append(send_mail_simple_result(session_dict, id_group, projet_dict, students))
 
-    print(mailer.send_bulk(mail_list))
+    # Send mail
+    response = mailer.send_bulk(mail_list)
+    objects = response.split("\n")
+    if len(objects) < 2:
+        for obj in objects:
+            data = json.loads(obj)
+        status = objects[0]
+        message = data["message"]
+        bulk_email_id = data["bulk_email_id"]
+
+        response = {
+            "status": status,
+            "message": message,
+            "bulk_email_id": bulk_email_id,
+            "bulk_email_status": mailer.get_bulk_status_by_id(bulk_email_id)
+        }
+
+        if status == 202:
+            return jsonify({"result": response}), 200
+        else:
+            return jsonify({"error": response}), 500
+    else:
+        return jsonify({"error": response}), 500
 
 
 def send_mail_simple_result(session_dict, id_group, projet_dict, students):
@@ -455,8 +422,9 @@ def send_mail_simple_result(session_dict, id_group, projet_dict, students):
     body = body.replace(project_description, projet_dict['description'])
 
     mail_text = (f"Votre groupe ({id_group}) composé de {string_students_text} a été assigné "
-                 f"au projet {projet_dict['nom']} ({projet_dict['description']}). "
-                 f"Contactez votre professeur référent pour plus de renseignement.")
+                 f"au projet {projet_dict['nom']} ({projet_dict['description']}).\n"
+                 f"Contactez votre professeur référent pour plus de renseignement.\n"
+                 f"\nEnvoyé avec ❤️ par l'équipe SmartChoice")
 
     # -- Create Mail
 
@@ -1541,7 +1509,7 @@ def affect_default_preferencies():
             cursor.execute("""SELECT id FROM Projet
                             WHERE FK_Session = ?;""", (sessionId,))
 
-            projects = cursor.fetchall();
+            projects = cursor.fetchall()
 
             for project in projects:
                 for idx, group in enumerate(groups):
