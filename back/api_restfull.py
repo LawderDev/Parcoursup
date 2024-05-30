@@ -4,6 +4,8 @@ from flask_login import LoginManager, login_user, login_required, logout_user, c
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_cors import CORS
 from collections import Counter
+from mailersend import emails
+from flask_mail import Mail, Message
 import sqlite3
 import os
 
@@ -12,10 +14,19 @@ app.config['SECRET_KEY'] = 'your_secret_key'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(os.getcwd(), 'db', 'parcoursup.sqlite')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
+app.config['MAIL_SERVER'] = 'smtp.freesmtpservers.com'  # 'smtp.mailersend.net'
+app.config['MAIL_PORT'] = 25  # 587
+app.config['MAIL_USERNAME'] = 'smartchoice@smartchoice.com'
+app.config['MAIL_PASSWORD'] = ''  # 'XrzOr7jafJU0Mrux'
+app.config['MAIL_USE_TLS'] = True
+app.config['MAIL_USE_SSL'] = False
+mail = Mail(app)
+
 db = SQLAlchemy(app)
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
 CORS(app, supports_credentials=True, resources={r"/api/*": {"origins": "*"}})  # Allow CORS for all routes
+
 
 class Utilisateur(db.Model):
     ID = db.Column(db.Integer, primary_key=True)
@@ -23,7 +34,7 @@ class Utilisateur(db.Model):
     Prenom = db.Column(db.String(100), nullable=False)
     Email = db.Column(db.String(120), unique=True, nullable=False)
     Password = db.Column(db.String(100), nullable=False)
-    
+
     def __repr__(self):
         return f"Utilisateur('{self.Nom}', '{self.Email}')"
 
@@ -39,6 +50,7 @@ class Utilisateur(db.Model):
     def get_id(self):
         return str(self.ID)
 
+
 @login_manager.user_loader
 def load_user(user_id):
     try:
@@ -46,6 +58,7 @@ def load_user(user_id):
     except Exception as e:
         print(e)
         return None
+
 
 @app.route('/api/register', methods=['POST'])
 def register():
@@ -76,11 +89,12 @@ def register():
         existing_user = Utilisateur.query.filter_by(Email=data[0]['Email']).first()
         if existing_user:
             return jsonify({'message': 'Email already exists'}), 400
-        
+
         password = data[0]['Password']
         hashed_password = generate_password_hash(password, method='pbkdf2:sha256', salt_length=16)
 
-        new_user = Utilisateur(Nom=data[0]['Nom'], Prenom=data[0]['Prenom'], Email=data[0]['Email'], Password=hashed_password)
+        new_user = Utilisateur(Nom=data[0]['Nom'], Prenom=data[0]['Prenom'], Email=data[0]['Email'],
+                               Password=hashed_password)
 
         db.session.add(new_user)
         db.session.commit()
@@ -90,6 +104,7 @@ def register():
         print(e)
         db.session.rollback()
         return jsonify({'error': str(e)}), 500
+
 
 @app.route('/api/login', methods=['POST'])
 def login():
@@ -118,12 +133,12 @@ def login():
         print("enter login function")
         data = request.json.get('data')
         user = Utilisateur.query.filter_by(Email=data[0]['Email']).first()
-        
+
         if not data or 'Email' not in data[0] or 'Password' not in data[0]:
             return jsonify({'message': 'Invalid request data'}), 400
 
         user = Utilisateur.query.filter_by(Email=data[0]['Email']).first()
-        
+
         if user is None:
             return jsonify({'message': 'Invalid login'}), 401
 
@@ -139,6 +154,7 @@ def login():
         print(e)
         return jsonify({'error': str(e)}), 500
 
+
 @app.route('/api/logout', methods=['POST'])
 @login_required
 def logout():
@@ -148,6 +164,7 @@ def logout():
     except Exception as e:
         print(e)
         return jsonify({'error': str(e)}), 500
+
 
 @app.route('/api/current_user', methods=['GET'])
 @login_required
@@ -179,6 +196,7 @@ def get_current_user():
         print(e)
         return jsonify({'error': str(e)}), 500
 
+
 # Initialize the database (run once to create the database)
 # with app.app_context():
 #     db.create_all()
@@ -192,6 +210,282 @@ def get_current_user():
 # CORS(app, resources={r"/api/*": {"origins": "*"}})
 
 
+###
+# MAIL
+###
+@app.route('/api/send_mail_group', methods=['POST'])
+def send_mail_group():
+    """
+    data = {
+        "session_ID": 1
+    };
+    :return:
+    """
+
+    sessionID = 1
+
+    session_dict = get_session_data(session=sessionID)  # request.json.get('sessionID')
+    students = get_all_groups_students(session=sessionID)  # request.json.get('sessionID')
+
+    for i, group in enumerate(students.values()):
+        msg = send_mail_simple_group(session_dict, group['id'], group['students'])
+        mail.send(msg)
+
+
+def send_mail_simple_group(session_dict, id_group, students):
+    """
+    Create and send the group mail to all the person of the group
+
+    :param id_group:
+    :param students:
+    :return:
+    """
+
+    # -- Replacing values using the template
+
+    nom_session = "{{nom_session}}"  # session_dict['name_session']
+    list_etu = "{{list_etu}}"
+    date_limit = "{{date_limit}}"  # session_dict['end_date_session']
+    lien_choix_projet = "{{lien_choix_projet}}"  # session_dict['id']
+
+    string_students = ""
+    for student in students:
+        string_students += f"{student['name']} {student['firstname']} <br> "
+
+    with open(os.path.join(os.getcwd(), 'template', 'group_mail.html'), 'r', encoding="UTF-8") as f:
+        body = f.read()
+
+    body = body.replace(nom_session, session_dict['name_session'])
+    body = body.replace(date_limit, session_dict['end_date_session'])
+    body = body.replace(lien_choix_projet,
+                        str(session_dict['id']) + '/' + str(id_group))  # TODO : Changer avec le lien du serveur
+    body = body.replace(list_etu, string_students)
+
+    # -- Create Mail
+
+    msg = Message(subject=f"Votre groupe de projet pour {session_dict['name_session']}",
+                  sender=app.config['MAIL_USERNAME'], recipients=['marco.korczak@etu.u-bordeaux.fr'])
+    msg.body = "Hey, sending you this email from my Flask app, lmk if it works."
+    msg.html = body
+
+    return msg
+
+
+"""
+    mailer = emails.NewEmail("mlsn.9a1ca8996bd516b08079567ad65214ace18758d98d46278053867fd9e282c241") #TODO: Ajouter au ENV
+
+    mail_body = body
+
+    mail_from = {
+        "name": "SmartChoice",
+        "email": "MS_CFwncD@trial-pr9084zy9kxgw63d.mlsender.net",
+    }
+
+    recipients = [
+        {
+            'name': 'KORCZAK Marco',
+            'email': 'marco.korczak@etu.u-bordeaux.fr'
+        }
+    ]
+
+    for student in recipients:
+        print(student)
+        mail_message = {}
+
+        mailer.set_mail_from(mail_from, mail_message)
+        mailer.set_mail_to([student],mail_message)
+        mailer.set_subject(f"Votre groupe de projet pour {session_dict['name_session']}", mail_message)
+        mailer.set_html_content(mail_body, mail_message)
+        mailer.set_plaintext_content("", mail_message)
+        #mailer.set_bcc_recipients([student], mail_message)
+        #using print() will also return status code and data
+        print(mailer.send(mail_message))
+
+
+    api_key = "mlsn.9a1ca8996bd516b08079567ad65214ace18758d98d46278053867fd9e282c241"
+
+    mailer = emails.NewEmail(api_key)
+
+    recipients = [
+        {
+            'name': 'BANCAL Benjamin',
+            'email': 'benjamin.bancal@gmail.com'
+        },
+        {
+            'name' : 'KORCZAK Marco',
+            'email' : 'marco.korczak28@gmail.com'
+        },
+        {
+            'name' : 'KORCZAK Marco',
+            'email': 'marco.korczak@etu.u-bordeaux.fr'
+        }
+    ]
+
+    mail_list = []
+
+    for student in recipients:
+        print(student)
+        mail = {
+                "from": {
+                    "email": "MS_CFwncD@trial-pr9084zy9kxgw63d.mlsender.net",
+                    "name": "SmartChoice"
+                },
+                "to": [
+                    {
+                        "email": student['email'],
+                        "name": student['name']
+                    }
+                ],
+                "subject": f"Votre groupe de projet pour {session_dict['name_session']}",
+                "text": "",
+                "html": f"{body}",
+            }
+        mail_list.append(mail)
+
+    print(mail_list)
+    print(mailer.send_bulk(mail_list))
+"""
+
+
+@app.route('/api/send_mail_result', methods=['POST'])
+def send_mail_result():
+    """
+    Decompose the send the result mail
+    data = {
+        "sessionID": 1,
+        "group_project": {
+            "1" : {
+                "id_group" : "1",
+                "id_project" : "2"
+            },
+            "2" : {
+                "id_group" : "2",
+                "id_project" : "1"
+            }
+        }
+    };
+    :return:
+    """
+
+    print("Enter sending result mails function")
+
+    api_key = "mlsn.9a1ca8996bd516b08079567ad65214ace18758d98d46278053867fd9e282c241"
+    mailer = emails.NewEmail(api_key)
+
+    data = {
+        "sessionID": 1,
+        "group_project": {
+            "1": {
+                "id_group": "44",
+                "id_project": "2"
+            },
+            "2": {
+                "id_group": "2",
+                "id_project": "1"
+            }
+        }
+    }
+
+    session_dict = get_session_data(session=data['sessionID'])  # request.json.get('sessionID')
+    students_all = get_all_groups_students(session=data['sessionID'])  # request.json.get('sessionID')
+    projects = get_all_projects(session=data['sessionID'])  # request.json.get('sessionID')
+
+    mail_list = []
+
+    for group in data['group_project'].values():
+        projet_dict = {}  # initialize project dict
+        id_group = -1
+        students = {}
+        for projet in projects:
+            if projet["id"] == int(group['id_project']):  # find the project linked to the group
+                projet_dict = projet
+
+        for i, sous_group in enumerate(students_all.values()):
+            if sous_group['id'] == int(group['id_group']):
+                id_group = i + 1
+                students = sous_group['students']
+
+        if id_group != -1 and projet_dict != {} and students != {}:
+            # print("----------------------------------")
+            # print(session_dict)
+            # print("id_group : ", id_group)
+            # print("projet_dict : ", projet_dict)
+            # print("students : ", students)
+            # print("----------------------------------")
+            mail_list.append(send_mail_simple_result(session_dict, id_group, projet_dict, students))
+
+    print(mailer.send_bulk(mail_list))
+
+
+def send_mail_simple_result(session_dict, id_group, projet_dict, students):
+    """
+    Create the group mail to all the person of the group
+
+    :param id_group:
+    :param students:
+    :return:
+    """
+
+    # -- Replacing values using the template
+
+    nom_session = "{{nom_session}}"  #session_dict['name_session']
+    group = "{{group}}"
+    name = "{{name}}"
+    project_name = "{{project_name}}"
+    project_description = "{{project_description}}"
+
+    string_students = ""
+    string_students_text = ""
+    for i, student in enumerate(students):
+        string_students += f"<li> {student['name']} {student['firstname']} <li>"
+        if i == len(students) - 1:
+            string_students_text += f"et {student['name']} {student['firstname']}"
+        elif i == len(students) - 2:
+            string_students_text += f"{student['name']} {student['firstname']} "
+        else:
+            string_students_text += f"{student['name']} {student['firstname']}, "
+
+    with open(os.path.join(os.getcwd(), 'template', 'result_mail.html'), 'r', encoding="UTF-8") as f:
+        body = f.read()
+
+    body = body.replace(nom_session, session_dict['name_session'])
+    body = body.replace(group, f"Groupe {id_group}")
+    body = body.replace(name, string_students)
+    body = body.replace(project_name, projet_dict['nom'])
+    body = body.replace(project_description, projet_dict['description'])
+
+    mail_text = (f"Votre groupe ({id_group}) composé de {string_students_text} a été assigné "
+                 f"au projet {projet_dict['nom']} ({projet_dict['description']}). "
+                 f"Contactez votre professeur référent pour plus de renseignement.")
+
+    # -- Create Mail
+
+    mail_list = []
+
+    for student in students:
+        print(student)
+
+        mail = {
+            "from": {
+                "email": "MS_CFwncD@trial-pr9084zy9kxgw63d.mlsender.net",
+                "name": "SmartChoice"
+            },
+            "to": [
+                {
+                    "email": student['email'],
+                    "name": f"{student['firstname']} {student['name']}"
+                }
+            ],
+            "subject": f"Votre projet pour {session_dict['name_session']}",
+            "text": mail_text,
+            "html": f"{body}",
+        }
+        mail_list.append(mail)
+
+    print(mail_list)
+    return mail_list
+
+
 @app.route('/api/get_session_id', methods=['GET'])
 def get_session_id():
     print('enter')
@@ -202,7 +496,7 @@ def get_session_id():
             sessionID = request.args.get('sessionID')
             if not sessionID:
                 return jsonify({'error': 'Session ID parameter is missing'}), 400
-            
+
             conn = sqlite3.connect(db)
             cursor = conn.cursor()
 
@@ -222,6 +516,7 @@ def get_session_id():
     else:
         return jsonify({'error': "nul"}), 50
 
+
 @app.route('/api/get_session_data', methods=['GET'])
 def get_session_data():
     print('enter')
@@ -232,7 +527,7 @@ def get_session_data():
             sessionID = request.args.get('sessionID')
             if not sessionID:
                 return jsonify({'error': 'Session ID parameter is missing'}), 400
-            
+
             conn = sqlite3.connect(db)
             cursor = conn.cursor()
 
@@ -263,6 +558,48 @@ def get_session_data():
     else:
         return jsonify({'error': "nul"}), 50
 
+
+def get_session_data(session):
+    print('enter')
+    # Il faut utiliser os.path.join pour que ce soit multiplateforme
+    db = os.path.join(os.getcwd(), 'db', 'parcoursup.sqlite')
+    if os.path.exists(db):
+        try:
+            sessionID = session
+            if not sessionID:
+                return jsonify({'error': 'Session ID parameter is missing'}), 400
+
+            conn = sqlite3.connect(db)
+            cursor = conn.cursor()
+
+            cursor.execute("SELECT * from SESSION where ID = " + str(sessionID))
+
+            response = cursor.fetchall()
+            print(response)
+
+            session_dict = {
+                'id': response[0][0],
+                'name_session': response[0][1],
+                'end_date_group': response[0][2],
+                'end_date_session': response[0][3],
+                'group_min': response[0][4],
+                'group_max': response[0][5],
+                'state': response[0][6],
+                'fk_user': response[0][7],
+            }
+
+            conn.close()
+
+            # Convert data to JSON format
+            return session_dict
+
+        except sqlite3.Error as e:
+            return jsonify({'error': str(e)}), 500
+
+    else:
+        return jsonify({'error': "nul"}), 50
+
+
 # -----------------------------------------------------------------------------
 
 """
@@ -275,6 +612,8 @@ data = {
     }
 }
 """
+
+
 @app.route('/api/gale_shapley', methods=['POST'])
 def gale_shapley_route():
     print(request.json)
@@ -289,16 +628,18 @@ def gale_shapley_route():
             cursor.execute("""SELECT FK_Projet, FK_Groupe, Ordre_Preference FROM PREFERENCE_PROJET
                                         INNER JOIN PROJET ON PREFERENCE_PROJET.FK_Projet = PROJET.ID 
                                         WHERE PROJET.FK_Session = ?
-                                        ORDER BY PREFERENCE_PROJET.FK_Projet, PREFERENCE_PROJET.Ordre_Preference;""", (sessionId,))
+                                        ORDER BY PREFERENCE_PROJET.FK_Projet, PREFERENCE_PROJET.Ordre_Preference;""",
+                           (sessionId,))
             projectsData = cursor.fetchall()
+
             def formatData(data):
                 formatedData = {}
                 for x, y, z in data:
                     if str(x) not in formatedData:
                         formatedData[str(x)] = [None, None, None]
-                    formatedData[str(x)][z-1] = str(y)
+                    formatedData[str(x)][z - 1] = str(y)
                 return formatedData
-            
+
             projectsPreferencies = formatData(projectsData)
 
             cursor.execute("""SELECT FK_GROUPE, FK_Projet, Ordre_Preference FROM PREFERENCE_GROUPE
@@ -306,7 +647,7 @@ def gale_shapley_route():
                             INNER JOIN PROJET ON PREFERENCE_GROUPE.FK_Projet = PROJET.ID
                             WHERE PROJET.FK_Session = ?
                             ORDER BY PREFERENCE_GROUPE.FK_Groupe, PREFERENCE_GROUPE.Ordre_Preference;""", (sessionId,))
-            
+
             groupsData = cursor.fetchall()
 
             groupsPreferencies = formatData(groupsData)
@@ -365,6 +706,7 @@ def gale_shapley(women_preferences, men_preferences):
     matched_pairs = [{'man': pair[0], 'woman': pair[1]}
                      for pair in proposals.keys()]
     return {'matched_pairs': matched_pairs}
+
 
 # -----------------------------------------------------------------------------
 
@@ -437,9 +779,9 @@ def create_session():
         cursor = conn.cursor()
         try:
             queryParameters = (
-            session[0]['Nom'], session[0]['Deadline_Creation_Groupe'], session[0]['Deadline_Choix_Projet'],
-            session[0]['Nb_Etudiant_Min'], session[0]['Nb_Etudiant_Max'], session[0]['Etat'],
-            session[0]['FK_Utilisateur'])
+                session[0]['Nom'], session[0]['Deadline_Creation_Groupe'], session[0]['Deadline_Choix_Projet'],
+                session[0]['Nb_Etudiant_Min'], session[0]['Nb_Etudiant_Max'], session[0]['Etat'],
+                session[0]['FK_Utilisateur'])
 
             sqlRequest = cursor.execute("INSERT INTO SESSION VALUES (NULL, ?, ?, ?, ?, ?, ?, ?) RETURNING ID",
                                         queryParameters)
@@ -495,7 +837,7 @@ def update_session():
         conn = sqlite3.connect(db)
         cursor = conn.cursor()
         try:
-            
+
             queryParameters = [(session[0]['Nom'], session[0]['Deadline_Creation_Groupe'],
                                 session[0]['Deadline_Choix_Projet'], session[0]['Nb_Etudiant_Min'],
                                 session[0]['Nb_Etudiant_Max'], session[0]['Etat'], session[0]['FK_Utilisateur'],
@@ -623,7 +965,7 @@ def create_students():
             print(students)
             # Insert student data (without RETURNING)
             queryParameters = [(data['Nom'], data['Prenom'], data['Email'], sessionID) for data in students]
-            
+
             cursor.executemany(
                 "INSERT INTO ETUDIANT (Nom, Prenom, Email, FK_Session) VALUES (?, ?, ?, ?)",
                 queryParameters
@@ -679,7 +1021,8 @@ def is_in_group():
             return jsonify({'error': str(e)}), 500
     else:
         return jsonify({'error': "nul"}), 50
-    
+
+
 @app.route('/api/get_all_students', methods=['POST'])
 def get_all_students():
     """
@@ -713,7 +1056,7 @@ def get_all_students():
             cursor.execute("SELECT * FROM Etudiant WHERE FK_Session = ? ;", (sessionID,))
             response = cursor.fetchall()
 
-            #Prepare data for the front-end
+            # Prepare data for the front-end
             students = []
             for idx, student in enumerate(response):
                 student_dict = {
@@ -735,6 +1078,7 @@ def get_all_students():
             return jsonify({'error': str(e)}), 500
     else:
         return jsonify({'error': "nul"}), 50
+
 
 ######
 # PROJECT
@@ -889,7 +1233,63 @@ def get_all_projects():
             return jsonify({'error': str(e)}), 500
     else:
         return jsonify({'error': "nul"}), 50
-    
+
+
+def get_all_projects(session):
+    """
+    _summary_
+    Method that retrieve all the projects from a session.
+        const data = {
+            "sessionID" : 1
+        };
+        const jsonData = JSON.stringify(data);
+
+        const response = await axios.post("http://127.0.0.1:5000/api/get_all_projects", jsonData, {
+          headers: {
+            'Content-Type': 'application/json'
+          }}
+        );
+    Returns:
+    Json with all the projects from a session
+"""
+    print('Enter get all projects function')
+
+    db = os.path.join(os.getcwd(), 'db', 'parcoursup.sqlite')
+    if os.path.exists(db):
+        conn = sqlite3.connect(db)
+        cursor = conn.cursor()
+
+        try:
+            # Retrieve data from SQLite database
+            cursor.execute("SELECT * FROM Projet WHERE FK_Session = ? ;", (session,))
+            response = cursor.fetchall()
+
+            # Prepare data for the front-end
+            projects = []
+            for idx, project in enumerate(response):
+                project_dict = {
+                    'id': response[idx][0],
+                    'nom': response[idx][1],
+                    'description': response[idx][2],
+                    'min_etu': response[idx][3],
+                    'max_etu': response[idx][4],
+                    'id_session': response[idx][5]
+                }
+                projects.append(project_dict)
+
+            print(projects)
+
+            conn.close()
+
+            # Convert data to JSON format
+            return projects
+
+        except sqlite3.Error as e:
+            return jsonify({'error': str(e)}), 500
+    else:
+        return jsonify({'error': "nul"}), 50
+
+
 @app.route('/api/get_group_projects_order_by_preferencies', methods=['POST'])
 def get_group_projects_order_by_preferencies():
     """
@@ -925,7 +1325,7 @@ def get_group_projects_order_by_preferencies():
                             INNER JOIN PROJET ON  PROJET.ID = PREFERENCE_GROUPE.FK_Projet 
                             WHERE FK_GROUPE = ? AND FK_Session = ?
                             ORDER BY PREFERENCE_GROUPE.Ordre_Preference;""", (groupID, sessionID))
-           
+
             response = cursor.fetchall()
 
             # Prepare data for the front-end
@@ -952,7 +1352,8 @@ def get_group_projects_order_by_preferencies():
             return jsonify({'error': str(e)}), 500
     else:
         return jsonify({'error': "nul"}), 50
-    
+
+
 @app.route('/api/get_project_groups_order_by_preferencies', methods=['POST'])
 def get_project_groups_order_by_preferencies():
     """
@@ -988,7 +1389,7 @@ def get_project_groups_order_by_preferencies():
                             INNER JOIN GROUPE ON GROUPE.ID = PREFERENCE_PROJET.FK_Groupe 
                             WHERE FK_PROJET = ?
                             ORDER BY PREFERENCE_PROJET.Ordre_Preference;""", (projectID,))
-           
+
             response = cursor.fetchall()
 
             cursor.execute("""
@@ -999,7 +1400,7 @@ def get_project_groups_order_by_preferencies():
                     JOIN GROUPE g ON eg.FK_Groupe = g.ID
                     WHERE s.ID = ?;
                     """, (sessionID,))
-            
+
             groups_response = cursor.fetchall()
             groups = []
             print(response)
@@ -1011,16 +1412,16 @@ def get_project_groups_order_by_preferencies():
                 }
 
                 for student in groups_response:
-                     print(student)
-                     student_id, name, firstname, email, group_id = student  # Unpack data
-                     if group_id == groups_dict['id']:
+                    print(student)
+                    student_id, name, firstname, email, group_id = student  # Unpack data
+                    if group_id == groups_dict['id']:
                         student_data = {
                             'id': student_id,
                             'firstname': firstname,
                             'name': name,
                             'email': email,
                         }
-                        groups_dict['students'].append(student_data) 
+                        groups_dict['students'].append(student_data)
 
                 groups.append(groups_dict)
 
@@ -1104,7 +1505,7 @@ def update_project():
             return jsonify({'error': str(e)}), 500
     else:
         return jsonify({'error': "can't find database"}), 50
-    
+
 
 @app.route('/api/affect_default_preferencies', methods=['POST'])
 def affect_default_preferencies():
@@ -1134,12 +1535,12 @@ def affect_default_preferencies():
             cursor.execute("""SELECT DISTINCT FK_Groupe FROM ETUDIANT e
                     LEFT JOIN ETUDIANT_GROUPE eg ON e.ID = eg.FK_Etudiant
                     WHERE e.FK_Session = ?;""", (sessionId,))
-            
+
             groups = cursor.fetchall()
 
             cursor.execute("""SELECT id FROM Projet
                             WHERE FK_Session = ?;""", (sessionId,))
-            
+
             projects = cursor.fetchall();
 
             for project in projects:
@@ -1147,7 +1548,7 @@ def affect_default_preferencies():
                     project_id, group_id = project[0], group[0]
                     cursor.execute(
                         "INSERT INTO PREFERENCE_PROJET (FK_Projet, FK_Groupe, Ordre_Preference) VALUES (?, ?, ?)",
-                        (project_id, group_id, idx+1))
+                        (project_id, group_id, idx + 1))
                     conn.commit()
 
             for group in groups:
@@ -1159,10 +1560,9 @@ def affect_default_preferencies():
                     print(group_id, project_id)
                     cursor.execute(
                         "INSERT INTO PREFERENCE_GROUPE (FK_Groupe, FK_Projet, Ordre_Preference) VALUES (?, ?, ?)",
-                        (group_id, project_id, idx+1))
+                        (group_id, project_id, idx + 1))
                     conn.commit()
 
-            
             conn.close()
 
             # Convert data to JSON format
@@ -1173,6 +1573,7 @@ def affect_default_preferencies():
             return jsonify({'error': str(e)}), 500
     else:
         return jsonify({'error': "nul"}), 50
+
 
 @app.route('/api/affect_preference_projet', methods=['POST'])
 def affect_preference_projet():
@@ -1278,7 +1679,7 @@ def create_group():
 
     # Il faut utiliser os.path.join pour que ce soit multiplateforme
     db = os.path.join(os.getcwd(), 'db', 'parcoursup.sqlite')
-            
+
     print(db)
     if os.path.exists(db):
         conn = sqlite3.connect(db)
@@ -1305,6 +1706,7 @@ def create_group():
             return jsonify({'error': str(e)}), 500
     else:
         return jsonify({'error': "nul"}), 50
+
 
 @app.route('/api/get_all_groups_students', methods=['POST'])
 def get_all_groups_students():
@@ -1377,6 +1779,64 @@ def get_all_groups_students():
         return jsonify({'error': "nul"}), 500
 
 
+def get_all_groups_students(session):
+    """
+        Local version of get_all_groups_students
+
+        Returns:
+        _type_: _description_
+        """
+    print('Enter get all the groups and the students within it function')
+
+    # Retrieve parameters from the request body
+    sessionID = session
+
+    db = os.path.join(os.getcwd(), 'db', 'parcoursup.sqlite')
+    if os.path.exists(db):
+        conn = sqlite3.connect(db)
+        cursor = conn.cursor()
+        try:
+            # Insert SQL query here
+            sql = """
+                    SELECT e.ID as 'StudentID', e.Nom, e.Prenom, e.Email, g.ID as 'GroupID' 
+                    FROM ETUDIANT e
+                    LEFT JOIN ETUDIANT_GROUPE eg ON e.ID = eg.FK_Etudiant
+                    JOIN SESSION s ON e.FK_Session = s.ID
+                    JOIN GROUPE g ON eg.FK_Groupe = g.ID
+                    WHERE s.ID = ?;
+                """
+
+            # Execute the query with the session ID as a parameter
+            cursor.execute(sql, (sessionID,))
+
+            # Build the output data structure
+            groups = {}
+            for row in cursor.fetchall():
+                student_id, name, firstname, email, group_id = row  # Unpack data
+
+                if group_id not in groups:
+                    groups[group_id] = {
+                        'id': group_id,
+                        'students': [],
+                    }
+                student_data = {
+                    'id': student_id,
+                    'firstname': firstname,
+                    'name': name,
+                    'email': email,
+                }
+                groups[group_id]['students'].append(student_data)
+
+            # Convert data to JSON format
+            return groups
+
+        except sqlite3.Error as e:
+            print(e)
+            return jsonify({'error': str(e)})
+    else:
+        return jsonify({'error': "nul"})
+
+
 @app.route('/api/reaffect_group', methods=['POST'])
 def reaffect_group():
     """
@@ -1426,11 +1886,12 @@ def reaffect_group():
                 print(student['id_student'], student['id_new_group'])
                 print(students)
                 print(any(student['id_student'] not in t for t in students))
-                if(any(student['id_student'] in t for t in students)):
-                    cursor.execute("UPDATE ETUDIANT_GROUPE SET FK_Groupe=? WHERE FK_Etudiant=?", (student['id_new_group'], student['id_student']))
-                else :
-                    cursor.execute("INSERT INTO ETUDIANT_GROUPE VALUES (?, ?)", (student['id_student'], student['id_new_group']))
-                  
+                if (any(student['id_student'] in t for t in students)):
+                    cursor.execute("UPDATE ETUDIANT_GROUPE SET FK_Groupe=? WHERE FK_Etudiant=?",
+                                   (student['id_new_group'], student['id_student']))
+                else:
+                    cursor.execute("INSERT INTO ETUDIANT_GROUPE VALUES (?, ?)",
+                                   (student['id_student'], student['id_new_group']))
 
             # Commit the insertions
             conn.commit()
@@ -1514,7 +1975,6 @@ def affect_preference_group():
     else:
         return jsonify({'error': "can't find database"}), 50
 
+
 if __name__ == '__main__':
     app.run(debug=True)
-
-
