@@ -36,6 +36,13 @@
   </template>
   
   <script setup>
+import axios from 'axios';
+import { useToasterStore } from '@/stores/toaster';
+
+const config = useRuntimeConfig();
+const toaster = useToasterStore();
+
+
  const props = defineProps({
     title: String,
     subTitleMobile: String,
@@ -48,6 +55,7 @@
     nbStepsActive: Number,
     nbStepsLock: Number,
     assignations: Array,
+    formatGroupsAssignations: Array,
   })
 
   const handleDownload = () => {
@@ -71,11 +79,16 @@
   }
 
  const sendMailsResult = async () => {
-    //TODO 
+    console.log(props.formatGroupsAssignations)
 
-    /*await axios.post(`${config.public.backUrl}/api/send_mail_result`, {
-      groups: props.assignations
-    })*/
+    try{
+      await axios.post(`${config.public.backUrl}/api/send_mail_result`, props.formatGroupsAssignations)
+      toaster.showMessage("Les emails ont bien été envoyé !", "success");
+    }
+    catch(error){
+      toaster.showMessage("Erreur lors de l'envoi des emails, vérifiez votre serveur SMTP", "error");
+      console.error(error)
+    }
   }
 
   defineEmits(['handleButtonClick'])

@@ -12,6 +12,7 @@
         :nb-steps="2"
         :nb-steps-active="2"
         :nb-steps-lock="0"
+        :formatGroupsAssignations="state.formatGroupsAssignations"
         @handleButtonClick="previousStep">
     </ProjectsConfirmation>
     <Skeleton v-else></Skeleton>
@@ -24,7 +25,8 @@ import { useGroups } from "../../composables/useGroups";
 
 const state = reactive({
     assignations: [],
-    isLoading: false
+    isLoading: false,
+    formatGroupsAssignations: [],
 })
 
 const {stateProject, api_call_projects} = useProject();
@@ -56,21 +58,19 @@ const getAssignations = async () => {
         })
 
         assignations.sort((a, b) => a.group.id - b.group.id);
+        
+        const groupsAssignations = assignations.reduce((result, assignation, index) => {
+            result[index] = {
+                id_group: assignation.group.id,
+                id_project: assignation.project.id,
+            };
+            return result;
+        }, {});
 
-        const groupsAssignations = assignations.map((assignation, index) => {
-            return {
-                    id_group: assignation.group.id,
-                    id_project: assignation.project.id,
-            }
-        })
-
-        const formatGroupsAssignations = {
+        state.formatGroupsAssignations = {
             sessionID: route.params.sessionId,
-            group_project: groupsAssignations
+            group_project: groupsAssignations,
         }
-
-        //TODO use back
-        console.log(formatGroupsAssignations)
 
         state.assignations = assignations.map((assignation, index) => {
             return {

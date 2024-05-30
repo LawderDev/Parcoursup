@@ -354,7 +354,6 @@ const handleClick = async () => {
 
         const jsonDataStudent = JSON.stringify(dictStudent);
         const std_id = await create_student(jsonDataStudent);
-        await sendCreateGroupMail(session_id);
         toaster.showMessage("La session a bien été crée", "success");
         emit("handleValidate");
       } else {
@@ -397,18 +396,6 @@ const handleClick = async () => {
       toaster.showMessage("Erreur lors de la création de la session", "error");
     }
   }
-};
-
-const sendCreateGroupMail = async (session_id) => {
-  //TODO SEND MAIL CREATE GROUP TO ALL STUDENTS
-  /*try {
-    const res = await axios.post(`${config.public.backUrl}/api/send_create_group_mail`, {
-      session_id: session_id,
-    });
-    return res;
-  } catch (err) {
-    console.error(err);
-  }*/
 };
 
 const create_session = async (jsonData) => {

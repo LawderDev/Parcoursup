@@ -344,16 +344,16 @@ const validateGroups = async () => {
 }
 
 const sendGroupsMail = async () => {
-    //TODO: envoyer un mail pour chaque groupe
-    /*const formData = {
+    const formData = {
         session_ID: route.params.sessionId
     };
     const jsonData = JSON.stringify(formData);
-    await axios.post(`${config.public.backUrl}/api/send_groups_mail`, jsonData, {
+
+    await axios.post(`${config.public.backUrl}/api/send_mail_group`, jsonData, {
         headers: {
             'Content-Type': 'application/json'
         }}
-    );*/
+    );
 }
 
 const handleValidateGroup = async () => {

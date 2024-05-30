@@ -480,7 +480,9 @@ def send_mail_result():
 
     mail_list = []
 
-    for group in request.json.get('group_project').values():
+    data = request.json
+    print(data)
+    for group in data['group_project'].values():
         projet_dict = {}  # initialize project dict
         id_group = -1
         students = {}
@@ -605,7 +607,7 @@ def get_session_id():
             conn = sqlite3.connect(db)
             cursor = conn.cursor()
             
-            cursor.execute("SELECT ID from SESSION where ID = " + (session_id,))
+            cursor.execute("SELECT ID from SESSION where ID = ?", (session_id,))
 
             response = cursor.fetchall()
             print(response)
