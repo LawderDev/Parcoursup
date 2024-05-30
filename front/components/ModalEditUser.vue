@@ -87,12 +87,12 @@ const state = reactive({
     password: {
         value: "",
         isValid: true,
-        errorMessage: "Veuillez renseigner le mot de passe",
+        errorMessage: "Veuillez renseigner le nouveau mot de passe",
     },
     confirmPassword: {
         value: "",
         isValid: true,
-        errorMessage: "Veuillez renseigner le mot de passe",
+        errorMessage: "Veuillez renseigner le nouveau mot de passe",
     },
 })
 
@@ -128,9 +128,9 @@ const resetForm = () => {
     state.firstname.isValid = true;
     state.email.value = props.user.email;
     state.email.isValid = true;
-    state.password.value = props.user.password;
+    state.password.value = "";
     state.password.isValid = true;
-    state.confirmPassword.value = props.user.password;
+    state.confirmPassword.value = "";
     state.confirmPassword.isValid = true;
 }
 
@@ -144,8 +144,8 @@ const handleSubmit =  async () => {
     let isError = false;
     
     if(!state.name.isValid || !state.firstname.isValid || !state.email.isValid || !state.password.isValid || !state.confirmPassword.isValid) {
-        state.password.errorMessage = "Veuillez renseigner le mot de passe";
-        state.confirmPassword.errorMessage = "Veuillez renseigner le mot de passe";
+        state.password.errorMessage = "Veuillez renseigner le nouveau mot de passe";
+        state.confirmPassword.errorMessage = "Veuillez renseigner le nouveau mot de passe";
         isError = true;
     }
 

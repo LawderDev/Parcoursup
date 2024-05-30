@@ -1,7 +1,7 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   devtools: { enabled: true },
-  modules: ['@nuxtjs/tailwindcss', "@nuxt/image",'@pinia/nuxt', '@cssninja/nuxt-toaster'],
+  modules: ['@nuxtjs/tailwindcss', "@nuxt/image",'@pinia/nuxt'],
   transpile: ['@vuepic/vue-datepicker'],
   app: {
     head: {
