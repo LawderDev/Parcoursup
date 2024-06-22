@@ -1,6 +1,5 @@
 from .. import db
-from .student_group import student_group
-
+from app.models.student_group import student_group
 
 class Student(db.Model):
     __tablename__ = 'student'
@@ -10,6 +9,6 @@ class Student(db.Model):
     firstname = db.Column(db.String(100), nullable=False)
     lastname = db.Column(db.String(100), nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
-    groupes = db.relationship('group', secondary=student_group, back_populates='student')
+    groupes = db.relationship('Group', secondary=student_group, back_populates='student')
     def __repr__(self):
-        return f'<User {self.firstname + ' ' + self.lastname}>'
+        return f'<User {self.firstname, self.lastname}>'

@@ -1,8 +1,8 @@
 from ..models.group import Group
 from .. import db
 
-def get_user_by_id(user_id):
-    return Group.query.get(user_id)
+def get_group_by_id(group_id):
+    return Group.query.get(group_id)
 
 def create_group():
     new_group = Group()

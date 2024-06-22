@@ -3,6 +3,7 @@ from .. import db
 class GroupPreferencies(db.Model):
     __tablename__ = 'group_preferencies'
 
+    id = db.Column(db.Integer, primary_key=True)
     group_id = db.Column(db.Integer, db.ForeignKey('group.id'), nullable=False)
     project_id = db.Column(db.Integer, db.ForeignKey('project.id'), nullable=False)
     preference_order = db.Column(db.Integer, nullable=False)

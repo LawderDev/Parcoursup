@@ -10,4 +10,4 @@ class User(db.Model):
     password = db.Column(db.String(100), nullable=False)
     sessions = db.relationship('Session', backref='user', lazy=True)
     def __repr__(self):
-        return f'<User {self.firstname + ' ' + self.lastname}>'
+        return f'<User {self.firstname, self.lastname}>'
