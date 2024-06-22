@@ -73,10 +73,6 @@ const handleSubmit = () => {
   });
 };
 const handleModify = () => {
-  console.log("heer")
-  console.log(props.id)
-  console.log(props.name)
-  console.log(props.summary)
   emit("modify:project", {
     id: props.id,
     name: props.name,

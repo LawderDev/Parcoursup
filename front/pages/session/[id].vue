@@ -146,7 +146,6 @@ const handleModifyProject = async (newProject) => {
       },
     ],
   };
-  console.log(formData);
   const jsonDataSession = JSON.stringify(formData);
   const project_id = await update_project(jsonDataSession);
 };
@@ -208,7 +207,6 @@ onMounted(async () => {
   await getSessionData(sessionID);
   await api_call_projects(sessionID);
 
-  console.log(stateSession);
   state.isLoading = true;
 });
 

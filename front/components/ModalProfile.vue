@@ -190,6 +190,7 @@ const getCurrentUserData = async () => {
     );
   }
 };
+
 const hashPassword = async (password) => {
   const encoder = new TextEncoder();
   const data = encoder.encode(password);
@@ -202,9 +203,9 @@ watch(
   }
 );
 onMounted(async () => {
-  const data = await getCurrentUserData();
+  /*const data = await getCurrentUserData();
   state.firstname = data.Prenom;
   state.name = data.Nom;
-  state.email = data.Email;
+  state.email = data.Email;*/
 });
 </script>

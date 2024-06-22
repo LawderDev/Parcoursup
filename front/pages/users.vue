@@ -49,7 +49,6 @@
     try {
       const response = await axios.get(`${config.public.backUrl}/api/get_users`);
       state.users = response.data
-      console.log(state.users)
     } catch (error) {
       console.error("Erreur lors de la récupération des utilisateurs :", error);
     }

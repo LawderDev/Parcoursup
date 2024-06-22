@@ -56,7 +56,6 @@ const state = reactive({
           item.nom = `Groupe ${index + 1}`;
       });
 
-      console.log(response.data)
       state.groups =  response.data.map(group => {
           return {
             id : group.id,
@@ -66,7 +65,6 @@ const state = reactive({
       });
 
       // Afficher le tableau modifié
-      console.log(state.groups);
     } catch (error) {
       console.error(error);
     }

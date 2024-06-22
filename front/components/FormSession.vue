@@ -480,8 +480,6 @@ const downloadGroups = async() => {
           content += `Nom: ${student.name}, Prénom: ${student.firstname}, Email: ${student.email}\n`;
       });
      })
-     
-     console.log(content)
 
     // Crée un Blob avec le contenu texte
     const blob = new Blob([content], { type: 'text/plain' });

@@ -54,7 +54,6 @@
     </div>
 </template>
 <script setup>
-import Connexion from '~/pages/connexion.vue';
 import axios from "axios";
 import { useToasterStore } from '@/stores/toaster';
 
